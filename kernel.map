@@ -1,0 +1,139 @@
+
+Discarded input sections
+
+ .bss           0x0000000000000000        0x0 build/drawing.o
+ .debug_line    0x0000000000000000       0xfa build/drawing.o
+ .debug_info    0x0000000000000000       0x26 build/drawing.o
+ .debug_abbrev  0x0000000000000000       0x14 build/drawing.o
+ .debug_aranges
+                0x0000000000000000       0x20 build/drawing.o
+ .debug_str     0x0000000000000000       0x4e build/drawing.o
+ .ARM.attributes
+                0x0000000000000000       0x14 build/drawing.o
+ .bss           0x0000000000000000        0x0 build/frameBuffer.o
+ .debug_line    0x0000000000000000       0x95 build/frameBuffer.o
+ .debug_info    0x0000000000000000       0x26 build/frameBuffer.o
+ .debug_abbrev  0x0000000000000000       0x14 build/frameBuffer.o
+ .debug_aranges
+                0x0000000000000000       0x20 build/frameBuffer.o
+ .debug_str     0x0000000000000000       0x50 build/frameBuffer.o
+ .ARM.attributes
+                0x0000000000000000       0x12 build/frameBuffer.o
+ .bss           0x0000000000000000        0x0 build/gpio.o
+ .debug_line    0x0000000000000000       0x57 build/gpio.o
+ .debug_info    0x0000000000000000       0x26 build/gpio.o
+ .debug_abbrev  0x0000000000000000       0x14 build/gpio.o
+ .debug_aranges
+                0x0000000000000000       0x20 build/gpio.o
+ .debug_str     0x0000000000000000       0x4c build/gpio.o
+ .ARM.attributes
+                0x0000000000000000       0x12 build/gpio.o
+ .bss           0x0000000000000000        0x0 build/mailbox.o
+ .debug_line    0x0000000000000000       0x5d build/mailbox.o
+ .debug_info    0x0000000000000000       0x26 build/mailbox.o
+ .debug_abbrev  0x0000000000000000       0x14 build/mailbox.o
+ .debug_aranges
+                0x0000000000000000       0x20 build/mailbox.o
+ .debug_str     0x0000000000000000       0x4f build/mailbox.o
+ .ARM.attributes
+                0x0000000000000000       0x12 build/mailbox.o
+ .bss           0x0000000000000000        0x0 build/main.o
+ .debug_line    0x0000000000000000      0x24d build/main.o
+ .debug_info    0x0000000000000000       0x22 build/main.o
+ .debug_abbrev  0x0000000000000000       0x12 build/main.o
+ .debug_aranges
+                0x0000000000000000       0x28 build/main.o
+ .debug_str     0x0000000000000000       0x4d build/main.o
+ .debug_ranges  0x0000000000000000       0x20 build/main.o
+ .ARM.attributes
+                0x0000000000000000       0x14 build/main.o
+ .bss           0x0000000000000000        0x0 build/math.o
+ .debug_line    0x0000000000000000       0x3e build/math.o
+ .debug_info    0x0000000000000000       0x26 build/math.o
+ .debug_abbrev  0x0000000000000000       0x14 build/math.o
+ .debug_aranges
+                0x0000000000000000       0x20 build/math.o
+ .debug_str     0x0000000000000000       0x4c build/math.o
+ .ARM.attributes
+                0x0000000000000000       0x12 build/math.o
+ .bss           0x0000000000000000        0x0 build/systemTimer.o
+ .debug_line    0x0000000000000000       0x53 build/systemTimer.o
+ .debug_info    0x0000000000000000       0x26 build/systemTimer.o
+ .debug_abbrev  0x0000000000000000       0x14 build/systemTimer.o
+ .debug_aranges
+                0x0000000000000000       0x20 build/systemTimer.o
+ .debug_str     0x0000000000000000       0x53 build/systemTimer.o
+ .ARM.attributes
+                0x0000000000000000       0x14 build/systemTimer.o
+ .bss           0x0000000000000000        0x0 build/uart.o
+ .debug_line    0x0000000000000000       0xa7 build/uart.o
+ .debug_info    0x0000000000000000       0x26 build/uart.o
+ .debug_abbrev  0x0000000000000000       0x14 build/uart.o
+ .debug_aranges
+                0x0000000000000000       0x20 build/uart.o
+ .debug_str     0x0000000000000000       0x4d build/uart.o
+ .ARM.attributes
+                0x0000000000000000       0x12 build/uart.o
+ .bss           0x0000000000000000        0x0 build/utils.o
+ .debug_line    0x0000000000000000       0x3f build/utils.o
+ .debug_info    0x0000000000000000       0x26 build/utils.o
+ .debug_abbrev  0x0000000000000000       0x14 build/utils.o
+ .debug_aranges
+                0x0000000000000000       0x20 build/utils.o
+ .debug_str     0x0000000000000000       0x4d build/utils.o
+ .ARM.attributes
+                0x0000000000000000       0x12 build/utils.o
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+LOAD build/drawing.o
+LOAD build/frameBuffer.o
+LOAD build/gpio.o
+LOAD build/mailbox.o
+LOAD build/main.o
+LOAD build/math.o
+LOAD build/systemTimer.o
+LOAD build/uart.o
+LOAD build/utils.o
+
+.init           0x0000000000008000        0x4
+ *(.init)
+ .init          0x0000000000008000        0x4 build/main.o
+                0x0000000000008000                _start
+
+.text           0x0000000000008004      0xaf4
+ *(.text)
+ .text          0x0000000000008004      0x278 build/drawing.o
+ .text          0x000000000000827c       0xcc build/frameBuffer.o
+ .text          0x0000000000008348       0x60 build/gpio.o
+ .text          0x00000000000083a8       0x70 build/mailbox.o
+ .text          0x0000000000008418      0x56c build/main.o
+                0x0000000000008884                main
+ .text          0x0000000000008984       0x10 build/math.o
+ .text          0x0000000000008994       0x38 build/systemTimer.o
+ .text          0x00000000000089cc      0x11c build/uart.o
+ .text          0x0000000000008ae8       0x10 build/utils.o
+
+.data           0x0000000000009000     0x2830
+ *(.data)
+ .data          0x0000000000009000      0x810 build/drawing.o
+ *fill*         0x0000000000009810      0x7f0 
+ .data          0x000000000000a000       0x28 build/frameBuffer.o
+ .data          0x000000000000a028        0x0 build/gpio.o
+ .data          0x000000000000a028        0x0 build/mailbox.o
+ *fill*         0x000000000000a028      0xfd8 
+ .data          0x000000000000b000      0x830 build/main.o
+ .data          0x000000000000b830        0x0 build/math.o
+ .data          0x000000000000b830        0x0 build/systemTimer.o
+ .data          0x000000000000b830        0x0 build/uart.o
+ .data          0x000000000000b830        0x0 build/utils.o
+
+/DISCARD/
+ *(*)
+OUTPUT(build/output.elf elf32-littlearm)
+LOAD linker stubs
