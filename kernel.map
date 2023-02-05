@@ -2,12 +2,12 @@
 Discarded input sections
 
  .bss           0x0000000000000000        0x0 build/drawing.o
- .debug_line    0x0000000000000000       0xfa build/drawing.o
+ .debug_line    0x0000000000000000       0xfb build/drawing.o
  .debug_info    0x0000000000000000       0x26 build/drawing.o
  .debug_abbrev  0x0000000000000000       0x14 build/drawing.o
  .debug_aranges
                 0x0000000000000000       0x20 build/drawing.o
- .debug_str     0x0000000000000000       0x4e build/drawing.o
+ .debug_str     0x0000000000000000       0x4d build/drawing.o
  .ARM.attributes
                 0x0000000000000000       0x14 build/drawing.o
  .bss           0x0000000000000000        0x0 build/frameBuffer.o
@@ -16,7 +16,7 @@ Discarded input sections
  .debug_abbrev  0x0000000000000000       0x14 build/frameBuffer.o
  .debug_aranges
                 0x0000000000000000       0x20 build/frameBuffer.o
- .debug_str     0x0000000000000000       0x50 build/frameBuffer.o
+ .debug_str     0x0000000000000000       0x4f build/frameBuffer.o
  .ARM.attributes
                 0x0000000000000000       0x12 build/frameBuffer.o
  .bss           0x0000000000000000        0x0 build/gpio.o
@@ -25,7 +25,7 @@ Discarded input sections
  .debug_abbrev  0x0000000000000000       0x14 build/gpio.o
  .debug_aranges
                 0x0000000000000000       0x20 build/gpio.o
- .debug_str     0x0000000000000000       0x4c build/gpio.o
+ .debug_str     0x0000000000000000       0x4b build/gpio.o
  .ARM.attributes
                 0x0000000000000000       0x12 build/gpio.o
  .bss           0x0000000000000000        0x0 build/mailbox.o
@@ -34,16 +34,16 @@ Discarded input sections
  .debug_abbrev  0x0000000000000000       0x14 build/mailbox.o
  .debug_aranges
                 0x0000000000000000       0x20 build/mailbox.o
- .debug_str     0x0000000000000000       0x4f build/mailbox.o
+ .debug_str     0x0000000000000000       0x4e build/mailbox.o
  .ARM.attributes
                 0x0000000000000000       0x12 build/mailbox.o
  .bss           0x0000000000000000        0x0 build/main.o
- .debug_line    0x0000000000000000      0x24d build/main.o
+ .debug_line    0x0000000000000000      0x24e build/main.o
  .debug_info    0x0000000000000000       0x22 build/main.o
  .debug_abbrev  0x0000000000000000       0x12 build/main.o
  .debug_aranges
                 0x0000000000000000       0x28 build/main.o
- .debug_str     0x0000000000000000       0x4d build/main.o
+ .debug_str     0x0000000000000000       0x4c build/main.o
  .debug_ranges  0x0000000000000000       0x20 build/main.o
  .ARM.attributes
                 0x0000000000000000       0x14 build/main.o
@@ -53,7 +53,7 @@ Discarded input sections
  .debug_abbrev  0x0000000000000000       0x14 build/math.o
  .debug_aranges
                 0x0000000000000000       0x20 build/math.o
- .debug_str     0x0000000000000000       0x4c build/math.o
+ .debug_str     0x0000000000000000       0x4b build/math.o
  .ARM.attributes
                 0x0000000000000000       0x12 build/math.o
  .bss           0x0000000000000000        0x0 build/systemTimer.o
@@ -62,7 +62,7 @@ Discarded input sections
  .debug_abbrev  0x0000000000000000       0x14 build/systemTimer.o
  .debug_aranges
                 0x0000000000000000       0x20 build/systemTimer.o
- .debug_str     0x0000000000000000       0x53 build/systemTimer.o
+ .debug_str     0x0000000000000000       0x52 build/systemTimer.o
  .ARM.attributes
                 0x0000000000000000       0x14 build/systemTimer.o
  .bss           0x0000000000000000        0x0 build/uart.o
@@ -71,7 +71,7 @@ Discarded input sections
  .debug_abbrev  0x0000000000000000       0x14 build/uart.o
  .debug_aranges
                 0x0000000000000000       0x20 build/uart.o
- .debug_str     0x0000000000000000       0x4d build/uart.o
+ .debug_str     0x0000000000000000       0x4c build/uart.o
  .ARM.attributes
                 0x0000000000000000       0x12 build/uart.o
  .bss           0x0000000000000000        0x0 build/utils.o
@@ -80,7 +80,7 @@ Discarded input sections
  .debug_abbrev  0x0000000000000000       0x14 build/utils.o
  .debug_aranges
                 0x0000000000000000       0x20 build/utils.o
- .debug_str     0x0000000000000000       0x4d build/utils.o
+ .debug_str     0x0000000000000000       0x4c build/utils.o
  .ARM.attributes
                 0x0000000000000000       0x12 build/utils.o
 
@@ -106,18 +106,18 @@ LOAD build/utils.o
  .init          0x0000000000008000        0x4 build/main.o
                 0x0000000000008000                _start
 
-.text           0x0000000000008004      0xaf4
+.text           0x0000000000008004      0xafc
  *(.text)
- .text          0x0000000000008004      0x278 build/drawing.o
- .text          0x000000000000827c       0xcc build/frameBuffer.o
- .text          0x0000000000008348       0x60 build/gpio.o
- .text          0x00000000000083a8       0x70 build/mailbox.o
- .text          0x0000000000008418      0x56c build/main.o
-                0x0000000000008884                main
- .text          0x0000000000008984       0x10 build/math.o
- .text          0x0000000000008994       0x38 build/systemTimer.o
- .text          0x00000000000089cc      0x11c build/uart.o
- .text          0x0000000000008ae8       0x10 build/utils.o
+ .text          0x0000000000008004      0x27c build/drawing.o
+ .text          0x0000000000008280       0xcc build/frameBuffer.o
+ .text          0x000000000000834c       0x60 build/gpio.o
+ .text          0x00000000000083ac       0x70 build/mailbox.o
+ .text          0x000000000000841c      0x570 build/main.o
+                0x000000000000888c                main
+ .text          0x000000000000898c       0x10 build/math.o
+ .text          0x000000000000899c       0x38 build/systemTimer.o
+ .text          0x00000000000089d4      0x11c build/uart.o
+ .text          0x0000000000008af0       0x10 build/utils.o
 
 .data           0x0000000000009000     0x2830
  *(.data)
