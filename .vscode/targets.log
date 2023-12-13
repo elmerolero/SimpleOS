@@ -1,0 +1,435 @@
+make.exe all --print-data-base --no-builtin-variables --no-builtin-rules --question
+# GNU Make 4.3
+# Built for x86_64-pc-msys
+# Copyright (C) 1988-2020 Free Software Foundation, Inc.
+# License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+# This is free software: you are free to change and redistribute it.
+# There is NO WARRANTY, to the extent permitted by law.
+ 
+
+# Make data base, printed on Tue Dec 12 22:53:18 2023
+
+# Variables
+
+# environment
+SYSTEMDRIVE = C:
+# environment
+LC_ALL = C
+# environment
+ 
+USERPROFILE = C:\Users\ismas
+# environment
+VBOX_MSI_INSTALL_PATH = C:\Program Files\Oracle\VirtualBox\
+# environment
+LOCALAPPDATA = C:\Users\ismas\AppData\Local
+# environment
+VSCODE_CRASH_REPORTER_PROCESS_TYPE = extensionHost
+# environment
+VSCODE_CWD = D:\Programas\Microsoft VS Code
+# environment
+CHOCOLATEYINSTALL = C:\ProgramData\chocolatey
+# environment
+SYSTEMROOT = C:\Windows
+# environment
+PROCESSOR_LEVEL = 23
+# environment
+PSMODULEPATH = C:\Program Files\WindowsPowerShell\Modules;C:\Windows\system32\WindowsPowerShell\v1.0\Modules
+# default
+MAKE_COMMAND := make
+# environment
+GOPATH = C:\Users\ismas\go
+# automatic
+@D = $(patsubst %/,%,$(dir $@))
+# environment
+CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_2812_AAJTTCVHXBLMLSKW
+# environment
+VSCODE_HANDLES_UNCAUGHT_ERRORS = true
+# default
+.VARIABLES := 
+# automatic
+%D = $(patsubst %/,%,$(dir $%))
+# automatic
+^D = $(patsubst %/,%,$(dir $^))
+# automatic
+%F = $(notdir $%)
+# environment
+VSCODE_CODE_CACHE_PATH = C:\Users\ismas\AppData\Roaming\Code\CachedData\af28b32d7e553898b2a91af498b1fb666fdebe0c
+# environment
+LANG = C
+# default
+.LOADED := 
+# environment
+TMP = /home/ismas/AppData/Local/Temp
+# default
+.INCLUDE_DIRS = /usr/include /usr/include
+# makefile
+MAKEFLAGS = pqrR
+# environment
+ONEDRIVE = C:\Users\ismas\OneDrive
+# makefile
+CURDIR := /d/msys/home/ismas/Documentos/Proyectos/SimpleOS
+# environment
+APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = 1
+# automatic
+*D = $(patsubst %/,%,$(dir $*))
+# environment
+PROGRAMFILES = C:\Program Files
+# environment
+MFLAGS = -pqrR
+# default
+.SHELLFLAGS := -c
+# environment
+COMMONPROGRAMW6432 = C:\Program Files\Common Files
+# automatic
++D = $(patsubst %/,%,$(dir $+))
+# makefile (from 'Makefile', line 1)
+MAKEFILE_LIST := Makefile
+# automatic
+@F = $(notdir $@)
+# environment
+VSCODE_PID = 2812
+# automatic
+?D = $(patsubst %/,%,$(dir $?))
+# automatic
+*F = $(notdir $*)
+# automatic
+<D = $(patsubst %/,%,$(dir $<))
+# makefile (from 'Makefile', line 10)
+ARMGNU = arm-none-eabi
+# environment
+VSCODE_NLS_CONFIG = {"locale":"en","osLocale":"en-us","availableLanguages":{},"_languagePackSupport":true}
+# makefile (from 'Makefile', line 25)
+MAP = kernel.map
+# environment
+ONEDRIVECONSUMER = C:\Users\ismas\OneDrive
+# default
+MAKE_HOST := x86_64-pc-msys
+# environment
+PROGRAMDATA = C:\ProgramData
+# default
+SHELL := /bin/sh
+# environment
+HOMEPATH = \Users\ismas
+# default
+MAKECMDGOALS := all
+# environment
+DRIVERDATA = C:\Windows\System32\Drivers\DriverData
+# environment
+COMSPEC = C:\Windows\system32\cmd.exe
+# environment
+WINDIR = C:\Windows
+# environment
+MAKELEVEL := 0
+# default
+MAKE = $(MAKE_COMMAND)
+# environment
+PATH = /c/Python311/Scripts:/c/Python311:/c/Program Files/Common Files/Oracle/Java/javapath:/c/Program Files (x86)/Common Files/Oracle/Java/javapath:/opt/devkitpro/msys2/usr/bin:/c/Python310/Scripts:/c/Python310:/c/Windows/system32:/c/Windows:/c/Windows/System32/Wbem:/c/Windows/System32/WindowsPowerShell/v1.0:/c/Windows/System32/OpenSSH:/d/Programas/Go/bin:/c/Program Files/Microsoft SQL Server/150/Tools/Binn:/c/Program Files/Microsoft SQL Server/Client SDK/ODBC/170/Tools/Binn:/c/Program Files/dotnet:/c/Program Files (x86)/ZeroTier/One:/c/ProgramData/chocolatey/bin:/d/xampp/php:/c/ProgramData/ComposerSetup/bin:/c/Program Files/Git/cmd:/c/Program Files/nodejs:/c/Program Files/MySQL/MySQL Shell 8.0/bin:/home/ismas/AppData/Local/Microsoft/WindowsApps:/home/ismas/.dotnet/tools:/d/Programas/Microsoft VS Code/bin:/home/ismas/AppData/Roaming/Composer/vendor/bin:/c/Program Files/Java/jdk-11/bin:/home/ismas/AppData/Roaming/npm:/d/msys/mingw64/bin
+# environment
+COMPUTERNAME = ISMAEL-PC
+# default
+MAKEFILES := 
+# automatic
+^F = $(notdir $^)
+# environment
+PROMPT = $P$G
+# environment
+CHOCOLATEYLASTPATHUPDATE = 133064285124191016
+# environment
+LOGONSERVER = \\ISMAEL-PC
+# environment
+USERNAME = ismas
+# environment
+COMMONPROGRAMFILES = C:\Program Files\Common Files
+# automatic
+?F = $(notdir $?)
+# environment
+PROGRAMW6432 = C:\Program Files
+# environment
+PATHEXT = .COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.PY;.PYW
+# automatic
++F = $(notdir $+)
+# environment
+ORIGINAL_XDG_CURRENT_DESKTOP = undefined
+# makefile (from 'Makefile', line 32)
+OBJECTS := build/drawing.o build/font.o build/frameBuffer.o build/gpio.o build/mailbox.o build/main.o build/math.o build/ports.o build/systemTimer.o build/uart.o build/utils.o
+# environment
+USERDOMAIN = ISMAEL-PC
+# 'override' directive
+GNUMAKEFLAGS := 
+# environment
+OS = Windows_NT
+# makefile (from 'Makefile', line 22)
+LIST = kernel.list
+# makefile
+.DEFAULT_GOAL := all
+# makefile (from 'Makefile', line 16)
+SOURCE = source/
+# default
+MAKE_VERSION := 4.3
+# environment
+PROGRAMFILES(X86) = C:\Program Files (x86)
+# makefile (from 'Makefile', line 13)
+BUILD = build/
+# environment
+!D: = d:\msys\home\ismas\Documentos\Proyectos\SimpleOS
+# environment
+USERDOMAIN_ROAMINGPROFILE = ISMAEL-PC
+# environment
+NUMBER_OF_PROCESSORS = 4
+# environment
+PUBLIC = C:\Users\Public
+# environment
+APPDATA = C:\Users\ismas\AppData\Roaming
+# environment
+HOMEDRIVE = C:
+# environment
+PROCESSOR_ARCHITECTURE = AMD64
+# environment
+VSCODE_AMD_ENTRYPOINT = vs/workbench/api/node/extensionHostProcess
+# environment
+HOME = /home/ismas
+# environment
+COMMONPROGRAMFILES(X86) = C:\Program Files (x86)\Common Files
+# environment
+ELECTRON_RUN_AS_NODE = 1
+# environment
+TEMP = /home/ismas/AppData/Local/Temp
+# environment
+VSCODE_IPC_HOOK = \\.\pipe\cf80118514a514d0acb1ca8cc38d7874-1.85.0-main-sock
+# environment
+TERM = xterm-256color
+# default
+.RECIPEPREFIX := 
+# automatic
+<F = $(notdir $<)
+# default
+SUFFIXES := 
+# environment
+ALLUSERSPROFILE = C:\ProgramData
+# makefile (from 'Makefile', line 19)
+TARGET = kernel.img
+# makefile (from 'Makefile', line 28)
+LINKER = kernel.ld
+# environment
+SESSIONNAME = Console
+# default
+.FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell nocomment grouped-target extra-prereqs archives jobserver output-sync check-symlink load
+# environment
+PROCESSOR_REVISION = 1801
+# environment
+PROCESSOR_IDENTIFIER = AMD64 Family 23 Model 24 Stepping 1, AuthenticAMD
+# variable set hash-table stats:
+ 
+# Load=103/1024=10%, Rehash=0, Collisions=13/152=9%
+
+# Pattern-specific Variable Values
+
+# No pattern-specific variable values.
+
+# Directories
+
+# build (device 3968003936, inode 1970324837038414): No files, no impossibilities so far.
+# . (device 3968003936, inode 5066549580864770): 14 files, no impossibilities.
+# source (device 3968003936, inode 1688849860337585): 14 files, no impossibilities.
+
+# 28 files, no impossibilities in 3 directories.
+
+# Implicit Rules
+
+build/%.o: source/%.s build/
+#  recipe to execute (from 'Makefile', line 54):
+	$(ARMGNU)-as -g -I $(SOURCE) $< -o $@
+
+# 1 implicit rules, 0 (0.0%) terminal.
+# Files
+
+# Not a target:
+build/font.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+Makefile:
+#  Implicit rule search has been done.
+#  Last modified 2023-02-05 16:06:26
+#  File has been updated.
+#  Successfully updated.
+
+clean:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (from 'Makefile', line 61):
+	-rm -rf $(BUILD)
+	-rm -f $(TARGET)
+	-rm -f $(LIST)
+	-rm -f $(MAP)
+
+kernel.list: build/output.elf
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (from 'Makefile', line 42):
+	$(ARMGNU)-objdump -d $(BUILD)output.elf > $(LIST)
+
+kernel.img: build/output.elf
+#  Implicit rule search has not been done.
+#  Last modified 2023-12-12 00:51:04.8318168
+#  File has been updated.
+#  Needs to be updated (-q is set).
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/5=0%
+#  recipe to execute (from 'Makefile', line 46):
+	$(ARMGNU)-objcopy $(BUILD)output.elf -g -O binary $(TARGET) 
+
+# Not a target:
+build/mailbox.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+build/utils.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+build/ports.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+.DEFAULT:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+kernel.ld:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+build/drawing.o: source/drawing.s build/
+#  Implicit rule search has been done.
+#  Implicit/static pattern stem: 'drawing'
+#  Last modified 2023-12-12 00:51:04.4109735
+#  File has been updated.
+#  Needs to be updated (-q is set).
+# automatic
+# @ := build/drawing.o
+# automatic
+# * := drawing
+# automatic
+# < := source/drawing.s
+# automatic
+# + := source/drawing.s build/
+# automatic
+# % := 
+# automatic
+# ^ := source/drawing.s build/
+# automatic
+# ? := source/drawing.s build/
+# automatic
+# | := 
+# variable set hash-table stats:
+# Load=8/32=25%, Rehash=0, Collisions=3/15=20%
+#  recipe to execute (from 'Makefile', line 54):
+	$(ARMGNU)-as -g -I $(SOURCE) $< -o $@
+
+all: kernel.img kernel.list
+#  Command line target.
+#  Implicit rule search has been done.
+#  File does not exist.
+#  File has been updated.
+#  Needs to be updated (-q is set).
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/5=0%
+
+build/output.elf: build/drawing.o build/font.o build/frameBuffer.o build/gpio.o build/mailbox.o build/main.o build/math.o build/ports.o build/systemTimer.o build/uart.o build/utils.o kernel.ld
+#  Implicit rule search has not been done.
+#  Last modified 2023-12-12 00:51:04.7918136
+#  File has been updated.
+#  Needs to be updated (-q is set).
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/5=0%
+#  recipe to execute (from 'Makefile', line 50):
+	$(ARMGNU)-ld --no-undefined $(OBJECTS) -Map $(MAP) -g -o $(BUILD)output.elf -T $(LINKER)
+
+# Not a target:
+build/systemTimer.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+build/gpio.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+build/:
+#  Implicit rule search has not been done.
+#  Last modified 2023-12-12 00:51:04.7838123
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 57):
+	mkdir $@
+
+# Not a target:
+build/frameBuffer.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+rebuild: all
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+build/math.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+build/uart.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+source/drawing.s:
+#  Implicit rule search has been done.
+#  Last modified 2023-12-12 00:54:52.2696651
+#  File has been updated.
+#  Successfully updated.
+
+# Not a target:
+build/main.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# files hash-table stats:
+# Load=23/1024=2%, Rehash=0, Collisions=0/59=0%
+# VPATH Search Paths
+
+# No 'vpath' search paths.
+
+# No general ('VPATH' variable) search path.
+
+# strcache buffers: 1 (0) / strings = 49 / storage = 512 B / avg = 10 B
+ 
+# current buf: size = 8162 B / used = 512 B / count = 49 / avg = 10 B
+
+# strcache performance: lookups = 77 / hit rate = 36%
+# hash-table stats:
+# Load=49/8192=1%, Rehash=0, Collisions=0/77=0%
+# Finished Make data base on Tue Dec 12 22:53:18 2023
+
+ 
