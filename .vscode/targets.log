@@ -1,13 +1,17 @@
 make.exe all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # GNU Make 4.3
+ 
 # Built for x86_64-pc-msys
+ 
 # Copyright (C) 1988-2020 Free Software Foundation, Inc.
+ 
 # License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+ 
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
  
 
-# Make data base, printed on Tue Dec 12 22:53:18 2023
+# Make data base, printed on Mon Jul 29 14:59:10 2024
 
 # Variables
 
@@ -16,8 +20,8 @@ SYSTEMDRIVE = C:
 # environment
 LC_ALL = C
 # environment
- 
 USERPROFILE = C:\Users\ismas
+ 
 # environment
 VBOX_MSI_INSTALL_PATH = C:\Program Files\Oracle\VirtualBox\
 # environment
@@ -41,7 +45,7 @@ GOPATH = C:\Users\ismas\go
 # automatic
 @D = $(patsubst %/,%,$(dir $@))
 # environment
-CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_2812_AAJTTCVHXBLMLSKW
+CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_2632_ILAFTHZXTNUYECLN
 # environment
 VSCODE_HANDLES_UNCAUGHT_ERRORS = true
 # default
@@ -53,7 +57,7 @@ VSCODE_HANDLES_UNCAUGHT_ERRORS = true
 # automatic
 %F = $(notdir $%)
 # environment
-VSCODE_CODE_CACHE_PATH = C:\Users\ismas\AppData\Roaming\Code\CachedData\af28b32d7e553898b2a91af498b1fb666fdebe0c
+VSCODE_CODE_CACHE_PATH = C:\Users\ismas\AppData\Roaming\Code\CachedData\f1e16e1e6214d7c44d078b1f0607b2388f29d729
 # environment
 LANG = C
 # default
@@ -66,6 +70,8 @@ TMP = /home/ismas/AppData/Local/Temp
 MAKEFLAGS = pqrR
 # environment
 ONEDRIVE = C:\Users\ismas\OneDrive
+# environment
+DEVKITARM = C:/devkitpro/devkitARM
 # makefile
 CURDIR := /d/msys/home/ismas/Documentos/Proyectos/SimpleOS
 # environment
@@ -87,9 +93,13 @@ MAKEFILE_LIST := Makefile
 # automatic
 @F = $(notdir $@)
 # environment
-VSCODE_PID = 2812
+VSCODE_PID = 2632
 # automatic
 ?D = $(patsubst %/,%,$(dir $?))
+# environment
+__PSLOCKDOWNPOLICY = 0
+# environment
+DEVKITPPC = /opt/devkitpro/devkitPPC
 # automatic
 *F = $(notdir $*)
 # automatic
@@ -97,7 +107,7 @@ VSCODE_PID = 2812
 # makefile (from 'Makefile', line 10)
 ARMGNU = arm-none-eabi
 # environment
-VSCODE_NLS_CONFIG = {"locale":"en","osLocale":"en-us","availableLanguages":{},"_languagePackSupport":true}
+VSCODE_NLS_CONFIG = {"locale":"en","osLocale":"es-es","availableLanguages":{},"_languagePackSupport":true}
 # makefile (from 'Makefile', line 25)
 MAP = kernel.map
 # environment
@@ -123,7 +133,7 @@ MAKELEVEL := 0
 # default
 MAKE = $(MAKE_COMMAND)
 # environment
-PATH = /c/Python311/Scripts:/c/Python311:/c/Program Files/Common Files/Oracle/Java/javapath:/c/Program Files (x86)/Common Files/Oracle/Java/javapath:/opt/devkitpro/msys2/usr/bin:/c/Python310/Scripts:/c/Python310:/c/Windows/system32:/c/Windows:/c/Windows/System32/Wbem:/c/Windows/System32/WindowsPowerShell/v1.0:/c/Windows/System32/OpenSSH:/d/Programas/Go/bin:/c/Program Files/Microsoft SQL Server/150/Tools/Binn:/c/Program Files/Microsoft SQL Server/Client SDK/ODBC/170/Tools/Binn:/c/Program Files/dotnet:/c/Program Files (x86)/ZeroTier/One:/c/ProgramData/chocolatey/bin:/d/xampp/php:/c/ProgramData/ComposerSetup/bin:/c/Program Files/Git/cmd:/c/Program Files/nodejs:/c/Program Files/MySQL/MySQL Shell 8.0/bin:/home/ismas/AppData/Local/Microsoft/WindowsApps:/home/ismas/.dotnet/tools:/d/Programas/Microsoft VS Code/bin:/home/ismas/AppData/Roaming/Composer/vendor/bin:/c/Program Files/Java/jdk-11/bin:/home/ismas/AppData/Roaming/npm:/d/msys/mingw64/bin
+PATH = /c/Python311/Scripts:/c/Python311:/c/Program Files/Common Files/Oracle/Java/javapath:/c/Program Files (x86)/Common Files/Oracle/Java/java8path:/c/Program Files (x86)/Common Files/Oracle/Java/javapath:/opt/devkitpro/msys2/usr/bin:/c/Python310/Scripts:/c/Python310:/c/Windows/system32:/c/Windows:/c/Windows/System32/Wbem:/c/Windows/System32/WindowsPowerShell/v1.0:/c/Windows/System32/OpenSSH:/d/Programas/Go/bin:/c/Program Files/Microsoft SQL Server/150/Tools/Binn:/c/Program Files/Microsoft SQL Server/Client SDK/ODBC/170/Tools/Binn:/c/Program Files/dotnet:/c/Program Files (x86)/ZeroTier/One:/c/ProgramData/chocolatey/bin:/d/xampp/php:/c/ProgramData/ComposerSetup/bin:/c/Program Files/Git/cmd:/c/Program Files/nodejs:/c/Program Files/PuTTY:/c/Program Files/MySQL/MySQL Shell 8.0/bin:/home/ismas/AppData/Local/Microsoft/WindowsApps:/home/ismas/.dotnet/tools:/d/Programas/Microsoft VS Code/bin:/home/ismas/AppData/Roaming/Composer/vendor/bin:/c/Program Files/Java/jdk-11/bin:/home/ismas/AppData/Roaming/npm:/d/msys/mingw64/bin
 # environment
 COMPUTERNAME = ISMAEL-PC
 # default
@@ -145,13 +155,16 @@ COMMONPROGRAMFILES = C:\Program Files\Common Files
 # environment
 PROGRAMW6432 = C:\Program Files
 # environment
+DEVKITPRO = C:/devkitpro
+# environment
 PATHEXT = .COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.PY;.PYW
 # automatic
 +F = $(notdir $+)
 # environment
+ 
 ORIGINAL_XDG_CURRENT_DESKTOP = undefined
 # makefile (from 'Makefile', line 32)
-OBJECTS := build/drawing.o build/font.o build/frameBuffer.o build/gpio.o build/mailbox.o build/main.o build/math.o build/ports.o build/systemTimer.o build/uart.o build/utils.o
+OBJECTS := build/drawing.o build/font.o build/frameBuffer.o build/gpio.o build/mailbox.o build/main.o build/math.o build/mini_uart.o build/ports.o build/systemTimer.o build/utils.o
 # environment
 USERDOMAIN = ISMAEL-PC
 # 'override' directive
@@ -170,6 +183,8 @@ MAKE_VERSION := 4.3
 PROGRAMFILES(X86) = C:\Program Files (x86)
 # makefile (from 'Makefile', line 13)
 BUILD = build/
+# environment
+TOOLS = C:\devkitPro\tools\bin
 # environment
 !D: = d:\msys\home\ismas\Documentos\Proyectos\SimpleOS
 # environment
@@ -195,7 +210,7 @@ ELECTRON_RUN_AS_NODE = 1
 # environment
 TEMP = /home/ismas/AppData/Local/Temp
 # environment
-VSCODE_IPC_HOOK = \\.\pipe\cf80118514a514d0acb1ca8cc38d7874-1.85.0-main-sock
+VSCODE_IPC_HOOK = \\.\pipe\088a405b-1.91.1-main-sock
 # environment
 TERM = xterm-256color
 # default
@@ -219,8 +234,7 @@ PROCESSOR_REVISION = 1801
 # environment
 PROCESSOR_IDENTIFIER = AMD64 Family 23 Model 24 Stepping 1, AuthenticAMD
 # variable set hash-table stats:
- 
-# Load=103/1024=10%, Rehash=0, Collisions=13/152=9%
+# Load=108/1024=11%, Rehash=0, Collisions=13/157=8%
 
 # Pattern-specific Variable Values
 
@@ -229,10 +243,10 @@ PROCESSOR_IDENTIFIER = AMD64 Family 23 Model 24 Stepping 1, AuthenticAMD
 # Directories
 
 # build (device 3968003936, inode 1970324837038414): No files, no impossibilities so far.
-# . (device 3968003936, inode 5066549580864770): 14 files, no impossibilities.
-# source (device 3968003936, inode 1688849860337585): 14 files, no impossibilities.
+# . (device 3968003936, inode 5066549580864770): 15 files, no impossibilities.
+# source (device 3968003936, inode 1688849860337585): 15 files, no impossibilities.
 
-# 28 files, no impossibilities in 3 directories.
+# 30 files, no impossibilities in 3 directories.
 
 # Implicit Rules
 
@@ -275,7 +289,7 @@ kernel.list: build/output.elf
 
 kernel.img: build/output.elf
 #  Implicit rule search has not been done.
-#  Last modified 2023-12-12 00:51:04.8318168
+#  Last modified 2024-07-27 15:14:30.2430457
 #  File has been updated.
 #  Needs to be updated (-q is set).
 # variable set hash-table stats:
@@ -316,7 +330,7 @@ kernel.ld:
 build/drawing.o: source/drawing.s build/
 #  Implicit rule search has been done.
 #  Implicit/static pattern stem: 'drawing'
-#  Last modified 2023-12-12 00:51:04.4109735
+#  Last modified 2024-07-27 15:14:29.744749
 #  File has been updated.
 #  Needs to be updated (-q is set).
 # automatic
@@ -332,7 +346,7 @@ build/drawing.o: source/drawing.s build/
 # automatic
 # ^ := source/drawing.s build/
 # automatic
-# ? := source/drawing.s build/
+# ? := build/
 # automatic
 # | := 
 # variable set hash-table stats:
@@ -349,15 +363,21 @@ all: kernel.img kernel.list
 # variable set hash-table stats:
 # Load=0/32=0%, Rehash=0, Collisions=0/5=0%
 
-build/output.elf: build/drawing.o build/font.o build/frameBuffer.o build/gpio.o build/mailbox.o build/main.o build/math.o build/ports.o build/systemTimer.o build/uart.o build/utils.o kernel.ld
+build/output.elf: build/drawing.o build/font.o build/frameBuffer.o build/gpio.o build/mailbox.o build/main.o build/math.o build/mini_uart.o build/ports.o build/systemTimer.o build/utils.o kernel.ld
 #  Implicit rule search has not been done.
-#  Last modified 2023-12-12 00:51:04.7918136
+#  Last modified 2024-07-27 15:14:30.1980424
 #  File has been updated.
 #  Needs to be updated (-q is set).
 # variable set hash-table stats:
 # Load=0/32=0%, Rehash=0, Collisions=0/5=0%
 #  recipe to execute (from 'Makefile', line 50):
 	$(ARMGNU)-ld --no-undefined $(OBJECTS) -Map $(MAP) -g -o $(BUILD)output.elf -T $(LINKER)
+
+# Not a target:
+build/mini_uart.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
 
 # Not a target:
 build/systemTimer.o:
@@ -373,7 +393,7 @@ build/gpio.o:
 
 build/:
 #  Implicit rule search has not been done.
-#  Last modified 2023-12-12 00:51:04.7838123
+#  Last modified 2024-07-27 15:14:30.1925126
 #  File has been updated.
 #  Successfully updated.
 #  recipe to execute (from 'Makefile', line 57):
@@ -397,15 +417,9 @@ build/math.o:
 #  File has not been updated.
 
 # Not a target:
-build/uart.o:
-#  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
-
-# Not a target:
 source/drawing.s:
 #  Implicit rule search has been done.
-#  Last modified 2023-12-12 00:54:52.2696651
+#  Last modified 2024-02-09 17:33:51.4319124
 #  File has been updated.
 #  Successfully updated.
 
@@ -423,13 +437,12 @@ build/main.o:
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 49 / storage = 512 B / avg = 10 B
- 
-# current buf: size = 8162 B / used = 512 B / count = 49 / avg = 10 B
+# strcache buffers: 1 (0) / strings = 51 / storage = 534 B / avg = 10 B
+# current buf: size = 8162 B / used = 534 B / count = 51 / avg = 10 B
 
-# strcache performance: lookups = 77 / hit rate = 36%
+# strcache performance: lookups = 79 / hit rate = 35%
 # hash-table stats:
-# Load=49/8192=1%, Rehash=0, Collisions=0/77=0%
-# Finished Make data base on Tue Dec 12 22:53:18 2023
+# Load=51/8192=1%, Rehash=0, Collisions=0/79=0%
+# Finished Make data base on Mon Jul 29 14:59:10 2024
 
  

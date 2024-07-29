@@ -59,12 +59,15 @@
 .equ GPIO_GPAFEN1,  0x8C
 
 /* Pin pull-up/down Enable */
-.equ GPIO_GPPUD,    0x94
-.equ GPIO_GPPUDCLK0,    0x98
-.equ GPIO_GPPUDCLK1,    0x9C
+.equ GPIO_GPPUD,        0x20200094
+.equ GPIO_GPPUDCLK0,    0x20200098
+.equ GPIO_GPPUDCLK1,    0x2020009C
 
 @ ----------------------------------------------------------------------------------------------------------
 @ Establece el modo del pin
+@ Parameters
+@ r0 - Pin Number
+@ r1 - Pin mode
 @ -1 Error
 @  0 Exitoso
 @ ----------------------------------------------------------------------------------------------------------
@@ -72,7 +75,7 @@
 gpio_setMode:
     cmp         r0, #53             @ Compara el pin indicado (r0) con 53
     cmpls       r1, #7
-    bhi         gpio_setModeError   @ Si el pin indicado (r0) es mayor que 53 salta hacia setModeError
+    bhi         gpio_setModeError   @ If r0 > 53 then setModeError
     push        {r4, lr}            @ 
     ldr         r2, =GPIO_BASE      @ Carga la dirección base
 gpio_setModeLoop:
@@ -82,7 +85,7 @@ gpio_setModeLoop:
     sub         r0, #10
     b           gpio_setModeLoop
 gpio_mode:
-    add         r0, r0, r0, lsl #1  @ Multiplica por tres el digito que se quiere establecer
+    add         r0, r0, r0, lsl #1  @ r0 = r0 * 3 (each pin mode is represented by 3 bits)
     lsl         r1, r1, r0          @ Se desplaza ALTFX hacia el campo correspondiente indicado por r0
     ldr         r3, [ r2 ]          @ Carga en r3 el contenido de r2 (los cuatro bytes de GPFSELX)
     mov         r4, #7              @ Se mueve el numero 7 en r4

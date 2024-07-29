@@ -1,1 +1,1 @@
-{"buildTargets":[],"launchTargets":["d:\\msys\\home\\ismas\\Documentos\\Proyectos\\SimpleOS\\build>output.elf()"],"customConfigurationProvider":{"workspaceBrowse":{"browsePath":[],"compilerArgs":[]},"fileIndex":[]}}
+{"buildTargets":["all","build/","build/drawing.o","build/output.elf","clean","kernel.img","kernel.list","rebuild"],"launchTargets":["d:\\msys\\home\\ismas\\Documentos\\Proyectos\\SimpleOS\\build>output.elf()"],"customConfigurationProvider":{"workspaceBrowse":{"browsePath":[],"compilerArgs":[]},"fileIndex":[]}}

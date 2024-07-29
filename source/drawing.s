@@ -257,7 +257,7 @@ pop { r4, r5, r6, r7, pc }
 @ r2 - y
 .section .text
 canvas_drawChar:
-    push { r4, r5, r6, r7, r8, r9, lr }
+    stmfd   sp!, { r4-r9, lr }
 
     cmp     r0, #0xFF
     bhi     2f

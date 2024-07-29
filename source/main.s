@@ -1,5 +1,5 @@
 /* Sistema Operativo para Raspberry Pi */
-.include "uart.s"
+.include "mini_uart.s"
 .include "frameBuffer.s"
 .include "drawing.s"
 .include "systemTimer.s"
@@ -14,6 +14,44 @@ _start:
     b   main
 
 .section .text
+.global main
+main:
+    ldr     sp, =0x8000
+
+    mov     r0, #14
+    mov     r1, #GPIO_ALTF5
+    bl      gpio_setMode
+
+    mov     r0, #15
+    mov     r1, #GPIO_ALTF5
+    bl      gpio_setMode
+
+    /*mov     r0, #2
+    lsl     r0, #14
+    ldr     r1, =GPIO_BASE
+    ldr     r3, [ r1, #GPIO_GPCLR0 ]
+    orr     r3, r0
+    str     r3, [ r1, #GPIO_GPCLR0 ]*/
+
+loop:
+    b loop
+
+/*    mov     r0, #270
+    bl      uart_init
+
+loop:
+    mov     r0, #65     // Letter A
+    ldr     r1, =AUX_MU_LSR_REG
+1:
+    ldr     r2, [r1]
+    ands    r2, #0x20
+    beq     1b
+
+    ldr     r3, =AUX_MU_IO_REG
+    str     r0, [r3]
+    b       1b
+
+/*.section .text
 .global main
 main:
 mov     sp, #0x8000
@@ -55,7 +93,7 @@ render:
     mov     r1, #0
     mov     r2, #0
     bl      canvas_drawText
-    b       render
+    b       render*/
 
     /*mov     r0, #0
     mov     r1, #0
@@ -76,10 +114,10 @@ render:
     mov     r1, #0
     mov     r2, #312
     mov     r3, #400
-    bl      canvas_drawLine*/
+    bl      canvas_drawLine
 
-b   render
-
+b   render*/
+/*
 error:
     mov     r0, #16
     mov     r1, #GPIO_OUTPUT
@@ -89,7 +127,7 @@ error:
     ldr     r3, =GPIO_BASE
     mov     r4, #1                      @ Establece el pin 16 como salida
     lsl     r4, #16
-    mov     r5, #1
+    mov     r5, #1*/
 /* 
 turn_off: 
     str     r4, [ r3, #GPIO_GPCLR0 ]    @ Apaga el pin
@@ -105,8 +143,8 @@ loop:
     moveq   r5, #0
     beq     turn_on
     mov     r5, #1
-    b       turn_off
-/*
+    b       turn_off*/
+
 error:
     mov r1, #1                      @ Establece el pin 16 como salida
     lsl r1, #18
@@ -115,4 +153,4 @@ error:
     lsl r1, #16
     str r1, [ r0, #GPIO_GPSET0 ]    @ Enciende el pin
 error_loop:
-    b error*/
+    b error
