@@ -41,31 +41,7 @@
 uart_init:
     push    { lr }
     
-    // Registers initialization
-    ldr     r2, =AUX_ENABLES
-    mov     r1, #1
-    str     r1, [r2]
-    ldr     r2, =AUX_MU_IER_REG
-    mov     r1, #0
-    str     r1, [r2]
-    ldr     r2, =AUX_MU_CNTL_REG
-    str     r1, [r2]
-    ldr     r2, =AUX_MU_LCR_REG
-    mov     r1, #3
-    str     r1, [r2]
-    ldr     r2, =AUX_MU_MCR_REG
-    mov     r1, #0
-    str     r1, [r2]
-    ldr     r2, =AUX_MU_IER_REG
-    str     r1, [r2]
-    ldr     r2, =AUX_MU_IIR_REG
-    mov     r1, #0xC6
-    str     r1, [r2]
-    ldr     r2, =AUX_MU_BAUD_REG
-    mov     r1, #324
-    str     r1, [r2]
-
-    // Set ALT FUNC 5 on pins 14 and 15
+    // Set ALT FUNC 5 on pins 14
     mov     r0, #14
     mov     r1, #GPIO_ALTF5
     bl      gpio_setMode
@@ -73,6 +49,39 @@ uart_init:
     mov     r0, #15
     mov     r1, #GPIO_ALTF5
     bl      gpio_setMode
+
+    // Registers initialization
+    ldr     r2, =AUX_ENABLES
+    mov     r1, #1
+    str     r1, [r2]
+
+    ldr     r2, =AUX_MU_IER_REG
+    mov     r1, #0
+    str     r1, [r2]
+
+    ldr     r2, =AUX_MU_CNTL_REG
+    mov     r1, #0
+    str     r1, [r2]
+
+    ldr     r2, =AUX_MU_LCR_REG
+    mov     r1, #3
+    str     r1, [r2]
+
+    ldr     r2, =AUX_MU_MCR_REG
+    mov     r1, #0
+    str     r1, [r2]
+
+    ldr     r2, =AUX_MU_IER_REG
+    mov     r1, #0
+    str     r1, [r2]
+
+    ldr     r2, =AUX_MU_IIR_REG
+    mov     r1, #0xC6
+    str     r1, [r2]
+
+    ldr     r2, =AUX_MU_BAUD_REG
+    mov     r1, #324
+    str     r1, [r2]
 
     //
     ldr     r2, =GPIO_GPPUD
@@ -85,7 +94,7 @@ uart_init:
     bne     1b
 
     ldr     r2, =GPIO_GPPUDCLK0
-    mov     r1, #3
+    mov     r1, #1
     lsl     r1, #14
     str     r1, [ r2 ]
 
@@ -94,60 +103,16 @@ uart_init:
     subs    r0, #1
     bne     2b
 
+    ldr     r2, =GPIO_GPPUDCLK0
     mov     r1, #0
     str     r1, [ r2 ]
 
     ldr     r2, =AUX_MU_CNTL_REG
-    mov     r1, #3
+    mov     r1, #2
     str     r1, [ r2 ]
 
     pop     { pc }
 
-    
-
-    /*mov     r3, #0
-    str     r3, [ r1, #GPIO_GPPUDCLK0 ]
-
-
-
-    ldr     r2, =AUX_MU_CNTL_REG
-    mov     r1, #2
-    str     r1, [r2]*/
-
-    /*ldr     r1, =GPIO_BASE
-    ldr     r2, =UART_BASE
-    mov     r3, #0
-    str     r3, [ r2, #UART_CR ]
-
-    str     r3, [ r1, #GPIO_GPPUD ]
-    bl      uart_delay
-
-    mov     r3, #3
-    lsl     r3, #14
-    str     r3, [ r1, #GPIO_GPPUDCLK0 ]
-    bl      uart_delay 
-
-    mov     r3, #0
-    str     r3, [ r1, #GPIO_GPPUDCLK0 ]
-    
-    ldr     r3, =0x7FF
-    str     r3, [ r2, #UART_ICR ]
-
-    mov     r3, #1
-    str     r3, [ r2, #UART_IBRD ]
-    mov     r3, #40
-    str     r3, [ r2, #UART_FBRD ]
-
-    mov     r3, #70
-    str     r3, [ r2, #UART_LCRH ]
-
-    ldr     r3, =0x07F2
-    str     r3, [ r2, #UART_IMSC ]
-
-    ldr     r3, =0x0301
-    str     r3, [ r2, #UART_CR ]*/
-
-    pop     { pc }
 
 .section .text
 uart_delay:

@@ -1,17 +1,12 @@
 make.exe all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # GNU Make 4.3
- 
 # Built for x86_64-pc-msys
- 
 # Copyright (C) 1988-2020 Free Software Foundation, Inc.
- 
 # License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
- 
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
- 
 
-# Make data base, printed on Mon Jul 29 14:59:10 2024
+# Make data base, printed on Mon Jul 29 18:58:50 2024
 
 # Variables
 
@@ -21,7 +16,6 @@ SYSTEMDRIVE = C:
 LC_ALL = C
 # environment
 USERPROFILE = C:\Users\ismas
- 
 # environment
 VBOX_MSI_INSTALL_PATH = C:\Program Files\Oracle\VirtualBox\
 # environment
@@ -45,7 +39,7 @@ GOPATH = C:\Users\ismas\go
 # automatic
 @D = $(patsubst %/,%,$(dir $@))
 # environment
-CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_2632_ILAFTHZXTNUYECLN
+CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_13896_MBUZKUKVASXBKKHP
 # environment
 VSCODE_HANDLES_UNCAUGHT_ERRORS = true
 # default
@@ -93,7 +87,7 @@ MAKEFILE_LIST := Makefile
 # automatic
 @F = $(notdir $@)
 # environment
-VSCODE_PID = 2632
+VSCODE_PID = 13896
 # automatic
 ?D = $(patsubst %/,%,$(dir $?))
 # environment
@@ -161,7 +155,6 @@ PATHEXT = .COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.PY;.PYW
 # automatic
 +F = $(notdir $+)
 # environment
- 
 ORIGINAL_XDG_CURRENT_DESKTOP = undefined
 # makefile (from 'Makefile', line 32)
 OBJECTS := build/drawing.o build/font.o build/frameBuffer.o build/gpio.o build/mailbox.o build/main.o build/math.o build/mini_uart.o build/ports.o build/systemTimer.o build/utils.o
@@ -266,7 +259,7 @@ build/font.o:
 # Not a target:
 Makefile:
 #  Implicit rule search has been done.
-#  Last modified 2023-02-05 16:06:26
+#  Last modified 2024-07-29 16:53:13.4705859
 #  File has been updated.
 #  Successfully updated.
 
@@ -289,7 +282,7 @@ kernel.list: build/output.elf
 
 kernel.img: build/output.elf
 #  Implicit rule search has not been done.
-#  Last modified 2024-07-27 15:14:30.2430457
+#  Last modified 2024-07-29 18:57:06.1152574
 #  File has been updated.
 #  Needs to be updated (-q is set).
 # variable set hash-table stats:
@@ -330,7 +323,7 @@ kernel.ld:
 build/drawing.o: source/drawing.s build/
 #  Implicit rule search has been done.
 #  Implicit/static pattern stem: 'drawing'
-#  Last modified 2024-07-27 15:14:29.744749
+#  Last modified 2024-07-29 18:57:05.5670041
 #  File has been updated.
 #  Needs to be updated (-q is set).
 # automatic
@@ -365,7 +358,7 @@ all: kernel.img kernel.list
 
 build/output.elf: build/drawing.o build/font.o build/frameBuffer.o build/gpio.o build/mailbox.o build/main.o build/math.o build/mini_uart.o build/ports.o build/systemTimer.o build/utils.o kernel.ld
 #  Implicit rule search has not been done.
-#  Last modified 2024-07-27 15:14:30.1980424
+#  Last modified 2024-07-29 18:57:06.0512514
 #  File has been updated.
 #  Needs to be updated (-q is set).
 # variable set hash-table stats:
@@ -393,7 +386,7 @@ build/gpio.o:
 
 build/:
 #  Implicit rule search has not been done.
-#  Last modified 2024-07-27 15:14:30.1925126
+#  Last modified 2024-07-29 18:57:06.045524
 #  File has been updated.
 #  Successfully updated.
 #  recipe to execute (from 'Makefile', line 57):
@@ -443,6 +436,6 @@ build/main.o:
 # strcache performance: lookups = 79 / hit rate = 35%
 # hash-table stats:
 # Load=51/8192=1%, Rehash=0, Collisions=0/79=0%
-# Finished Make data base on Mon Jul 29 14:59:10 2024
+# Finished Make data base on Mon Jul 29 18:58:50 2024
 
  

@@ -17,39 +17,18 @@ _start:
 .global main
 main:
     ldr     sp, =0x8000
-
-    mov     r0, #14
-    mov     r1, #GPIO_ALTF5
-    bl      gpio_setMode
-
-    mov     r0, #15
-    mov     r1, #GPIO_ALTF5
-    bl      gpio_setMode
-
-    /*mov     r0, #2
-    lsl     r0, #14
-    ldr     r1, =GPIO_BASE
-    ldr     r3, [ r1, #GPIO_GPCLR0 ]
-    orr     r3, r0
-    str     r3, [ r1, #GPIO_GPCLR0 ]*/
-
-loop:
-    b loop
-
-/*    mov     r0, #270
     bl      uart_init
 
 loop:
-    mov     r0, #65     // Letter A
     ldr     r1, =AUX_MU_LSR_REG
-1:
     ldr     r2, [r1]
-    ands    r2, #0x20
-    beq     1b
+    tst     r2, #0x20
+    beq     loop
 
     ldr     r3, =AUX_MU_IO_REG
+    mov     r0, #'A'
     str     r0, [r3]
-    b       1b
+    b       loop
 
 /*.section .text
 .global main
