@@ -6,7 +6,7 @@ make.exe all --print-data-base --no-builtin-variables --no-builtin-rules --quest
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Mon Jul 29 18:58:50 2024
+# Make data base, printed on Sat Aug  3 12:04:28 2024
 
 # Variables
 
@@ -39,7 +39,7 @@ GOPATH = C:\Users\ismas\go
 # automatic
 @D = $(patsubst %/,%,$(dir $@))
 # environment
-CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_13896_MBUZKUKVASXBKKHP
+CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_18676_URLWWGRMJFHCILCY
 # environment
 VSCODE_HANDLES_UNCAUGHT_ERRORS = true
 # default
@@ -51,7 +51,7 @@ VSCODE_HANDLES_UNCAUGHT_ERRORS = true
 # automatic
 %F = $(notdir $%)
 # environment
-VSCODE_CODE_CACHE_PATH = C:\Users\ismas\AppData\Roaming\Code\CachedData\f1e16e1e6214d7c44d078b1f0607b2388f29d729
+VSCODE_CODE_CACHE_PATH = C:\Users\ismas\AppData\Roaming\Code\CachedData\b1c0a14de1414fcdaa400695b4db1c0799bc3124
 # environment
 LANG = C
 # default
@@ -87,7 +87,7 @@ MAKEFILE_LIST := Makefile
 # automatic
 @F = $(notdir $@)
 # environment
-VSCODE_PID = 13896
+VSCODE_PID = 18676
 # automatic
 ?D = $(patsubst %/,%,$(dir $?))
 # environment
@@ -101,7 +101,7 @@ DEVKITPPC = /opt/devkitpro/devkitPPC
 # makefile (from 'Makefile', line 10)
 ARMGNU = arm-none-eabi
 # environment
-VSCODE_NLS_CONFIG = {"locale":"en","osLocale":"es-es","availableLanguages":{},"_languagePackSupport":true}
+VSCODE_NLS_CONFIG = {"userLocale":"en","osLocale":"es-es","resolvedLanguage":"en","defaultMessagesFile":"D:\\Programas\\Microsoft VS Code\\resources\\app\\out\\nls.messages.json","locale":"en","availableLanguages":{}}
 # makefile (from 'Makefile', line 25)
 MAP = kernel.map
 # environment
@@ -166,6 +166,8 @@ GNUMAKEFLAGS :=
 OS = Windows_NT
 # makefile (from 'Makefile', line 22)
 LIST = kernel.list
+# environment
+__COMPAT_LAYER = DetectorsAppHealth
 # makefile
 .DEFAULT_GOAL := all
 # makefile (from 'Makefile', line 16)
@@ -203,7 +205,7 @@ ELECTRON_RUN_AS_NODE = 1
 # environment
 TEMP = /home/ismas/AppData/Local/Temp
 # environment
-VSCODE_IPC_HOOK = \\.\pipe\088a405b-1.91.1-main-sock
+VSCODE_IPC_HOOK = \\.\pipe\088a405b-1.92.0-main-sock
 # environment
 TERM = xterm-256color
 # default
@@ -227,7 +229,7 @@ PROCESSOR_REVISION = 1801
 # environment
 PROCESSOR_IDENTIFIER = AMD64 Family 23 Model 24 Stepping 1, AuthenticAMD
 # variable set hash-table stats:
-# Load=108/1024=11%, Rehash=0, Collisions=13/157=8%
+# Load=109/1024=11%, Rehash=0, Collisions=13/158=8%
 
 # Pattern-specific Variable Values
 
@@ -282,7 +284,7 @@ kernel.list: build/output.elf
 
 kernel.img: build/output.elf
 #  Implicit rule search has not been done.
-#  Last modified 2024-07-29 18:57:06.1152574
+#  Last modified 2024-08-01 01:03:08.7513608
 #  File has been updated.
 #  Needs to be updated (-q is set).
 # variable set hash-table stats:
@@ -323,7 +325,7 @@ kernel.ld:
 build/drawing.o: source/drawing.s build/
 #  Implicit rule search has been done.
 #  Implicit/static pattern stem: 'drawing'
-#  Last modified 2024-07-29 18:57:05.5670041
+#  Last modified 2024-08-01 01:03:08.1985088
 #  File has been updated.
 #  Needs to be updated (-q is set).
 # automatic
@@ -358,7 +360,7 @@ all: kernel.img kernel.list
 
 build/output.elf: build/drawing.o build/font.o build/frameBuffer.o build/gpio.o build/mailbox.o build/main.o build/math.o build/mini_uart.o build/ports.o build/systemTimer.o build/utils.o kernel.ld
 #  Implicit rule search has not been done.
-#  Last modified 2024-07-29 18:57:06.0512514
+#  Last modified 2024-08-01 01:03:08.6963553
 #  File has been updated.
 #  Needs to be updated (-q is set).
 # variable set hash-table stats:
@@ -386,7 +388,7 @@ build/gpio.o:
 
 build/:
 #  Implicit rule search has not been done.
-#  Last modified 2024-07-29 18:57:06.045524
+#  Last modified 2024-08-01 01:03:08.6873551
 #  File has been updated.
 #  Successfully updated.
 #  recipe to execute (from 'Makefile', line 57):
@@ -436,6 +438,6 @@ build/main.o:
 # strcache performance: lookups = 79 / hit rate = 35%
 # hash-table stats:
 # Load=51/8192=1%, Rehash=0, Collisions=0/79=0%
-# Finished Make data base on Mon Jul 29 18:58:50 2024
+# Finished Make data base on Sat Aug  3 12:04:28 2024
 
  

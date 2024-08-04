@@ -1,13 +1,5 @@
 .equ GPIO_BASE,  0x20200000 
 
-/* Funciones alternativas (Alternate functions) */
-.equ GPIO_GPFSEL0,  0x0 
-.equ GPIO_GPFSEL1,  0x4
-.equ GPIO_GPFSEL2,  0x8
-.equ GPIO_GPFSEL3,  0xC
-.equ GPIO_GPFSEL4,  0x10
-.equ GPIO_GPFSEL5,  0x14
-
 /* Funciones de los pines */
 .equ GPIO_INPUT,    0x00
 .equ GPIO_OUTPUT,   0x01
@@ -18,11 +10,19 @@
 .equ GPIO_ALTF4,    0x03
 .equ GPIO_ALTF5,    0x02
 
-/* Establecer pin (Pin Set) Enciende el pin */
+/* Registers to set pin mode */
+.equ GPIO_GPFSEL0,  0x0 
+.equ GPIO_GPFSEL1,  0x4
+.equ GPIO_GPFSEL2,  0x8
+.equ GPIO_GPFSEL3,  0xC
+.equ GPIO_GPFSEL4,  0x10
+.equ GPIO_GPFSEL5,  0x14
+
+/* Pin Set - To give a positive output */
 .equ GPIO_GPSET0,   0x1C
 .equ GPIO_GPSET1,   0x20
 
-/* Limpiar pin (Pin Clear) Apaga el pin */
+/* Pin Clear - To give a negative output */
 .equ GPIO_GPCLR0,   0x28
 .equ GPIO_GPCLR1,   0x2C
 

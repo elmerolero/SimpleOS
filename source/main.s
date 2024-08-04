@@ -5,7 +5,7 @@
 .include "systemTimer.s"
 
 .data
-    text: .ascii "Bienvenido\0"
+    text: .ascii "Bienvenido\r\0"
 
 /* Punto de Inicio */
 .section .init
@@ -19,17 +19,21 @@ main:
     ldr     sp, =0x8000
     bl      uart_init
 
+    ldr     r1, =AUX_BASE // 0x20215000
+    ldr     r0, =text
+    mov     r3, #0
+    mov     r4, #1
 loop:
-    ldr     r1, =AUX_MU_LSR_REG
-    ldr     r2, [r1]
-    tst     r2, #0x20
-    beq     loop
-
-    ldr     r3, =AUX_MU_IO_REG
-    mov     r0, #'A'
-    str     r0, [r3]
+    ldr     r2, [r1, #AUX_MU_LSR_REG] // AUX_BASE + 0x54
+    and     r2, #0x20
+    cmp     r2, #0x20
+    bne     loop
+    ldrb    r3, [r0, r4]
+    str     r3, [r1, #AUX_MU_IO_REG]  // AUX_BASE + 0x40
+    add     r4, #1
+    cmp     r4, #11
+    movhi   r4, #0
     b       loop
-
 /*.section .text
 .global main
 main:

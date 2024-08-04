@@ -46,6 +46,8 @@
 # Uncomment this to enable infrared communication.
 #dtoverlay=gpio-ir,gpio_pin=17
 #dtoverlay=gpio-ir-tx,gpio_pin=18
+gpu_freq=250
+core_freq=250
 
 # Additional overlays and parameters are documented /boot/overlays/README
 

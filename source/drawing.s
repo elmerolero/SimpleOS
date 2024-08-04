@@ -1,5 +1,5 @@
-.include "utils.s"
 .include "font.s"
+.extern utils_switchRegisters
 
 .section .data
 .align 4
