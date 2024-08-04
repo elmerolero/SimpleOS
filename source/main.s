@@ -1,11 +1,12 @@
 /* Sistema Operativo para Raspberry Pi */
-.include "mini_uart.s"
 .include "frameBuffer.s"
 .include "drawing.s"
 .include "systemTimer.s"
 
+.extern uart_writeText
+
 .data
-    text: .ascii "Bienvenido\r\0"
+    text: .ascii "Bienvenido a Mi OS\r\n"
 
 /* Punto de Inicio */
 .section .init
@@ -19,21 +20,12 @@ main:
     ldr     sp, =0x8000
     bl      uart_init
 
-    ldr     r1, =AUX_BASE // 0x20215000
     ldr     r0, =text
-    mov     r3, #0
-    mov     r4, #1
+    mov     r1, #20
+    bl      uart_writeText
 loop:
-    ldr     r2, [r1, #AUX_MU_LSR_REG] // AUX_BASE + 0x54
-    and     r2, #0x20
-    cmp     r2, #0x20
-    bne     loop
-    ldrb    r3, [r0, r4]
-    str     r3, [r1, #AUX_MU_IO_REG]  // AUX_BASE + 0x40
-    add     r4, #1
-    cmp     r4, #11
-    movhi   r4, #0
     b       loop
+
 /*.section .text
 .global main
 main:
@@ -128,7 +120,7 @@ loop:
     mov     r5, #1
     b       turn_off*/
 
-error:
+/*error:
     mov r1, #1                      @ Establece el pin 16 como salida
     lsl r1, #18
     str r1, [ r0, #GPIO_GPFSEL1 ]
@@ -136,4 +128,4 @@ error:
     lsl r1, #16
     str r1, [ r0, #GPIO_GPSET0 ]    @ Enciende el pin
 error_loop:
-    b error
+    b error*/

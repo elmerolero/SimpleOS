@@ -6,7 +6,7 @@ make.exe all --print-data-base --no-builtin-variables --no-builtin-rules --quest
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Sat Aug  3 12:04:28 2024
+# Make data base, printed on Sun Aug  4 11:26:39 2024
 
 # Variables
 
@@ -39,7 +39,7 @@ GOPATH = C:\Users\ismas\go
 # automatic
 @D = $(patsubst %/,%,$(dir $@))
 # environment
-CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_18676_URLWWGRMJFHCILCY
+CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_20500_MUUOTHKAISRSBUMC
 # environment
 VSCODE_HANDLES_UNCAUGHT_ERRORS = true
 # default
@@ -87,7 +87,7 @@ MAKEFILE_LIST := Makefile
 # automatic
 @F = $(notdir $@)
 # environment
-VSCODE_PID = 18676
+VSCODE_PID = 20500
 # automatic
 ?D = $(patsubst %/,%,$(dir $?))
 # environment
@@ -166,8 +166,6 @@ GNUMAKEFLAGS :=
 OS = Windows_NT
 # makefile (from 'Makefile', line 22)
 LIST = kernel.list
-# environment
-__COMPAT_LAYER = DetectorsAppHealth
 # makefile
 .DEFAULT_GOAL := all
 # makefile (from 'Makefile', line 16)
@@ -229,7 +227,7 @@ PROCESSOR_REVISION = 1801
 # environment
 PROCESSOR_IDENTIFIER = AMD64 Family 23 Model 24 Stepping 1, AuthenticAMD
 # variable set hash-table stats:
-# Load=109/1024=11%, Rehash=0, Collisions=13/158=8%
+# Load=108/1024=11%, Rehash=0, Collisions=13/157=8%
 
 # Pattern-specific Variable Values
 
@@ -284,7 +282,7 @@ kernel.list: build/output.elf
 
 kernel.img: build/output.elf
 #  Implicit rule search has not been done.
-#  Last modified 2024-08-01 01:03:08.7513608
+#  Last modified 2024-08-04 02:10:35.1309207
 #  File has been updated.
 #  Needs to be updated (-q is set).
 # variable set hash-table stats:
@@ -325,7 +323,7 @@ kernel.ld:
 build/drawing.o: source/drawing.s build/
 #  Implicit rule search has been done.
 #  Implicit/static pattern stem: 'drawing'
-#  Last modified 2024-08-01 01:03:08.1985088
+#  Last modified 2024-08-04 02:10:34.6158142
 #  File has been updated.
 #  Needs to be updated (-q is set).
 # automatic
@@ -360,7 +358,7 @@ all: kernel.img kernel.list
 
 build/output.elf: build/drawing.o build/font.o build/frameBuffer.o build/gpio.o build/mailbox.o build/main.o build/math.o build/mini_uart.o build/ports.o build/systemTimer.o build/utils.o kernel.ld
 #  Implicit rule search has not been done.
-#  Last modified 2024-08-01 01:03:08.6963553
+#  Last modified 2024-08-04 02:10:35.0739146
 #  File has been updated.
 #  Needs to be updated (-q is set).
 # variable set hash-table stats:
@@ -388,7 +386,7 @@ build/gpio.o:
 
 build/:
 #  Implicit rule search has not been done.
-#  Last modified 2024-08-01 01:03:08.6873551
+#  Last modified 2024-08-04 02:10:35.0685208
 #  File has been updated.
 #  Successfully updated.
 #  recipe to execute (from 'Makefile', line 57):
@@ -414,7 +412,7 @@ build/math.o:
 # Not a target:
 source/drawing.s:
 #  Implicit rule search has been done.
-#  Last modified 2024-02-09 17:33:51.4319124
+#  Last modified 2024-08-04 01:40:03.8793115
 #  File has been updated.
 #  Successfully updated.
 
@@ -438,6 +436,6 @@ build/main.o:
 # strcache performance: lookups = 79 / hit rate = 35%
 # hash-table stats:
 # Load=51/8192=1%, Rehash=0, Collisions=0/79=0%
-# Finished Make data base on Sat Aug  3 12:04:28 2024
+# Finished Make data base on Sun Aug  4 11:26:39 2024
 
  

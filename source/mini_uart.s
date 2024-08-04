@@ -19,6 +19,7 @@
 .equ AUX_MU_BAUD_REG, 0x68
 
 .section .text
+.global uart_init
 uart_init:
     push    { lr }
     
@@ -82,23 +83,51 @@ uart_init:
 
     pop     { pc }
 
+
+@ ------------------------------------------------------------------------------
+@ Send the letter ascii code specified in R0 trough UART
+@ R0: Letter to send through UART
+@ ------------------------------------------------------------------------------
 .section .text
 .global uart_writeChar
-uart_writeChar
+uart_writeChar:
+    push { lr }
 
+1:
+    ldr     r1, =AUX_BASE             // 0x20215000
+    ldr     r2, [r1, #AUX_MU_LSR_REG] // AUX_BASE + 0x54
+    and     r2, #0x20
+    cmp     r2, #0x20
+    bne     1b
+    str     r0, [r1, #AUX_MU_IO_REG]  // AUX_BASE + 0x40
 
-/*.section .text
-uart_write:
-    push    { lr }
-    ldr     r3, =AUX_MU_IO_REG
-    mov     r4, #1
-    lsl     r4, #5
-uart_writeCheck:
-    ldr     r5, [ r3, #UART_FR ]
-    and     r5, r4
+    pop { pc }
+
+@ ------------------------------------------------------------------------------
+@ Send the ascii string through UART
+@ R0: Address of text to be sent through UART
+@ R1: String size
+@ ------------------------------------------------------------------------------
+.section .text
+.global uart_writeText
+uart_writeText:
+    push { r4, r5, lr }
+
+    mov     r3, r0
+    mov     r4, r1
+    mov     r5, #0
+    cmp     r3, r5
+    beq     2f
+    cmp     r4, r5
+1:
     cmp     r5, r4
-    beq     uart_writeCheck
-    mov     r4, #65
-    str     r4, [ r3 ]
-    pop     { pc }
-*/
+    bhs     2f
+    ldrb    r0, [r3, r5]
+    cmp     r0, #'\0'
+    beq     2f
+    bl      uart_writeChar
+    add     r5, #1
+    b       1b
+2:
+    pop { r4, r5, pc }
+    
