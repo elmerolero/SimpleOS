@@ -2,11 +2,10 @@
 .include "frameBuffer.s"
 .include "drawing.s"
 .include "systemTimer.s"
-
-.extern uart_writeText
+.include "uart.s"
 
 .data
-    text: .ascii "Bienvenido a Mi OS\r\n"
+    text: .ascii "Bienvenido a Mi OS\r\n\0"
 
 /* Punto de Inicio */
 .section .init
@@ -18,13 +17,21 @@ _start:
 .global main
 main:
     ldr     sp, =0x8000
+    mov     r0, #9600
+    mov     r1, #UART_LENGTH_EIGHT
+    mov     r2, #UART_STOP_BIT_ONE
+    mov     r3, #UART_PARITY_NONE
     bl      uart_init
-
-    ldr     r0, =text
-    mov     r1, #20
-    bl      uart_writeText
-loop:
-    b       loop
+    
+    ldr     r0, =UART_BASE
+1:
+    ldr     r1, [ r0, #UART_FR ]
+    and     r1, #0x80
+    cmp     r1, #0x80
+    bne     1b
+    mov     r2, #'A'
+    str     r2, [ r0, #UART_DR ]
+    b       1b
 
 /*.section .text
 .global main

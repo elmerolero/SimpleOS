@@ -19,8 +19,8 @@
 .equ AUX_MU_BAUD_REG, 0x68
 
 .section .text
-.global uart_init
-uart_init:
+.global mini_uart_init
+mini_uart_init:
     push    { lr }
     
     // Set ALT FUNC 5 on pins 14 and 15 (for AUX MINI UART)
@@ -89,8 +89,8 @@ uart_init:
 @ R0: Letter to send through UART
 @ ------------------------------------------------------------------------------
 .section .text
-.global uart_writeChar
-uart_writeChar:
+.global mini_uart_writeChar
+mini_uart_writeChar:
     push { lr }
 
 1:
@@ -109,8 +109,8 @@ uart_writeChar:
 @ R1: String size
 @ ------------------------------------------------------------------------------
 .section .text
-.global uart_writeText
-uart_writeText:
+.global mini_uart_writeText
+mini_uart_writeText:
     push { r4, r5, lr }
 
     mov     r3, r0
@@ -118,14 +118,13 @@ uart_writeText:
     mov     r5, #0
     cmp     r3, r5
     beq     2f
-    cmp     r4, r5
 1:
     cmp     r5, r4
     bhs     2f
     ldrb    r0, [r3, r5]
     cmp     r0, #'\0'
     beq     2f
-    bl      uart_writeChar
+    bl      mini_uart_writeChar
     add     r5, #1
     b       1b
 2:

@@ -6,10 +6,12 @@ make.exe all --print-data-base --no-builtin-variables --no-builtin-rules --quest
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Sun Aug  4 11:26:39 2024
+# Make data base, printed on Sat Aug 10 21:09:41 2024
 
 # Variables
 
+# environment
+FPS_BROWSER_APP_PROFILE_STRING = Internet Explorer
 # environment
 SYSTEMDRIVE = C:
 # environment
@@ -39,7 +41,9 @@ GOPATH = C:\Users\ismas\go
 # automatic
 @D = $(patsubst %/,%,$(dir $@))
 # environment
-CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_20500_MUUOTHKAISRSBUMC
+CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_15248_ZONEGLDODJQJBXHA
+# environment
+FPS_BROWSER_USER_PROFILE_STRING = Default
 # environment
 VSCODE_HANDLES_UNCAUGHT_ERRORS = true
 # default
@@ -51,7 +55,7 @@ VSCODE_HANDLES_UNCAUGHT_ERRORS = true
 # automatic
 %F = $(notdir $%)
 # environment
-VSCODE_CODE_CACHE_PATH = C:\Users\ismas\AppData\Roaming\Code\CachedData\b1c0a14de1414fcdaa400695b4db1c0799bc3124
+VSCODE_CODE_CACHE_PATH = C:\Users\ismas\AppData\Roaming\Code\CachedData\eaa41d57266683296de7d118f574d0c2652e1fc4
 # environment
 LANG = C
 # default
@@ -87,7 +91,7 @@ MAKEFILE_LIST := Makefile
 # automatic
 @F = $(notdir $@)
 # environment
-VSCODE_PID = 20500
+VSCODE_PID = 15248
 # automatic
 ?D = $(patsubst %/,%,$(dir $?))
 # environment
@@ -104,8 +108,6 @@ ARMGNU = arm-none-eabi
 VSCODE_NLS_CONFIG = {"userLocale":"en","osLocale":"es-es","resolvedLanguage":"en","defaultMessagesFile":"D:\\Programas\\Microsoft VS Code\\resources\\app\\out\\nls.messages.json","locale":"en","availableLanguages":{}}
 # makefile (from 'Makefile', line 25)
 MAP = kernel.map
-# environment
-ONEDRIVECONSUMER = C:\Users\ismas\OneDrive
 # default
 MAKE_HOST := x86_64-pc-msys
 # environment
@@ -157,7 +159,7 @@ PATHEXT = .COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.PY;.PYW
 # environment
 ORIGINAL_XDG_CURRENT_DESKTOP = undefined
 # makefile (from 'Makefile', line 32)
-OBJECTS := build/drawing.o build/font.o build/frameBuffer.o build/gpio.o build/mailbox.o build/main.o build/math.o build/mini_uart.o build/ports.o build/systemTimer.o build/utils.o
+OBJECTS := build/drawing.o build/font.o build/frameBuffer.o build/gpio.o build/mailbox.o build/main.o build/math.o build/mini_uart.o build/ports.o build/systemTimer.o build/uart.o build/utils.o
 # environment
 USERDOMAIN = ISMAEL-PC
 # 'override' directive
@@ -203,7 +205,7 @@ ELECTRON_RUN_AS_NODE = 1
 # environment
 TEMP = /home/ismas/AppData/Local/Temp
 # environment
-VSCODE_IPC_HOOK = \\.\pipe\088a405b-1.92.0-main-sock
+VSCODE_IPC_HOOK = \\.\pipe\088a405b-1.92.1-main-sock
 # environment
 TERM = xterm-256color
 # default
@@ -227,7 +229,7 @@ PROCESSOR_REVISION = 1801
 # environment
 PROCESSOR_IDENTIFIER = AMD64 Family 23 Model 24 Stepping 1, AuthenticAMD
 # variable set hash-table stats:
-# Load=108/1024=11%, Rehash=0, Collisions=13/157=8%
+# Load=109/1024=11%, Rehash=0, Collisions=13/158=8%
 
 # Pattern-specific Variable Values
 
@@ -237,9 +239,9 @@ PROCESSOR_IDENTIFIER = AMD64 Family 23 Model 24 Stepping 1, AuthenticAMD
 
 # build (device 3968003936, inode 1970324837038414): No files, no impossibilities so far.
 # . (device 3968003936, inode 5066549580864770): 15 files, no impossibilities.
-# source (device 3968003936, inode 1688849860337585): 15 files, no impossibilities.
+# source (device 3968003936, inode 1688849860337585): 16 files, no impossibilities.
 
-# 30 files, no impossibilities in 3 directories.
+# 31 files, no impossibilities in 3 directories.
 
 # Implicit Rules
 
@@ -282,7 +284,7 @@ kernel.list: build/output.elf
 
 kernel.img: build/output.elf
 #  Implicit rule search has not been done.
-#  Last modified 2024-08-04 02:10:35.1309207
+#  Last modified 2024-08-10 19:40:40.1303918
 #  File has been updated.
 #  Needs to be updated (-q is set).
 # variable set hash-table stats:
@@ -323,7 +325,7 @@ kernel.ld:
 build/drawing.o: source/drawing.s build/
 #  Implicit rule search has been done.
 #  Implicit/static pattern stem: 'drawing'
-#  Last modified 2024-08-04 02:10:34.6158142
+#  Last modified 2024-08-10 19:40:39.4563297
 #  File has been updated.
 #  Needs to be updated (-q is set).
 # automatic
@@ -356,9 +358,9 @@ all: kernel.img kernel.list
 # variable set hash-table stats:
 # Load=0/32=0%, Rehash=0, Collisions=0/5=0%
 
-build/output.elf: build/drawing.o build/font.o build/frameBuffer.o build/gpio.o build/mailbox.o build/main.o build/math.o build/mini_uart.o build/ports.o build/systemTimer.o build/utils.o kernel.ld
+build/output.elf: build/drawing.o build/font.o build/frameBuffer.o build/gpio.o build/mailbox.o build/main.o build/math.o build/mini_uart.o build/ports.o build/systemTimer.o build/uart.o build/utils.o kernel.ld
 #  Implicit rule search has not been done.
-#  Last modified 2024-08-04 02:10:35.0739146
+#  Last modified 2024-08-10 19:40:40.0603843
 #  File has been updated.
 #  Needs to be updated (-q is set).
 # variable set hash-table stats:
@@ -386,7 +388,7 @@ build/gpio.o:
 
 build/:
 #  Implicit rule search has not been done.
-#  Last modified 2024-08-04 02:10:35.0685208
+#  Last modified 2024-08-10 19:40:40.0533837
 #  File has been updated.
 #  Successfully updated.
 #  recipe to execute (from 'Makefile', line 57):
@@ -410,6 +412,12 @@ build/math.o:
 #  File has not been updated.
 
 # Not a target:
+build/uart.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
 source/drawing.s:
 #  Implicit rule search has been done.
 #  Last modified 2024-08-04 01:40:03.8793115
@@ -423,19 +431,19 @@ build/main.o:
 #  File has not been updated.
 
 # files hash-table stats:
-# Load=23/1024=2%, Rehash=0, Collisions=0/59=0%
+# Load=24/1024=2%, Rehash=0, Collisions=0/61=0%
 # VPATH Search Paths
 
 # No 'vpath' search paths.
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 51 / storage = 534 B / avg = 10 B
-# current buf: size = 8162 B / used = 534 B / count = 51 / avg = 10 B
+# strcache buffers: 1 (0) / strings = 53 / storage = 554 B / avg = 10 B
+# current buf: size = 8162 B / used = 554 B / count = 53 / avg = 10 B
 
-# strcache performance: lookups = 79 / hit rate = 35%
+# strcache performance: lookups = 81 / hit rate = 34%
 # hash-table stats:
-# Load=51/8192=1%, Rehash=0, Collisions=0/79=0%
-# Finished Make data base on Sun Aug  4 11:26:39 2024
+# Load=53/8192=1%, Rehash=0, Collisions=0/81=0%
+# Finished Make data base on Sat Aug 10 21:09:41 2024
 
  
