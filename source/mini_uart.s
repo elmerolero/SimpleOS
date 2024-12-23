@@ -18,11 +18,17 @@
 .equ AUX_MU_STAT_REG, 0x64
 .equ AUX_MU_BAUD_REG, 0x68
 
+.equ MU_DATA_SIZE_7,    0x01
+.equ MU_DATA_SIZE_8,    0x03
+
 .section .text
 .global uart_init
 uart_init:
-    push    { lr }
+    stmfd sp!, { r4 - r5, lr }
     
+    mov     r4, r0
+    mov     r5, r1
+
     // Set ALT FUNC 5 on pins 14 and 15 (for AUX MINI UART)
     mov     r0, #14
     mov     r1, #GPIO_ALTF5
@@ -33,55 +39,55 @@ uart_init:
     bl      gpio_setMode
 
     // Registers initialization
-    ldr     r2, =AUX_BASE
-    mov     r1, #1
-    str     r1, [r2, #AUX_ENABLES]
+    ldr     r3, =AUX_BASE
+    ldr     r2, [r3, #AUX_ENABLES]
+    orr     r2, #1
+    str     r2, [r3, #AUX_ENABLES]
 
-    mov     r1, #0
-    str     r1, [r2, #AUX_MU_IER_REG]
+    mov     r2, #0
+    str     r2, [r3, #AUX_MU_IER_REG]
     
-    mov     r1, #0
-    str     r1, [r2, #AUX_MU_CNTL_REG]
+    mov     r2, #0
+    str     r2, [r3, #AUX_MU_CNTL_REG]
+
+    str     r5, [r3, #AUX_MU_LCR_REG]
     
-    mov     r1, #3
-    str     r1, [r2, #AUX_MU_LCR_REG]
+    mov     r2, #0
+    str     r2, [r3, #AUX_MU_MCR_REG]
     
-    mov     r1, #0
-    str     r1, [r2, #AUX_MU_MCR_REG]
+    mov     r2, #0x00
+    str     r2, [r3, #AUX_MU_IIR_REG]
     
-    mov     r1, #0x00
-    str     r1, [r2, #AUX_MU_IIR_REG]
-    
-    mov     r1, #324
-    str     r1, [r2, #AUX_MU_BAUD_REG]
+    mov     r2, #324
+    str     r2, [r3, #AUX_MU_BAUD_REG]
 
     // Disables Pull up-down resistors
-    ldr     r2, =GPIO_GPPUD
-    mov     r1, #0
-    str     r1, [ r2 ]
+    ldr     r3, =GPIO_GPPUD
+    mov     r2, #0
+    str     r2, [ r3 ]
 
     // Wait 150 cicles required
     mov     r0, #150
     bl      utils_delay
 
-    ldr     r2, =GPIO_GPPUDCLK0
-    mov     r1, #1
-    lsl     r1, #14
-    str     r1, [ r2 ]
+    ldr     r3, =GPIO_GPPUDCLK0
+    mov     r2, #1
+    lsl     r2, #14
+    str     r2, [ r3 ]
 
     // Wait 150 cicles required again
     mov     r0, #150
     bl      utils_delay
 
-    mov     r1, #0
-    str     r1, [ r2 ]
+    mov     r2, #0
+    str     r2, [ r3 ]
 
     // Enables TX
-    ldr     r2, =AUX_BASE
-    mov     r1, #2
-    str     r1, [ r2, #AUX_MU_CNTL_REG ]
+    ldr     r3, =AUX_BASE
+    mov     r2, #2
+    str     r2, [ r3, #AUX_MU_CNTL_REG ]
 
-    pop     { pc }
+    ldmfd   sp!, { r4 - r5, pc }
 
 
 @ ------------------------------------------------------------------------------

@@ -7,6 +7,11 @@
 .equ MAILBOX_CONFIG,    0x1C
 .equ MAILBOX_WRITE,     0x20
 
+.equ MAILBOX_FULL,      0x80000000
+.equ MAILBOX_EMPTY,     0x40000000
+
+.equ MAILBOX_TAG_SCREEN_DIMENSIONS, 0x00040003
+
 .section .text
 mailbox_write:
     tst     r0, #0x0F           /* r0 -> mensaje */
@@ -17,10 +22,10 @@ mailbox_write:
     push { lr }
     mov     r2, r0
     ldr     r0, =MAILBOX_BASE
-mailbox_waitWrite:
+1:
     ldr     r3, [ r0, #MAILBOX_STATUS ]
-    tst     r3, #0x80000000
-    bne     mailbox_waitWrite
+    tst     r3, #MAILBOX_FULL
+    bne     1b
     add     r2, r1
     str     r2, [ r0, #MAILBOX_WRITE ]
     pop  { pc }
@@ -33,13 +38,13 @@ mailbox_read:
     push { lr }
     mov     r1, r0
     ldr     r0, =MAILBOX_BASE
-mailbox_waitRead:
+1:
     ldr     r3, [ r0, #MAILBOX_STATUS ]
-    tst     r3, #0x40000000
-    bne     mailbox_waitRead
+    tst     r3, #MAILBOX_EMPTY
+    bne     1b
     ldr     r3, [ r0, #MAILBOX_READ ]
     and     r2, r3, #0x0F
     teq     r2, r1 
-    bne     mailbox_waitRead
+    bne     1b
     and     r0, r3, #0xfffffff0
     pop  { pc }

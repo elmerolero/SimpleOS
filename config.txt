@@ -52,7 +52,7 @@ core_freq=250
 # Additional overlays and parameters are documented /boot/overlays/README
 
 # Enable audio (loads snd_bcm2835)
-dtparam=audio=on
+#dtparam=audio=on
 
 # Automatically load overlays for detected cameras
 #camera_auto_detect=1
@@ -71,12 +71,12 @@ disable_overscan=1
 # Enable host mode on the 2711 built-in XHCI USB controller.
 # This line should be removed if the legacy DWC2 controller is required
 # (e.g. for USB device mode) or if USB support is not required.
-otg_mode=1
+#otg_mode=1
 
 [all]
 max_usb_current=1
-hdmi_group=2
-hdmi_mode=1
-hdmi_mode=87
-hdmi_cvt 1024 600 60 6 0 0 0
+#hdmi_group=2
+#hdmi_mode=1
+#hdmi_mode=87
+#hdmi_cvt 1024 600 60 6 0 0 0
 

@@ -18,6 +18,8 @@ _start:
 .global main
 main:
     ldr     sp, =0x8000
+    mov     r0, #0x00
+    mov     r1, #0x03
     bl      uart_init
 
     ldr     r0, =text
@@ -36,7 +38,7 @@ mov     r1, #480
 mov     r2, #32
 bl      framebuffer_init
 
-teq     r0, #0
+teq     r0, #-1
 beq     error
 
 bl      canvas_setAddress
