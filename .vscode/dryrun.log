@@ -9,12 +9,19 @@ arm-none-eabi-as -g -I source/ source/mailbox.s -o build/mailbox.o
 arm-none-eabi-as -g -I source/ source/main.s -o build/main.o
 arm-none-eabi-as -g -I source/ source/math.s -o build/math.o
 arm-none-eabi-as -g -I source/ source/mini_uart.s -o build/mini_uart.o
+ 
 arm-none-eabi-as -g -I source/ source/ports.s -o build/ports.o
 arm-none-eabi-as -g -I source/ source/systemTimer.s -o build/systemTimer.o
+ 
 arm-none-eabi-as -g -I source/ source/uart.s -o build/uart.o
+ 
 arm-none-eabi-as -g -I source/ source/utils.s -o build/utils.o
+ 
 arm-none-eabi-ld --no-undefined build/drawing.o build/font.o build/frameBuffer.o build/gpio.o build/mailbox.o build/main.o build/math.o build/mini_uart.o build/ports.o build/systemTimer.o build/uart.o build/utils.o -Map kernel.map -g -o build/output.elf -T kernel.ld
+ 
 arm-none-eabi-objcopy build/output.elf -g -O binary kernel.img 
+ 
 arm-none-eabi-objdump -d build/output.elf > kernel.list
+ 
 make: Leaving directory '/d/msys/home/ismas/Documentos/Proyectos/SimpleOS'
  

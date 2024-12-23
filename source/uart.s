@@ -48,13 +48,14 @@
 @ -------------------------------------------------------------------
 .section .text
 uart_init:
-    push    { r4, r5, r6, r7, r8, lr }
+    push    { r4, r5, lr }
 
     // Save parameters
     mov     r4, r0
-    mov     r5, r1, lsl #5
-    mov     r6, r2, lsl #3
-    mov     r7, r3, lsl #1
+    mov     r5, #0
+    orr     r5, r5, r1, lsl #5
+    orr     r5, r5, r2, lsl #3
+    orr     r5, r5, r3, lsl #1
 
     // Set alternative modes
     mov     r0, #14
@@ -69,16 +70,29 @@ uart_init:
     ldr     r0, =UART_BASE
 
     // Control Register programming
+    // Disable UART
     mov     r1, #0
-    str     r1, [ r0, #UART_CR ]      // Disabling UART
-    str     r1, [ r0, #UART_LCRH ]    // Flushing FIFOs
+    str     r1, [ r0, #UART_CR ]      
+    
+    // Flush transmit FIFO
+1:
+    ldr     r1, [ r0, #UART_FR ]
+    and     r1, #0x8
+    cmp     r1, #0x8
+    beq     1b
 
+    // Reset settings
     mov     r1, #0
-    str     r1, [ r0, #UART_IFLS ] 
+    str     r1, [ r0, #UART_LCRH ]
 
-    mov     r1, #312
+    // Interrups disabled
+    mov     r1, #0x7FF
+    str     r1, [ r0, #UART_ICR ] 
+
+    // 312.5 For baud rate register
+    mov     r1, #19
     str     r1, [ r0, #UART_IBRD ]
-    mov     r1, #5
+    mov     r1, #53125
     str     r1, [ r0, #UART_FBRD ]     
 
     // Disables Pull up-down resistors
@@ -103,13 +117,11 @@ uart_init:
     str     r1, [ r2 ]
 
     // Set UART settings
-    orr     r1, r5, #UART_FIFO_ENABLED
-    orr     r1, r6
-    orr     r1, r7
-    str     r1, [ r0, #UART_LCRH ]
+    ldr     r0, =UART_BASE
+    str     r5, [ r0, #UART_LCRH ]
 
-    // Reprogram The Control Register and enables UART
+    // Enables UART
     mov     r1, #0x201
     str     r1, [ r0, #UART_CR ]
 
-    pop     { r4, r5, r6, r7, r8, pc }
+    pop     { r4, r5, pc }

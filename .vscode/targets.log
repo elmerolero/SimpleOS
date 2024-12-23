@@ -6,12 +6,10 @@ make.exe all --print-data-base --no-builtin-variables --no-builtin-rules --quest
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Sat Aug 10 21:09:41 2024
+# Make data base, printed on Mon Aug 12 16:11:25 2024
 
 # Variables
 
-# environment
-FPS_BROWSER_APP_PROFILE_STRING = Internet Explorer
 # environment
 SYSTEMDRIVE = C:
 # environment
@@ -41,9 +39,7 @@ GOPATH = C:\Users\ismas\go
 # automatic
 @D = $(patsubst %/,%,$(dir $@))
 # environment
-CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_15248_ZONEGLDODJQJBXHA
-# environment
-FPS_BROWSER_USER_PROFILE_STRING = Default
+CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_6364_DHEOQJVSUVHPTYSV
 # environment
 VSCODE_HANDLES_UNCAUGHT_ERRORS = true
 # default
@@ -91,7 +87,7 @@ MAKEFILE_LIST := Makefile
 # automatic
 @F = $(notdir $@)
 # environment
-VSCODE_PID = 15248
+VSCODE_PID = 6364
 # automatic
 ?D = $(patsubst %/,%,$(dir $?))
 # environment
@@ -129,7 +125,7 @@ MAKELEVEL := 0
 # default
 MAKE = $(MAKE_COMMAND)
 # environment
-PATH = /c/Python311/Scripts:/c/Python311:/c/Program Files/Common Files/Oracle/Java/javapath:/c/Program Files (x86)/Common Files/Oracle/Java/java8path:/c/Program Files (x86)/Common Files/Oracle/Java/javapath:/opt/devkitpro/msys2/usr/bin:/c/Python310/Scripts:/c/Python310:/c/Windows/system32:/c/Windows:/c/Windows/System32/Wbem:/c/Windows/System32/WindowsPowerShell/v1.0:/c/Windows/System32/OpenSSH:/d/Programas/Go/bin:/c/Program Files/Microsoft SQL Server/150/Tools/Binn:/c/Program Files/Microsoft SQL Server/Client SDK/ODBC/170/Tools/Binn:/c/Program Files/dotnet:/c/Program Files (x86)/ZeroTier/One:/c/ProgramData/chocolatey/bin:/d/xampp/php:/c/ProgramData/ComposerSetup/bin:/c/Program Files/Git/cmd:/c/Program Files/nodejs:/c/Program Files/PuTTY:/c/Program Files/MySQL/MySQL Shell 8.0/bin:/home/ismas/AppData/Local/Microsoft/WindowsApps:/home/ismas/.dotnet/tools:/d/Programas/Microsoft VS Code/bin:/home/ismas/AppData/Roaming/Composer/vendor/bin:/c/Program Files/Java/jdk-11/bin:/home/ismas/AppData/Roaming/npm:/d/msys/mingw64/bin
+PATH = /c/Python311/Scripts:/c/Python311:/c/Program Files/Common Files/Oracle/Java/javapath:/c/Program Files (x86)/Common Files/Oracle/Java/java8path:/c/Program Files (x86)/Common Files/Oracle/Java/javapath:/opt/devkitpro/msys2/usr/bin:/c/Python310/Scripts:/c/Python310:/c/Windows/system32:/c/Windows:/c/Windows/System32/Wbem:/c/Windows/System32/WindowsPowerShell/v1.0:/c/Windows/System32/OpenSSH:/d/Programas/Go/bin:/c/Program Files/Microsoft SQL Server/150/Tools/Binn:/c/Program Files/Microsoft SQL Server/Client SDK/ODBC/170/Tools/Binn:/c/Program Files/dotnet:/c/ProgramData/chocolatey/bin:/d/xampp/php:/c/ProgramData/ComposerSetup/bin:/c/Program Files/Git/cmd:/c/Program Files/nodejs:/c/Program Files/PuTTY:/c/Program Files/MySQL/MySQL Shell 8.0/bin:/home/ismas/AppData/Local/Microsoft/WindowsApps:/home/ismas/.dotnet/tools:/d/Programas/Microsoft VS Code/bin:/home/ismas/AppData/Roaming/Composer/vendor/bin:/c/Program Files/Java/jdk-11/bin:/home/ismas/AppData/Roaming/npm:/d/msys/mingw64/bin
 # environment
 COMPUTERNAME = ISMAEL-PC
 # default
@@ -229,7 +225,7 @@ PROCESSOR_REVISION = 1801
 # environment
 PROCESSOR_IDENTIFIER = AMD64 Family 23 Model 24 Stepping 1, AuthenticAMD
 # variable set hash-table stats:
-# Load=109/1024=11%, Rehash=0, Collisions=13/158=8%
+# Load=107/1024=10%, Rehash=0, Collisions=12/156=8%
 
 # Pattern-specific Variable Values
 
@@ -284,7 +280,7 @@ kernel.list: build/output.elf
 
 kernel.img: build/output.elf
 #  Implicit rule search has not been done.
-#  Last modified 2024-08-10 19:40:40.1303918
+#  Last modified 2024-08-12 00:07:51.1919388
 #  File has been updated.
 #  Needs to be updated (-q is set).
 # variable set hash-table stats:
@@ -325,7 +321,7 @@ kernel.ld:
 build/drawing.o: source/drawing.s build/
 #  Implicit rule search has been done.
 #  Implicit/static pattern stem: 'drawing'
-#  Last modified 2024-08-10 19:40:39.4563297
+#  Last modified 2024-08-12 00:07:50.6599002
 #  File has been updated.
 #  Needs to be updated (-q is set).
 # automatic
@@ -360,7 +356,7 @@ all: kernel.img kernel.list
 
 build/output.elf: build/drawing.o build/font.o build/frameBuffer.o build/gpio.o build/mailbox.o build/main.o build/math.o build/mini_uart.o build/ports.o build/systemTimer.o build/uart.o build/utils.o kernel.ld
 #  Implicit rule search has not been done.
-#  Last modified 2024-08-10 19:40:40.0603843
+#  Last modified 2024-08-12 00:07:51.1409314
 #  File has been updated.
 #  Needs to be updated (-q is set).
 # variable set hash-table stats:
@@ -388,7 +384,7 @@ build/gpio.o:
 
 build/:
 #  Implicit rule search has not been done.
-#  Last modified 2024-08-10 19:40:40.0533837
+#  Last modified 2024-08-12 00:07:51.1339317
 #  File has been updated.
 #  Successfully updated.
 #  recipe to execute (from 'Makefile', line 57):
@@ -444,6 +440,6 @@ build/main.o:
 # strcache performance: lookups = 81 / hit rate = 34%
 # hash-table stats:
 # Load=53/8192=1%, Rehash=0, Collisions=0/81=0%
-# Finished Make data base on Sat Aug 10 21:09:41 2024
+# Finished Make data base on Mon Aug 12 16:11:25 2024
 
  

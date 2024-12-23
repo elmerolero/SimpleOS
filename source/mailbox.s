@@ -17,10 +17,10 @@ mailbox_write:
     push { lr }
     mov     r2, r0
     ldr     r0, =MAILBOX_BASE
-mailbox_waitWrite:
+1:
     ldr     r3, [ r0, #MAILBOX_STATUS ]
     tst     r3, #0x80000000
-    bne     mailbox_waitWrite
+    bne     1b
     add     r2, r1
     str     r2, [ r0, #MAILBOX_WRITE ]
     pop  { pc }
@@ -33,13 +33,13 @@ mailbox_read:
     push { lr }
     mov     r1, r0
     ldr     r0, =MAILBOX_BASE
-mailbox_waitRead:
+1:
     ldr     r3, [ r0, #MAILBOX_STATUS ]
     tst     r3, #0x40000000
-    bne     mailbox_waitRead
+    bne     1b
     ldr     r3, [ r0, #MAILBOX_READ ]
     and     r2, r3, #0x0F
     teq     r2, r1 
-    bne     mailbox_waitRead
+    bne     1b
     and     r0, r3, #0xfffffff0
     pop  { pc }

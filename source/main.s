@@ -26,8 +26,8 @@ main:
     ldr     r0, =UART_BASE
 1:
     ldr     r1, [ r0, #UART_FR ]
-    and     r1, #0x80
-    cmp     r1, #0x80
+    and     r1, #0x20
+    cmp     r1, #0x00
     bne     1b
     mov     r2, #'A'
     str     r2, [ r0, #UART_DR ]
