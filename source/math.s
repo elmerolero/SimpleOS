@@ -19,23 +19,23 @@ math_unsigned_divide:
     mov     r3, r0
     mov     r0, #0
     cmp     r3, r1              // if dividend < divisor then
-    bxlt    lr                  //     return
+    bxlo    lr                  //     return
 
     push { r4, lr }
 
     mov     r2, #1
 1:
     mov     r4, #0              // Set the lowest bit position (0)
-2:         
-    cmp     r3, r1, lsl r4      // Compare remainder with divisor << bit
+2:
+    lsl     r5, r1, r4
+    sub     r6, r3, r5
+    cmp     r6, r5              // Compare remainder with divisor << bit
     addhi   r4, r4, #1
     bhi     2b                  // If remainder <= divisor, increment bit position one position
-    cmp     r4, #0
-    subhi   r4, r4, #1          
-    sub     r3, r3, r1, lsl r4  // Subtract divisor << bit from remainder
+    mov     r3, r6              // Subtract divisor << bit from remainder
     orr     r0, r0, r2, lsl r4  // Set the corresponding bit in the quotient
     cmp     r3, r1
-    bhi     1b
+    bhs     1b
     pop { r4, pc }                
 
 math_divide_error:
