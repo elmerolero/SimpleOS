@@ -21,11 +21,20 @@
 .equ MU_DATA_SIZE_7,    0x01
 .equ MU_DATA_SIZE_8,    0x03
 
+.equ MU_MAX_BAUDRATE, 31250000
+
 .section .text
 .global uart_init
 uart_init:
-    stmfd sp!, { r4 - r5, lr }
+    ldr     r3, =#MU_MAX_BAUDRATE
+    cmp     r0, r3
+    bxhi    lr
+    cmp     r1, #3
+    bxhi    lr
+
+    push { r4 - r5, lr }
     
+    # Back up baud-rate and data size parameter
     mov     r4, r0
     mov     r5, r1
 
@@ -37,6 +46,12 @@ uart_init:
     mov     r0, #15
     mov     r1, #GPIO_ALTF5
     bl      gpio_setMode
+
+    # Calculates baud-rate register value
+    ldr     r0, =#250000000
+    lsl     r1, r4, #3
+    bl      math_unsigned_divide
+    sub     r0, r0, #1
 
     // Registers initialization
     ldr     r3, =AUX_BASE
@@ -57,9 +72,9 @@ uart_init:
     
     mov     r2, #0x00
     str     r2, [r3, #AUX_MU_IIR_REG]
-    
-    mov     r2, #324
-    str     r2, [r3, #AUX_MU_BAUD_REG]
+
+    //mov     r2, #324
+    str     r0, [r3, #AUX_MU_BAUD_REG]
 
     // Disables Pull up-down resistors
     ldr     r3, =GPIO_GPPUD
@@ -87,7 +102,7 @@ uart_init:
     mov     r2, #2
     str     r2, [ r3, #AUX_MU_CNTL_REG ]
 
-    ldmfd   sp!, { r4 - r5, pc }
+    pop     { r4 - r5, pc }
 
 
 @ ------------------------------------------------------------------------------

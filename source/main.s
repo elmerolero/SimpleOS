@@ -6,7 +6,7 @@
 .extern uart_writeText
 
 .data
-    text: .ascii "Bienvenido a Mi OS\r\n"
+    text: .ascii "Bienvenido a Mini+ OS\r\n"
 
 /* Punto de Inicio */
 .section .init
@@ -18,12 +18,12 @@ _start:
 .global main
 main:
     ldr     sp, =0x8000
-    mov     r0, #0x00
+    ldr     r0, =#96153
     mov     r1, #0x03
     bl      uart_init
 
     ldr     r0, =text
-    mov     r1, #20
+    mov     r1, #23
     bl      uart_writeText
 loop:
     b       loop
