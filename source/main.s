@@ -6,7 +6,16 @@
 .extern uart_writeText
 
 .data
-    text: .ascii "Bienvenido a Mini+ OS\r\n"
+.align 1
+welcome_message: .ascii "Bienvenido a Mini+ OS\r\n"
+screen_width: .ascii "Ancho de pantalla: "
+screen_height: .ascii "Alto de pantalla: "
+endl: .ascii "\r\n"
+
+.align 4
+array:
+    .word 0
+    .word 0
 
 /* Punto de Inicio */
 .section .init
@@ -22,8 +31,40 @@ main:
     mov     r1, #0x03
     bl      uart_init
 
-    ldr     r0, =text
+    ldr     r0, =welcome_message
     mov     r1, #23
+    bl      uart_writeText
+
+    mov     r0, #1024
+    mov     r1, #768
+    mov     r2, #32
+    bl      framebuffer_init
+
+    bl      framebuffer_get_dimmensions
+    ldr     r2, =array
+    str     r0, [r2]
+    str     r1, [r2, #4]
+
+    ldr     r4, =array
+    ldr     r5, =screen_width
+    ldr     r6, =screen_height
+    ldr     r7, =endl
+    mov     r0, r5
+    mov     r1, #19
+    bl      uart_writeText
+    ldr     r0, [r4]
+    bl      uart_writeNumber
+    mov     r0, r7
+    mov     r1, #2
+    bl      uart_writeText
+
+    mov     r0, r6
+    mov     r1, #18
+    bl      uart_writeText
+    ldr     r0, [r4, #4]
+    bl      uart_writeNumber
+    mov     r0, r7
+    mov     r1, #2
     bl      uart_writeText
 loop:
     b       loop

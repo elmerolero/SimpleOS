@@ -1,4 +1,6 @@
-.include "mailbox.s"
+.include "mailbox_interface.s"
+
+.extern uart_writeText
 
 .section .data
 .align 4
@@ -18,12 +20,15 @@ FrameBufferInfo:
 RequestData:
 .int 32                                 // Buffer size
 .int 0                                  // Request
-.int MAILBOX_TAG_SCREEN_DIMENSIONS      // Tag
+.int TAG_GET_PHYSICAL_SIZE              // Tag
 .int 8                                  // Answer buffer size
 .int 0                                  // Request code
 .int 0                                  // Width (output)
 .int 0                                  // Height (output)
 .int 0                                  // End of message
+
+.align 1
+buffer_size_error: .ascii "Error retrieving tag property, size is not matching.\r\n"
 
 .section .text
 framebuffer_init:
@@ -58,19 +63,36 @@ framebuffer_init:
 .section .text
 framebuffer_get_dimmensions:
     push    { lr }
-    
+
+    // Dirección de RequestData para la GPU
     ldr     r2, =RequestData
-    add     r0, r2, #0x40000000
-    mov     r1, #8
+    add     r0, r2, #0x40000000    // Dirección no cacheada
+    mov     r1, #8                 // Canal del framebuffer
     bl      mailbox_write
 
-    mov     r0, #8
+    // Leer respuesta del Mailbox
+    mov     r0, #8                 // Canal del framebuffer
     bl      mailbox_read
 
-    teq     r0, #0
-    movne   r0, #0
-    popne   { pc }
+    // Verificar éxito
+    //teq     r0, #0                 // Mailbox_read devuelve 0 en éxito
+    //bne     error                  // Si falla, salir con error
 
-    mov     r0, r2
-    
+    // Validar tamaño de la respuesta
+    ldr     r3, [r0, #12]          // Campo Answer buffer size
+    cmp     r3, #8                 // Verificar si es igual a 8
+    mov     r0, #-1
+    bne     error                  // Si no, salida con error
+
+    // Extraer dimensiones
+    ldr     r0, [r0, #20]          // Width
+    ldr     r1, [r0, #24]          // Height
+
+    pop     { pc }                 // Regresar al llamador
+
+error:
+    cmp     r0, #-1
+    ldreq     r0, =buffer_size_error
+    moveq     r1, #54
+    bleq      uart_writeText
     pop     { pc }

@@ -139,7 +139,6 @@ uart_writeText:
     mov     r5, #0
     cmp     r3, r5
     beq     2f
-    cmp     r4, r5
 1:
     cmp     r5, r4
     bhs     2f
@@ -151,4 +150,24 @@ uart_writeText:
     b       1b
 2:
     pop { r4, r5, pc }
+    
+.section .text
+.global uart_writeNumber
+uart_writeNumber:
+    push { r4, lr }
+    mov r4, r0
+1:
+    mov r1, #10
+    bl  math_unsigned_module
+    add r0, r0, #48
+    bl  uart_writeChar
+    mov r0, r4
+    mov r1, #10
+    bl math_unsigned_divide
+    mov r4, r0
+    teq r0, #0
+    bne   1b
+    pop  { r4, pc }
+    
+    
     
