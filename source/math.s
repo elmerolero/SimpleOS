@@ -1,3 +1,9 @@
+@ ------------------------------------------------------------------------------
+@ Integer absolute in ARMv6
+@ r0: value
+@ Ouputs:
+@ r0: absolute(value)
+@ ------------------------------------------------------------------------------
 .section .text
 math_abs:
 cmp     r0, #0
@@ -5,12 +11,13 @@ subls   r1, r0, r0
 subls   r0, r1, r0
 bx      lr
 
-// Integer Division in ARMv6
-// Inputs:
-//   r0 = dividend (numerator)
-//   r1 = divisor (denominator)
-// Outputs:
-//   r0 = quotient
+@ ------------------------------------------------------------------------------
+@ Integer division in ARMv6
+@ r0: dividend
+@ r1: divisor
+@ Ouputs:
+@ r0: quotient
+@ ------------------------------------------------------------------------------
 .global math_unsigned_divide
 math_unsigned_divide:         
     cmp     r1, #0           
@@ -42,12 +49,15 @@ math_unsigned_divide_error:
     mov r0, #0           // En caso de error, cociente = 0
     bx lr
 
-// Integer division for remainder in ARMv6
-// Inputs:
-//   r0 = dividend (numerator)
-//   r1 = divisor (denominator)
-// Outputs:
-//   r0 = remainder
+
+@ ------------------------------------------------------------------------------
+@ Integer division for remainder in ARMv6
+@ Inputs
+@ r0: dividend
+@ r1: divisor
+@ Ouputs:
+@ r0: remainder
+@ ------------------------------------------------------------------------------
 .global math_unsigned_module
 math_unsigned_module:         
     cmp     r1, #0           

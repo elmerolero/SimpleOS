@@ -4,6 +4,7 @@
 .include "systemTimer.s"
 
 .extern uart_writeText
+.extern uart_writeByte
 
 .data
 .align 1
@@ -14,8 +15,8 @@ endl: .ascii "\r\n"
 
 .align 4
 array:
-    .word 0
-    .word 0
+    .word 1024
+    .word 766
 
 /* Punto de Inicio */
 .section .init
@@ -34,13 +35,7 @@ main:
     ldr     r0, =welcome_message
     mov     r1, #23
     bl      uart_writeText
-
-    mov     r0, #1024
-    mov     r1, #768
-    mov     r2, #32
-    bl      framebuffer_init
-
-    bl      framebuffer_get_dimmensions
+    
     ldr     r2, =array
     str     r0, [r2]
     str     r1, [r2, #4]
@@ -67,6 +62,13 @@ main:
     mov     r1, #2
     bl      uart_writeText
 loop:
+    bl      uart_readByte
+    cmp     r0, #13
+    blne    uart_writeByte
+    bne     loop
+    mov     r0, r7
+    mov     r1, #2
+    bl      uart_writeText
     b       loop
 
 /*.section .text
