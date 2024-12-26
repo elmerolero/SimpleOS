@@ -145,6 +145,7 @@ uart_writeByte:
     ldr     r2, [r1, #AUX_MU_LSR_REG] // AUX_BASE + 0x54
     tst     r2, #0x20
     beq     1b
+    and     r0, r0, #0xFF
     str     r0, [r1, #AUX_MU_IO_REG]  // AUX_BASE + 0x40
 
     pop { pc }

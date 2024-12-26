@@ -1,7 +1,9 @@
-/* Sistema Operativo para Raspberry Pi */
+/* Operating System for Raspberry Pi */
+
 .include "frameBuffer.s"
 .include "drawing.s"
 .include "systemTimer.s"
+.include "interrupts/interrupts.s"
 
 .extern uart_writeText
 .extern uart_writeByte
@@ -14,7 +16,7 @@ screen_height: .ascii "Alto de pantalla: "
 endl: .ascii "\r\n"
 
 .align 4
-array:
+screen_dimmensions:
     .word 1024
     .word 766
 
@@ -22,12 +24,13 @@ array:
 .section .init
 .global _start
 _start:
+    ldr     sp, =0x8000
+    bl      interrupts_init
     b   main
 
 .section .text
 .global main
 main:
-    ldr     sp, =0x8000
     ldr     r0, =#96153
     mov     r1, #0x03
     bl      uart_init
@@ -35,12 +38,8 @@ main:
     ldr     r0, =welcome_message
     mov     r1, #23
     bl      uart_writeText
-    
-    ldr     r2, =array
-    str     r0, [r2]
-    str     r1, [r2, #4]
 
-    ldr     r4, =array
+    ldr     r4, =screen_dimmensions
     ldr     r5, =screen_width
     ldr     r6, =screen_height
     ldr     r7, =endl
@@ -61,6 +60,7 @@ main:
     mov     r0, r7
     mov     r1, #2
     bl      uart_writeText
+
 loop:
     bl      uart_readByte
     cmp     r0, #13

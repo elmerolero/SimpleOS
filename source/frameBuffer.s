@@ -55,7 +55,7 @@ framebuffer_init:
 
     teq     r0, #0
     movne   r0, #0
-    popne { r3, pc }
+    popne { pc }
 
     mov     r0, r3
     pop { pc } 
