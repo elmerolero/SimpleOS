@@ -2,10 +2,21 @@
 .include "frameBuffer.s"
 .include "drawing.s"
 .include "systemTimer.s"
-.include "uart.s"
+
+.extern uart_writeText
+.extern uart_writeByte
 
 .data
-    text: .ascii "Bienvenido a Mi OS\r\n\0"
+.align 1
+welcome_message: .ascii "Bienvenido a Mini+ OS\r\n"
+screen_width: .ascii "Ancho de pantalla: "
+screen_height: .ascii "Alto de pantalla: "
+endl: .ascii "\r\n"
+
+.align 4
+array:
+    .word 1024
+    .word 766
 
 /* Punto de Inicio */
 .section .init
@@ -17,21 +28,48 @@ _start:
 .global main
 main:
     ldr     sp, =0x8000
-    mov     r0, #9600
-    mov     r1, #UART_LENGTH_EIGHT
-    mov     r2, #UART_STOP_BIT_ONE
-    mov     r3, #UART_PARITY_NONE
+    ldr     r0, =#96153
+    mov     r1, #0x03
     bl      uart_init
+
+    ldr     r0, =welcome_message
+    mov     r1, #23
+    bl      uart_writeText
     
-    ldr     r0, =UART_BASE
-1:
-    ldr     r1, [ r0, #UART_FR ]
-    and     r1, #0x20
-    cmp     r1, #0x00
-    bne     1b
-    mov     r2, #'A'
-    str     r2, [ r0, #UART_DR ]
-    b       1b
+    ldr     r2, =array
+    str     r0, [r2]
+    str     r1, [r2, #4]
+
+    ldr     r4, =array
+    ldr     r5, =screen_width
+    ldr     r6, =screen_height
+    ldr     r7, =endl
+    mov     r0, r5
+    mov     r1, #19
+    bl      uart_writeText
+    ldr     r0, [r4]
+    bl      uart_writeNumber
+    mov     r0, r7
+    mov     r1, #2
+    bl      uart_writeText
+
+    mov     r0, r6
+    mov     r1, #18
+    bl      uart_writeText
+    ldr     r0, [r4, #4]
+    bl      uart_writeNumber
+    mov     r0, r7
+    mov     r1, #2
+    bl      uart_writeText
+loop:
+    bl      uart_readByte
+    cmp     r0, #13
+    blne    uart_writeByte
+    bne     loop
+    mov     r0, r7
+    mov     r1, #2
+    bl      uart_writeText
+    b       loop
 
 /*.section .text
 .global main
@@ -43,7 +81,7 @@ mov     r1, #480
 mov     r2, #32
 bl      framebuffer_init
 
-teq     r0, #0
+teq     r0, #-1
 beq     error
 
 bl      canvas_setAddress
