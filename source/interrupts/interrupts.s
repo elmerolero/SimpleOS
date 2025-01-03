@@ -20,16 +20,17 @@
 
 .equ ARM_TIMER_IRQ_PENDING,             0x01
 .equ ARM_MAILBOX_IRQ_PENDING,           0x02
-.equ ARM_DOORBEL0_IRQ_PENDING,          0x03
-.equ ARM_DOORBEL1_IRQ_PENDING,          0x04
-.equ GPU0_HALTED_IRQ_PENDING,           0x05
-.equ GPU1_HALTED_IRQ_PENDING,           0x06
-.equ ILLEGAL_ACCESS_TYPE0_IRQ_PENDING,  0x07
-.equ ILLEGAL_ACCESS_TYPE1_IRQ_PENDING,  0x08
+.equ ARM_DOORBEL0_IRQ_PENDING,          0x04
+.equ ARM_DOORBEL1_IRQ_PENDING,          0x08
+.equ GPU0_HALTED_IRQ_PENDING,           0x10
+.equ GPU1_HALTED_IRQ_PENDING,           0x20
+.equ ILLEGAL_ACCESS_TYPE0_IRQ_PENDING,  0x40
+.equ ILLEGAL_ACCESS_TYPE1_IRQ_PENDING,  0x80
 
 .section .text
 .global interrupts_init
 interrupts_init:
+    push    { r4-r9, lr }
     ldr     r0, =interrupt_vector_table
     ldr     r1, =0x00
     
@@ -39,11 +40,15 @@ interrupts_init:
     stmia   r1!, { r2, r3, r4, r5, r6, r7, r8, r9 }  
 
     ldr     r0, =INTERRUPT_BASE
-    mov     r1, #1
-    lsl     r1, r1, #ARM_TIMER_IRQ_PENDING
+    mov     r1, #ARM_TIMER_IRQ_PENDING
     str     r1, [r0, #ENABLE_BASIC_IRQS]
 
-    bx      lr
+    mrs     r0, cpsr
+    bic     r0, r0, #0x80
+    msr     cpsr_c, r0
+    cpsie   i
+
+    pop { r4-r9, pc }
 
 .section .text
 interrupt_vector_table:

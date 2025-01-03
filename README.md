@@ -1,12 +1,10 @@
-# Simple OS
+# Mini+ OS
+Mini+ OS is an Operating System designed for the Raspberry Pi Model A+ V1.1, Its goal is to enable the use of graphical interfaces.  Although it might not work, I'm still willing to give it a try..
 
-Simple OS es un Sistema Operativo para Raspberry Pi Modelo A+ V1.1, que tiene el propósito de poder hacer "usable" este modelo.
-
-## Instalación
-
-
-## Preguntas frecuentes
-- ¿Por qué prohibes la creación de versiones propias del sistema operativo?
-Lo hago porque no quiero que existan diferentes "sabores" del mismo sistema operativo, cada uno el cual podría estar resolviendo ciertos problemas que en otros sabores quedan descubiertos y viceversa. Lo ideal en este caso es que si tienes alguna propuesta de mejora lo hagas justificando adecuadamente el por qué hacerla y en ese caso se llevará acabo, así todos puedan disfrutar de esta característica. Por ejemplo:
-"NO ME GUSTA LA INTERFAZ GRÁFICA" -> Lo ideal no es desarrollar una versión del mismo con una interfaz gráfica distinta, sino desarrollar un mecanimo que permita montar una interfaz gráfica al gusto de la persona.
-Así lo unico permitido sería para poderlo ejecutar en otro hardware si así se quisiera.
+## Data types
+- u8: Used as a byte without sign, represents an unsigned char.
+- s8: Used as a byte with sign, represents a char.
+- u16: Two bytes without sign, represents an unsigned short.
+- s16: Two bytes with sign, represents a short.
+- u32: 4 bytes without sign, represents an unsigned int.
+- s32: 4 bytes with sign, represents an int.

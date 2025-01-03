@@ -27,6 +27,9 @@
 .equ MU_RECEIVER_TRANSMITER_ENABLE, 0x03
 
 .equ MU_MAX_BAUDRATE, 31250000
+.section .data
+.align 1
+buffer: .skip 11
 
 .section .text
 .global uart_init
@@ -55,7 +58,7 @@ uart_init:
     # Calculates baud-rate register value
     ldr     r0, =#250000000
     lsl     r1, r4, #3
-    bl      math_unsigned_divide
+    bl      math_u32_divide
     sub     r0, r0, #1
 
     // Registers initialization
@@ -118,8 +121,8 @@ uart_init:
 @   r0: Byte read from receiver
 @ ------------------------------------------------------------------------------
 .section .text
-.global uart_readByte
-uart_readByte:
+.global uart_byte_read
+uart_byte_read:
     push { lr }
 
     ldr     r1, =AUX_BASE
@@ -136,8 +139,8 @@ uart_readByte:
 @ R0: Letter to send through UART
 @ ------------------------------------------------------------------------------
 .section .text
-.global uart_writeByte
-uart_writeByte:
+.global uart_byte_write
+uart_byte_write:
     push { lr }
 
     ldr     r1, =AUX_BASE             // 0x20215000
@@ -156,8 +159,8 @@ uart_writeByte:
 @ R1: String size
 @ ------------------------------------------------------------------------------
 .section .text
-.global uart_writeText
-uart_writeText:
+.global uart_write_bytes
+uart_write_bytes:
     push { r4, r5, lr }
 
     mov     r3, r0
@@ -169,31 +172,86 @@ uart_writeText:
     cmp     r5, r4
     bhs     2f
     ldrb    r0, [r3, r5]
-    cmp     r0, #'\0'
+    cmp     r0, #0
     beq     2f
-    bl      uart_writeByte
+    bl      uart_byte_write
     add     r5, #1
     b       1b
 2:
     pop { r4, r5, pc }
-    
+
+@ ------------------------------------------------------------------------------
+@ Convert an unsigned int number to text and sends it through UART for unsigned 
+@ int numbers. Supports 255 base
+@ R0: Number to be sent
+@ R1: Numerical base of the number
+@ ------------------------------------------------------------------------------
 .section .text
-.global uart_writeNumber
-uart_writeNumber:
-    push { r4, lr }
-    mov r4, r0
+.global uart_u32_write
+uart_u32_write:
+    cmp     r1, #0xFF
+    bxhi    lr
+
+    push { r4 - r6, lr }
+
+    mov     r4, r0
+    mov     r5, r1
+
+    ldr     r6, =buffer
+    mov     r0, #0x00
+    strb    r0, [r6], #1
+
 1:
-    mov r1, #10
-    bl  math_unsigned_module
-    add r0, r0, #48
-    bl  uart_writeByte
-    mov r0, r4
-    mov r1, #10
-    bl math_unsigned_divide
-    mov r4, r0
-    teq r0, #0
-    bne   1b
-    pop  { r4, pc }
+    mov     r0, r4
+    mov     r1, r5
+    bl      math_u32_divide
+    mov     r4, r0
+    mov     r0, r1
+    cmp     r0, #9
+    addhi   r0, r0, #7
+    add     r0, r0, #48
+    strb    r0, [r6], #1
+    teq     r4, #0
+    bne     1b
+2:
+    ldrb    r0, [r6, #-1]!
+    cmp     r0, #0x00
+    blne    uart_byte_write
+    bne     2b
+    pop  { r4 - r6, pc }
     
+@ ------------------------------------------------------------------------------
+@ Convert a number to text and sends it through UART
+@ It only works in base 10
+@ R0: Number to be sent
+@ ------------------------------------------------------------------------------
+.section .text
+.global uart_s32_write
+uart_s32_write:
+    push { r4, r5, r6, lr }
+    mov     r4, r0
+    cmp     r0, #0
+    movlt   r0, #'-'
+    bl      uart_byte_write
     
-    
+    ldr     r6, =buffer
+    mov     r0, #0
+    strb    r0, [r6], #1
+1:
+    mov     r0, r4
+    mov     r1, #10
+    bl      math_s32_divide
+    mov     r4, r0
+    mov     r0, r1
+    bl      math_s32_abs
+    add     r0, r0, #48
+    and     r0, r0, #0xFF
+    strb    r0, [r6], #1
+    teq     r4, #0
+    bne     1b
+2:
+    ldrb    r0, [r6, #-1]!
+    cmp     r0, #0
+    blne    uart_byte_write
+    bne     2b
+    pop  { r4, r5, r6, pc }

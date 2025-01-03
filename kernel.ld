@@ -14,7 +14,42 @@ SECTIONS {
 	.init 0x8000 : {
 		*(.init)
 	}
+
+	.undefined_stack : {
+        . = ALIGN(8);
+        _undefined_stack_start = .;
+        . = . + 0x400;  /* 1 KB for Undefined */
+        _undefined_stack_end = .;
+    }
 	
+	.abort_stack : {
+        . = ALIGN(8);
+        _abort_stack_start = .;
+        . = . + 0x400;  /* 1 KB for Data Abort */
+        _abort_stack_end = .;
+    }
+
+    .irq_stack : {
+        . = ALIGN(8);
+        _irq_stack_start = .;
+        . = . + 0x400;  /* 1 KB for IRQ */
+        _irq_stack_end = .;
+    }
+
+    .fiq_stack : {
+        . = ALIGN(8);
+        _fiq_stack_start = .;
+        . = . + 0x400;  /* 1 KB for FIQ */
+        _fiq_stack_end = .;
+    }
+
+    .sys_stack : {
+        . = ALIGN(8);
+        _sys_stack_start = .;
+        . = . + 0x400;  /* 1 KB for SYS */
+        _sys_stack_end = .;
+    }
+
 	/* 
 	* Next we put the rest of the code.
 	*/

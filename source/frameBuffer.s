@@ -1,6 +1,6 @@
 .include "mailbox_interface.s"
 
-.extern uart_writeText
+.extern uart_write_bytes
 
 .section .data
 .align 4
@@ -94,5 +94,5 @@ error:
     cmp     r0, #-1
     ldreq     r0, =buffer_size_error
     moveq     r1, #54
-    bleq      uart_writeText
+    bleq      uart_write_bytes
     pop     { pc }

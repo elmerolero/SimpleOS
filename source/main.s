@@ -5,14 +5,15 @@
 .include "systemTimer.s"
 .include "interrupts/interrupts.s"
 
-.extern uart_writeText
-.extern uart_writeByte
+.extern uart_write_bytes
+.extern uart_byte_write
 
 .data
 .align 1
 welcome_message: .ascii "Bienvenido a Mini+ OS\r\n"
 screen_width: .ascii "Ancho de pantalla: "
 screen_height: .ascii "Alto de pantalla: "
+interrupts_init_message: .ascii "Inicializando interrupciones.\r\n"
 endl: .ascii "\r\n"
 
 .align 4
@@ -25,8 +26,28 @@ screen_dimmensions:
 .global _start
 _start:
     ldr     sp, =0x8000
-    bl      interrupts_init
-    b   main
+    bl      stack_init
+    b       main
+
+stack_init:
+    mov       r0, #0xDB       @ Undefined
+    msr       cpsr, r0
+    ldr       sp, =_undefined_stack_end
+    mov       r0, #0xD7       @ Abort
+    msr       cpsr, r0
+    ldr       sp, =_abort_stack_end
+    mov       r0, #0xD1       @ Fast Interrupt Request
+    msr       cpsr, r0
+    ldr       sp, =_fiq_stack_end
+    mov       r0, #0xD2       @ IRQ
+    msr       cpsr, r0
+    ldr       sp, =_irq_stack_end
+    mov       r0, #0xDF       @ SYS
+    msr       cpsr, r0
+    ldr       sp, =_sys_stack_end
+    mov       r0, #0xD3       @ SVC
+    msr       cpsr, r0
+    bx        lr
 
 .section .text
 .global main
@@ -37,38 +58,45 @@ main:
 
     ldr     r0, =welcome_message
     mov     r1, #23
-    bl      uart_writeText
+    bl      uart_write_bytes
 
     ldr     r4, =screen_dimmensions
     ldr     r5, =screen_width
     ldr     r6, =screen_height
     ldr     r7, =endl
+    ldr     r8, =interrupts_init_message
     mov     r0, r5
     mov     r1, #19
-    bl      uart_writeText
+    bl      uart_write_bytes
     ldr     r0, [r4]
-    bl      uart_writeNumber
+    mov     r1, #16
+    bl      uart_u32_write
     mov     r0, r7
     mov     r1, #2
-    bl      uart_writeText
-
+    bl      uart_write_bytes
     mov     r0, r6
     mov     r1, #18
-    bl      uart_writeText
+    bl      uart_write_bytes
     ldr     r0, [r4, #4]
-    bl      uart_writeNumber
+    mov     r1, #16
+    bl      uart_u32_write
     mov     r0, r7
     mov     r1, #2
-    bl      uart_writeText
+    bl      uart_write_bytes
+    mov     r0, r8
+    mov     r1, #31
+    bl      uart_write_bytes
+    bl      interrupts_init
+    bl      arm_timer_init
 
 loop:
-    bl      uart_readByte
+    bl      uart_byte_read
     cmp     r0, #13
-    blne    uart_writeByte
+    blne    uart_byte_write
     bne     loop
     mov     r0, r7
     mov     r1, #2
-    bl      uart_writeText
+    bl      uart_write_bytes
     b       loop
 
 /*.section .text
