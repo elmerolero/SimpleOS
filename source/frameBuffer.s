@@ -2,13 +2,24 @@
 
 .extern uart_write_bytes
 
+.equ FRAMEBUFFER_PHYSICAL_WIDTH,    0x00
+.equ FRAMEBUFFER_PHYSICAL_HEIGHT,   0x04
+.equ FRAMEBUFFER_VIRTUAL_WIDTH,     0x08
+.equ FRAMEBUFFER_VIRTUAL_HEIGHT,    0x0C
+.equ FRAMEBUFFER_PITCH,             0x10
+.equ FRAMEBUFFER_DEPTH,             0x14
+.equ FRAMEBUFFER_OFFSET_X,          0x18
+.equ FRAMEBUFFER_OFFSET_Y,          0x1C
+.equ FRAMEBUFFER_ADDRESS,           0x20
+.equ FRAMEBUFFER_SIZE,              0x24
+
 .section .data
 .align 4
 FrameBufferInfo:
-.int 800    /* 0x00 Anchura física */
-.int 480    /* 0x04 Altura física */
-.int 800    /* 0x08 Anchura virtual */
-.int 480    /* 0x0C Altura virtual */
+.int 1024    /* 0x00 Anchura física */
+.int 768    /* 0x04 Altura física */
+.int 1024    /* 0x08 Anchura virtual */
+.int 768    /* 0x0C Altura virtual */
 .int 0      /* 0x10 GPU - Pitch */
 .int 32     /* 0x14 Profundidad de bit */
 .int 0      /* 0x18 Posición X respecto a la pantalla */
@@ -29,6 +40,7 @@ RequestData:
 
 .align 1
 buffer_size_error: .ascii "Error retrieving tag property, size is not matching.\r\n"
+
 
 .section .text
 framebuffer_init:
@@ -52,10 +64,6 @@ framebuffer_init:
 
     mov     r0, #1
     bl      mailbox_read
-
-    teq     r0, #0
-    movne   r0, #0
-    popne { pc }
 
     mov     r0, r3
     pop { pc } 

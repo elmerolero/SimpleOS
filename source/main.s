@@ -1,7 +1,6 @@
 /* Operating System for Raspberry Pi */
 
 .include "frameBuffer.s"
-.include "drawing.s"
 .include "systemTimer.s"
 .include "interrupts/interrupts.s"
 
@@ -19,7 +18,7 @@ endl: .ascii "\r\n"
 .align 4
 screen_dimmensions:
     .word 1024
-    .word 766
+    .word 768
 
 /* Punto de Inicio */
 .section .init
@@ -61,15 +60,13 @@ main:
     bl      uart_write_bytes
 
     ldr     r4, =screen_dimmensions
-    ldr     r5, =screen_width
-    ldr     r6, =screen_height
     ldr     r7, =endl
     ldr     r8, =interrupts_init_message
     mov     r0, r5
     mov     r1, #19
     bl      uart_write_bytes
     ldr     r0, [r4]
-    mov     r1, #16
+    mov     r1, #10
     bl      uart_u32_write
     mov     r0, r7
     mov     r1, #2
@@ -78,7 +75,7 @@ main:
     mov     r1, #18
     bl      uart_write_bytes
     ldr     r0, [r4, #4]
-    mov     r1, #16
+    mov     r1, #10
     bl      uart_u32_write
     mov     r0, r7
     mov     r1, #2
@@ -89,7 +86,7 @@ main:
     bl      interrupts_init
     bl      arm_timer_init
 
-loop:
+/*loop:
     bl      uart_byte_read
     cmp     r0, #13
     blne    uart_byte_write
@@ -97,51 +94,35 @@ loop:
     mov     r0, r7
     mov     r1, #2
     bl      uart_write_bytes
-    b       loop
+    b       loop*/
 
-/*.section .text
-.global main
-main:
-mov     sp, #0x8000
+    ldr     r2, =screen_dimmensions
+    ldr     r0, [ r2 ]
+    ldr     r1, [ r2 ]
+    mov     r2, #32
+    bl      framebuffer_init
 
-mov     r0, #800
-mov     r1, #480
-mov     r2, #32
-bl      framebuffer_init
+    ldr     r4, =FrameBufferInfo
+    ldr     r0, [ r4, #FRAMEBUFFER_ADDRESS ]
+    ldr     r1, [ r4, #FRAMEBUFFER_PHYSICAL_WIDTH ]
+    ldr     r2, [ r4, #FRAMEBUFFER_PHYSICAL_HEIGHT ]
+    ldr     r3, [ r4, #FRAMEBUFFER_DEPTH ]
+    bl      canvas_options_write
 
-teq     r0, #-1
-beq     error
+    ldr     r0, [ r4, #FRAMEBUFFER_PITCH ]
+    bl      canvas_pitch_write
 
-bl      canvas_setAddress
-mov     r2, r0
+    mvn     r0, #0x00
+    bl      canvas_foreground_write
 
-ldr     r4, [ r2, #0x00 ]
-ldr     r5, [ r2, #0x04 ]
-
-ldr     r10, =#5000
-
-ldr  r0, =#0xFFFFFFFF
-bl  canvas_setForegroundColour
-
-mov     r0, #0
-mov     r1, #0
-mov     r2, r4
-mov     r3, r5
-bl      canvas_fillRect
-
-mov     r0, #0x00000000
-bl      canvas_setForegroundColour
-
-mov     r4, #0
-mov     r5, #1
-mov     r6, #800
-
-render:
-    ldr     r0, =text
+    mov     r0, #0
     mov     r1, #0
-    mov     r2, #0
-    bl      canvas_drawText
-    b       render*/
+    ldr     r2, [ r4, #0x04 ]
+    ldr     r3, [ r4, #0x08 ]
+    bl      canvas_fill_rect
+
+    render:
+        b       render
 
     /*mov     r0, #0
     mov     r1, #0

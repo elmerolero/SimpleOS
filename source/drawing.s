@@ -1,62 +1,204 @@
 .include "font.s"
 .extern utils_switchRegisters
 
+.equ CANVAS_ADDRESS,    0x00
+.equ CANVAS_WIDTH,      0x04
+.equ CANVAS_HEIGHT,     0x08
+.equ CANVAS_DEPTH,      0x0C
+.equ CANVAS_PITCH,      0x10
+.equ CANVAS_FOREGROUND, 0x14
+
 .section .data
 .align 4
-foregroundColour:
-.word 0x00000000
+canvas:
+canvas_address: .word 0
+canvas_width:   .word 0
+canvas_height:  .word 0
+canvas_depth:   .word 0
+canvas_pitch:   .word 0
+canvas_foreground_color:  .word 0
 
-.align 4
-canvasAddress:
-.int 0
-
+@ ------------------------------------------------------------------------------
+@ Set canvas options
+@ r0: Canvas address (u32)
+@ r1: Canvas width (u32)
+@ r2: Canvas height (u32)
+@ r3: Canvas depth (u32)
+@ ------------------------------------------------------------------------------
 .section .text
-canvas_setForegroundColour:
-ldr     r1, =foregroundColour
-str     r0, [ r1 ]
-mov     pc, lr
+.global canvas_options_write
+canvas_options_write:
+    push { r4, lr }
+    ldr     r4, =canvas
+    str     r0, [ r4, #CANVAS_ADDRESS ]
+    str     r1, [ r4, #CANVAS_WIDTH ]
+    str     r2, [ r4, #CANVAS_HEIGHT ]
+    str     r3, [ r4, #CANVAS_DEPTH ]
+    pop  { r4, pc }
 
+@ ------------------------------------------------------------------------------
+@ Set canvas' address
+@ r0: Canvas address (u32)
+@ ------------------------------------------------------------------------------
+.global canvas_address_write
+canvas_address_write:
+    ldr     r1, =canvas_address
+    str     r0, [ r1 ]
+    bx      lr
+
+@ ------------------------------------------------------------------------------
+@ Getet canvas' address
+@ Output
+@ r0: Canvas address (u32)
+@ ------------------------------------------------------------------------------
+.global canvas_address_read
+canvas_address_read:
+    ldr     r1, =canvas_address
+    ldr     r0, [ r1 ]
+    bx      lr
+
+@ ------------------------------------------------------------------------------
+@ Set canvas' width
+@ Input
+@ r0: Canvas width
+@ ------------------------------------------------------------------------------
+.global canvas_width_write
+canvas_width_write:
+    ldr     r1, =canvas_width
+    str     r0, [ r1 ]
+    bx      lr
+
+@ ------------------------------------------------------------------------------
+@ Get canvas' address
+@ Output
+@ r0: Canvas address (u32)
+@ ------------------------------------------------------------------------------
+.global canvas_with_read
+canvas_width_read:
+    ldr     r1, =canvas_width
+    ldr     r0, [ r1 ]
+    bx      lr
+
+@ ------------------------------------------------------------------------------
+@ Set canvas' height
+@ Input
+@ r0: Canvas height
+@ ------------------------------------------------------------------------------
+.global canvas_height_write
+canvas_height_write:
+    ldr     r1, =canvas_height
+    str     r0, [ r1 ]
+    bx      lr
+
+@ ------------------------------------------------------------------------------
+@ Get canvas' height
+@ Output
+@ r0: Canvas height
+@ ------------------------------------------------------------------------------
+.global canvas_height_read
+canvas_height_read:
+    ldr     r1, =canvas_height
+    ldr     r0, [ r1 ]
+    bx      lr
+
+@ ------------------------------------------------------------------------------
+@ Set canvas' depth
+@ Input
+@ r0: Canvas depth
+@ ------------------------------------------------------------------------------
+.global canvas_depth_write
+canvas_depth_write:
+    ldr     r1, =canvas_depth
+    str     r0, [ r1 ]
+    bx      lr
+
+@ ------------------------------------------------------------------------------
+@ Get canvas' depth
+@ Output
+@ r0: Canvas depth
+@ ------------------------------------------------------------------------------
+.global canvas_depth_write
+canvas_depth_read:
+    ldr     r1, =canvas_depth
+    ldr     r0, [ r1 ]
+    bx      lr
+
+@ ------------------------------------------------------------------------------
+@ Set canvas' pitch or stride
+@ Input
+@ r0: Canvas stride
+@ ------------------------------------------------------------------------------
+.global canvas_pitch_write
+canvas_pitch_write:
+    ldr     r1, =canvas_pitch
+    str     r0, [ r1 ]
+    bx      lr
+
+@ ------------------------------------------------------------------------------
+@ Get canvas' pitch
+@ Input
+@ r0: Canvas pitch
+@ ------------------------------------------------------------------------------
+.global canvas_pitch_read
+canvas_pitch_read:
+    ldr     r1, =canvas_pitch
+    ldr     r0, [ r1 ]
+    bx      lr
+
+@ ------------------------------------------------------------------------------
+@ Set foreground color
+@ Input
+@ r0: Foreground color
+@ ------------------------------------------------------------------------------
+.global canvas_foreground_write
+canvas_foreground_write:
+    ldr     r1, =canvas_foreground_color
+    str     r0, [ r1 ]
+    mov     pc, lr
+
+@ ------------------------------------------------------------------------------
+@ Gets foreground color
+@ Output
+@ r0: Foreground color
+@ ------------------------------------------------------------------------------
+.global canvas_foreground_read 
+canvas_foreground_read:
+    ldr     r1, =canvas_foreground_color
+    ldr     r0, [ r1 ]
+    bx      lr
+
+@ ------------------------------------------------------------------------------
+@ Put a pixel in the specified dimension 
+@ R0: X position in canvas (u32)
+@ R1: Y position in canvas (u32)
+@ ------------------------------------------------------------------------------
 .section .text
-canvas_getForegroundColour:
-ldr     r0, =foregroundColour
-ldrh    r0, [ r0 ]
-mov     pc, lr
+canvas_pixel_draw:
+    ldr     r2, =canvas
+    ldr     r2, [ r2 ]
+    ldr     r3, [ r2, #CANVAS_HEIGHT ]
+    cmp     r1, r3
+    bxhs    lr
 
+    ldr     r3, [ r2, #CANVAS_WIDTH ]
+    cmp     r0, r3
+    bxhs    lr
 
-.section .text
-canvas_setAddress:
-ldr     r1, =canvasAddress
-str     r0, [ r1 ]
-mov     pc, lr
+    ldr     r2, [ r2 ]
+    mla     r0, r1, r3, r0
+    add     r0, r0, lsl #2
 
-.section .text
-canvas_drawPixel:
-ldr     r2, =canvasAddress
-ldr     r2, [ r2 ]
-ldr     r3, [ r2, #0x04 ]
-cmp     r1, r3
-movhs   pc, lr
+    ldr     r3, [ r3, #CANVAS_FOREGROUND ]
+    str     r3, [ r2, r0 ]
 
-ldr     r3, [ r2 ]
-cmp     r0, r3
-movhs   pc, lr
-
-ldr     r2, [ r2, #0x20 ]
-mla     r0, r1, r3, r0
-add     r2, r0, lsl #1
-
-ldr     r3, =foregroundColour
-ldrh    r3, [ r3 ]
-strh    r3, [ r2 ]
-
-mov     pc, lr
+    bx      lr
 
 .section .text
 canvas_drawLine:
 push { r4, r5, r6, r7, r8, r9, r10, r11, r12, lr }
 
 // Obtiene la dirección del framebuffer 
-ldr     r4, =canvasAddress
+ldr     r4, =canvas_address
 ldr     r4, [ r4 ]
 
 // Carga la altura de la pantalla y valida que y1 e y2 no sean mayores que la misma 
@@ -157,7 +299,7 @@ lsl   r0, #1
 lsl   r1, #1
 
 canvas_drawLineCaseEnd:
-ldr    r4, =foregroundColour
+ldr    r4, =canvas_foreground_color
 ldrh   r4, [ r4 ]
 
 canvas_drawLineLoop:
@@ -175,45 +317,48 @@ canvas_drawLineLoop:
 canvas_drawLineEnd:
 pop  { r4, r5, r6, r7, r8, r9, r10, r11, r12, pc }
 
+@ ------------------------------------------------------------------------------
+@ Fills a rect
+@ R0: X position in canvas (u32)
+@ R1: Y position in canvas (u32)
+@ r2: Rect's width (u32)
+@ r3: Rect's height (u32)
+@ ------------------------------------------------------------------------------
 .section .text
-canvas_fillRect:
+.global canvas_fill_rect
+canvas_fill_rect:
 push { r4, r5, r6, r7, lr }
-ldr     r4, =canvasAddress
-ldr     r4, [ r4 ]
+ldr     r4, =canvas
 
-// Obtiene x + w
+// Gets x + w
 add     r6, r0, r2
 
-// Obtiene y + h
+// Gets y + h
 add     r7, r1, r3
 
-// Obtiene la altura y valida que y e (y + h) sean mayores que la altura de 
-// la pantalla
-ldr     r5, [ r4, #0x04 ]
+// Gets height and checks that y and (y + h) are not greather than 
+// screen height
+ldr     r5, [ r4, #CANVAS_HEIGHT ]
 cmp     r1, r5
 cmpls   r7, r5
 pophi { r4, r5, r6, r7, pc }
 
-// Obtiene la base y valida que x e (x + w) sean mayores que la base de 
+// Gets width y valida que x e (x + w) sean mayores que la base de 
 // la pantalla
-ldr     r5, [ r4 ]
+ldr     r5, [ r4, #CANVAS_WIDTH ]
 cmp     r0, r4
 cmpls   r6, r5
 pophi { r4, r5, r6, r7, pc }
 
 
 // Obtiene el despazamiento de (x, y) y se posiciona
-ldr     r4, [ r4, #0x20 ]
+ldr     r4, [ r4 ]
 mla     r0, r5, r1, r0
 add     r0, r4, r0, lsl #2
 
 // Obtiene el desplazamiento de x + w, y + h
 mla     r1, r5, r7, r6
 add     r1, r4, r1, lsl #2
-
-// Carga el color
-ldr     r4, =foregroundColour
-ldr     r4, [ r4 ]
 
 // Obtiene el desplazamiento de anchoPantalla - w
 sub     r3, r5, r2
@@ -226,7 +371,7 @@ lsl     r2, #2
 mov     r5, r0
 
 // Carga el color
-ldr     r4, =foregroundColour
+ldr     r4, =canvas_foreground_color
 ldr     r4, [ r4 ]
 
 strh    r4, [ r0 ]
@@ -262,7 +407,7 @@ canvas_drawChar:
     cmp     r0, #0xFF
     bhi     2f
 
-    ldr     r3, =canvasAddress
+    ldr     r3, =canvas_address
     ldr     r3, [ r3 ]
     ldr     r4, [ r3, #0x04 ]
     cmp     r2, r4
@@ -282,7 +427,7 @@ canvas_drawChar:
     mov     r4, #4
     add     r0, r4, r0, lsl #3
     ldr     r5, [r2, r0]
-    ldr     r7, =foregroundColour
+    ldr     r7, =canvas_foreground_color
     ldr     r7, [ r7 ]
     lsr     r5, #24
     mov     r8, #6
