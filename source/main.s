@@ -10,9 +10,17 @@
 .data
 .align 1
 welcome_message: .ascii "Bienvenido a Mini+ OS\r\n"
+
+.align 1
 screen_width: .ascii "Ancho de pantalla: "
+
+.align 1
 screen_height: .ascii "Alto de pantalla: "
+
+.align 1
 interrupts_init_message: .ascii "Inicializando interrupciones.\r\n"
+
+.align 1
 endl: .ascii "\r\n"
 
 .align 4
@@ -59,32 +67,21 @@ main:
     mov     r1, #23
     bl      uart_write_bytes
 
-    ldr     r4, =screen_dimmensions
     ldr     r7, =endl
     ldr     r8, =interrupts_init_message
     mov     r0, r5
     mov     r1, #19
-    bl      uart_write_bytes
-    ldr     r0, [r4]
-    mov     r1, #10
-    bl      uart_u32_write
-    mov     r0, r7
-    mov     r1, #2
-    bl      uart_write_bytes
-    mov     r0, r6
-    mov     r1, #18
-    bl      uart_write_bytes
-    ldr     r0, [r4, #4]
-    mov     r1, #10
-    bl      uart_u32_write
-    mov     r0, r7
-    mov     r1, #2
     bl      uart_write_bytes
     mov     r0, r8
     mov     r1, #31
     bl      uart_write_bytes
     bl      interrupts_init
     bl      arm_timer_init
+
+    bl      framebuffer_get_dimmensions
+    ldr     r2, =screen_dimmensions
+    str     r0, [ r2 ]
+    str     r1, [ r2, #4 ]
 
 /*loop:
     bl      uart_byte_read
@@ -96,9 +93,8 @@ main:
     bl      uart_write_bytes
     b       loop*/
 
-    ldr     r2, =screen_dimmensions
     ldr     r0, [ r2 ]
-    ldr     r1, [ r2 ]
+    ldr     r1, [ r2, #4 ]
     mov     r2, #32
     bl      framebuffer_init
 
@@ -112,17 +108,28 @@ main:
     ldr     r0, [ r4, #FRAMEBUFFER_PITCH ]
     bl      canvas_pitch_write
 
-    mvn     r0, #0x00
+    ldr     r0, =0xFFFFFFFF
     bl      canvas_foreground_write
 
     mov     r0, #0
     mov     r1, #0
-    ldr     r2, [ r4, #0x04 ]
-    ldr     r3, [ r4, #0x08 ]
+    ldr     r2, [ r4, #0x00]
+    sub     r2, #1
+    ldr     r3, [ r4, #0x04 ]
+    sub     r3, #1
     bl      canvas_fill_rect
 
+    ldr     r0, =0x00000000
+    bl      canvas_foreground_write
+
+    ldr     r0, =welcome_message
+    mov     r1, #23
+    mov     r2, #0
+    mov     r3, #0
+    bl      canvas_text_draw
+
     render:
-        b       render
+        b   render
 
     /*mov     r0, #0
     mov     r1, #0

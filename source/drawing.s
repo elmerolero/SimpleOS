@@ -154,7 +154,7 @@ canvas_pitch_read:
 canvas_foreground_write:
     ldr     r1, =canvas_foreground_color
     str     r0, [ r1 ]
-    mov     pc, lr
+    bx      lr
 
 @ ------------------------------------------------------------------------------
 @ Gets foreground color
@@ -173,9 +173,9 @@ canvas_foreground_read:
 @ R1: Y position in canvas (u32)
 @ ------------------------------------------------------------------------------
 .section .text
+.global canvas_pixel_draw
 canvas_pixel_draw:
     ldr     r2, =canvas
-    ldr     r2, [ r2 ]
     ldr     r3, [ r2, #CANVAS_HEIGHT ]
     cmp     r1, r3
     bxhs    lr
@@ -186,7 +186,7 @@ canvas_pixel_draw:
 
     ldr     r2, [ r2 ]
     mla     r0, r1, r3, r0
-    add     r0, r0, lsl #2
+    lsl     r0, #2
 
     ldr     r3, [ r3, #CANVAS_FOREGROUND ]
     str     r3, [ r2, r0 ]
@@ -327,150 +327,150 @@ pop  { r4, r5, r6, r7, r8, r9, r10, r11, r12, pc }
 .section .text
 .global canvas_fill_rect
 canvas_fill_rect:
-push { r4, r5, r6, r7, lr }
-ldr     r4, =canvas
+    push { r4 - r9, lr }
+    ldr     r4, =canvas
 
-// Gets x + w
-add     r6, r0, r2
+    // Gets height and checks that (y + h) are not greather than 
+    // screen height
+    add     r5, r1, r3
+    ldr     r6, [ r4, #CANVAS_HEIGHT ]
+    cmp     r5, r6
+    pophs { r4 - r9, pc }
 
-// Gets y + h
-add     r7, r1, r3
+    // Gets width and checks that (x + w) are not greather than
+    // screen width
+    add     r5, r0, r2
+    ldr     r6, [ r4, #CANVAS_WIDTH ]
+    cmpls   r5, r6
+    pophs { r4 - r9, pc }
 
-// Gets height and checks that y and (y + h) are not greather than 
-// screen height
-ldr     r5, [ r4, #CANVAS_HEIGHT ]
-cmp     r1, r5
-cmpls   r7, r5
-pophi { r4, r5, r6, r7, pc }
+    // Gets foreground color and framebuffer address
+    ldr     r9, [ r4, #CANVAS_FOREGROUND ]
+    ldr     r4, [ r4 ]
 
-// Gets width y valida que x e (x + w) sean mayores que la base de 
-// la pantalla
-ldr     r5, [ r4, #CANVAS_WIDTH ]
-cmp     r0, r4
-cmpls   r6, r5
-pophi { r4, r5, r6, r7, pc }
+1:
+    mov     r7, r0      @ X position (incremented width times)
+    mov     r8, r2      @ Width (decremented until is lower than zero)
+2:
+    // Gets (y * width + x) * b offset
+    mla     r5, r1, r6, r7
+    lsl     r5, #2
+    str     r9, [ r4, r5 ]
+    add     r7, r7, #1
+    subs    r8, r8, #1
+    bhs     2b
+    add     r1, r1, #1
+    subs    r3, r3, #1
+    bhs     1b
 
-
-// Obtiene el despazamiento de (x, y) y se posiciona
-ldr     r4, [ r4 ]
-mla     r0, r5, r1, r0
-add     r0, r4, r0, lsl #2
-
-// Obtiene el desplazamiento de x + w, y + h
-mla     r1, r5, r7, r6
-add     r1, r4, r1, lsl #2
-
-// Obtiene el desplazamiento de anchoPantalla - w
-sub     r3, r5, r2
-lsl     r3, #2
-
-// Reserva el desplazamiento que delimita el ancho del rectángulo a dibujar
-lsl     r2, #2
-
-// Límite del renglon
-mov     r5, r0
-
-// Carga el color
-ldr     r4, =canvas_foreground_color
-ldr     r4, [ r4 ]
-
-strh    r4, [ r0 ]
-strh    r4, [ r1 ]
-
-// Mientras desplazamiento (x, y) < desplazamiento (x+w, x+h)
-canvas_fillRectLoop:
-cmp     r0, r1
-bhi     canvas_fillRectEnd
-
-// Agrega el desplazamiento
-add     r5, r2
-    canvas_fillRectFill:
-        cmp     r0, r5
-        bhi     canvas_fillRectFillEnd
-        str     r4, [ r0 ], #2
-        b       canvas_fillRectFill
-    canvas_fillRectFillEnd:
-add     r0, r3
-add     r5, r3
-b canvas_fillRectLoop
-
-canvas_fillRectEnd:
-pop { r4, r5, r6, r7, pc }
+    pop { r4 - r9, pc }
 
 @ r0 - char
 @ r1 - x
 @ r2 - y
 .section .text
-canvas_drawChar:
-    stmfd   sp!, { r4-r9, lr }
-
+.global canvas_char_draw
+canvas_char_draw:
     cmp     r0, #0xFF
-    bhi     2f
+    bxhi    lr
 
-    ldr     r3, =canvas_address
+    push { r4-r10, lr }
+
+    ldr     r3, =canvas
+    ldr     r5, [ r3, #CANVAS_HEIGHT ]
+    add     r2, r2, #8
+    cmp     r2, r5
+    bhs     2f
+
+    ldr     r5, [ r3, #CANVAS_WIDTH ]
+    add     r1, r1, #5
+    cmp     r1, r5
+    bhs     2f
+
+    // Reads canvas address
     ldr     r3, [ r3 ]
-    ldr     r4, [ r3, #0x04 ]
-    cmp     r2, r4
-    bhs     2f
+    
+    // The letter to be drawn is multiplied by eight
+    lsl     r0, r0, #3
 
-    ldr     r4, [ r3 ]
-    add     r1, #5
-    cmp     r1, r4
-    bhs     2f
+    // Offset for (x, y) calculated in (y * screen_width + y) * bytes form
+    sub     r2, r2, #8
+    mla     r4, r2, r5, r1
+    lsl     r4, r4, #2
 
-    mla     r5, r2, r4, r1
-    ldr     r3, [ r3, #0x20 ]
-    add     r3, r5, lsl #2
-    mov     r1, r4, lsl #2
+    // Width * 4
+    lsl     r5, r5, #2
 
-    ldr     r2, =font
-    mov     r4, #4
-    add     r0, r4, r0, lsl #3
-    ldr     r5, [r2, r0]
-    ldr     r7, =canvas_foreground_color
-    ldr     r7, [ r7 ]
-    lsr     r5, #24
-    mov     r8, #6
-    mov     r9, r3
-    mov     r6, #1
-  
+    // Loads font and foreground color
+    ldr     r7, =font
+    ldr     r8, =canvas_foreground_color
+    ldr     r8, [ r8 ]
+
+    add     r0, r0, #4
+    ldr     r6, [ r7, r0 ]
+    lsr     r6, #24
+
+    mov     r10, #1
+    mov     r9, #8
 1:
-    tst     r5, #1
-    strne   r7, [ r9 ]
-    add     r9, r1
-    lsr     r5, #1
-    subs    r8, #1
+    tst     r6, #1
+    strne   r8, [ r3, r4 ]
+    lsr     r6, r6, #1
+    add     r4, r4, r5
+    subs    r9, #1
     bne     1b
-    sub     r3, #4
-    mov     r9, r3
-    mov     r8, #8
-    subs    r6, #1
-    bne     1b
-    mov     r6, #0x04
-    sub     r0, r4
-    cmp     r4, #0
-    subne   r4, #4
-    ldrne   r5, [r2, r0]
+    
+    subs    r10, r10, #1
+    subeq   r0, r0, #4
+    ldreq   r6, [ r7, r0 ]
+
+    sub     r4, r4, r5, lsl #3
+    sub     r4, #4
+    mov     r9, #8
+    cmp     r6, #0
+    movne   r9, #8
     bne     1b
 2:
-    pop { r4, r5, r6, r7, r8, r9, pc }
+    pop { r4 - r10, pc }
 
-
-.text
-canvas_drawText:
-    push { r4, r5, r6, lr }
+@ ------------------------------------------------------------------------------
+@ Show text through the screen
+@ r0: Pointer to text shown
+@ r1: Text size
+@ r2: X position
+@ r3: Y position
+@ ------------------------------------------------------------------------------
+.section .text
+.global canvas_text_draw
+canvas_text_draw:
+    push { r4 - r8, lr }
     
     mov     r4, r0
     mov     r5, r1
     mov     r6, r2
+    mov     r7, r3
+    mov     r8, r2
 1:
     ldrb    r0, [r4], #1
-    tst     r0, #0xFF
+    cmp     r0, #0
+    beq     3f
+    cmp     r5, #0
+    blo     3f
+    cmp     r0, #'\n'
     beq     2f
-    mov     r1, r5
-    mov     r2, r6
-    bl      canvas_drawChar
-    add     r5, #7
+    cmp     r0, #'\r'
+    subeq   r5, #1
+    beq     1b
+    mov     r1, r6
+    mov     r2, r7
+    bl      canvas_char_draw
+    add     r6, r6, #5
+    sub     r5, r5, #1
     b       1b
 2:
-    pop { r4, r5, r6, lr }
+    mov     r6, r8
+    add     r7, #7
+    sub     r5, #1
+    b       1b
+3:
+    pop { r4 - r8, pc }

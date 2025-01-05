@@ -52,11 +52,11 @@ framebuffer_init:
 
     push { lr }
     ldr     r3, =FrameBufferInfo
-    str     r0, [ r3, #0x00 ]
-    str     r1, [ r3, #0x04 ]
-    str     r0, [ r3, #0x08 ]
-    str     r1, [ r3, #0x0C ]
-    str     r2, [ r3, #0x14 ]
+    str     r0, [ r3, #FRAMEBUFFER_PHYSICAL_WIDTH ]
+    str     r1, [ r3, #FRAMEBUFFER_PHYSICAL_HEIGHT ]
+    str     r0, [ r3, #FRAMEBUFFER_VIRTUAL_WIDTH ]
+    str     r1, [ r3, #FRAMEBUFFER_VIRTUAL_HEIGHT ]
+    str     r2, [ r3, #FRAMEBUFFER_DEPTH ]
 
     add     r0, r3, #0x40000000
     mov     r1, #1
@@ -82,10 +82,6 @@ framebuffer_get_dimmensions:
     mov     r0, #8                 // Canal del framebuffer
     bl      mailbox_read
 
-    // Verificar éxito
-    //teq     r0, #0                 // Mailbox_read devuelve 0 en éxito
-    //bne     error                  // Si falla, salir con error
-
     // Validar tamaño de la respuesta
     ldr     r3, [r0, #12]          // Campo Answer buffer size
     cmp     r3, #8                 // Verificar si es igual a 8
@@ -93,8 +89,9 @@ framebuffer_get_dimmensions:
     bne     error                  // Si no, salida con error
 
     // Extraer dimensiones
-    ldr     r0, [r0, #20]          // Width
-    ldr     r1, [r0, #24]          // Height
+    ldr     r2, =RequestData
+    ldr     r0, [r2, #20]          // Width
+    ldr     r1, [r2, #24]          // Height
 
     pop     { pc }                 // Regresar al llamador
 
