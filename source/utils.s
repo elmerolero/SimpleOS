@@ -18,8 +18,7 @@ mov     pc, lr
 .section .text
 .global utils_delay
 utils_delay:
-    push    { lr }
 1:
     subs    r0, #1
     bne     1b
-    pop     { pc }
+    bx      lr

@@ -3,6 +3,7 @@
 .include "frameBuffer.s"
 .include "systemTimer.s"
 .include "interrupts/interrupts.s"
+//.include "gpio.s"
 
 .extern uart_write_bytes
 .extern uart_byte_write
@@ -10,6 +11,10 @@
 .data
 .align 1
 welcome_message: .ascii "Bienvenido a Mini+ OS\r\n"
+end_message: .byte 0
+
+.align 1
+peciosa: .ascii "Alondra Itzaliny, te amo pechocha <3\r\n"
 
 .align 1
 screen_width: .ascii "Ancho de pantalla: "
@@ -83,16 +88,6 @@ main:
     str     r0, [ r2 ]
     str     r1, [ r2, #4 ]
 
-/*loop:
-    bl      uart_byte_read
-    cmp     r0, #13
-    blne    uart_byte_write
-    bne     loop
-    mov     r0, r7
-    mov     r1, #2
-    bl      uart_write_bytes
-    b       loop*/
-
     ldr     r0, [ r2 ]
     ldr     r1, [ r2, #4 ]
     mov     r2, #32
@@ -108,7 +103,7 @@ main:
     ldr     r0, [ r4, #FRAMEBUFFER_PITCH ]
     bl      canvas_pitch_write
 
-    ldr     r0, =0xFFFFFFFF
+    ldr     r0, =0xFF333333
     bl      canvas_foreground_write
 
     mov     r0, #0
@@ -119,7 +114,7 @@ main:
     sub     r3, #1
     bl      canvas_fill_rect
 
-    ldr     r0, =0x00000000
+    ldr     r0, =0xFF5dc1b9
     bl      canvas_foreground_write
 
     ldr     r0, =welcome_message
@@ -128,8 +123,50 @@ main:
     mov     r3, #0
     bl      canvas_text_draw
 
-    render:
-        b   render
+    bl      spi1_init
+
+    /*mov     r0, #16
+    mov     r1, #GPIO_OUTPUT
+    bl      gpio_setMode
+
+    ldr     r3, =GPIO_BASE
+    mov     r4, #1                      @
+    lsl     r4, #16
+    str     r4, [ r3, #GPIO_GPCLR0 ]    @ Apaga el pin*/
+
+    /*mov     r4, #10
+1:
+    mov     r0, #0xFF
+    bl      spi1_byte_write
+    subs    r4, r4, #1
+    bhs     1b*/
+
+    /*mov     r0, #0x40
+    bl      spi1_byte_write
+    mov     r0, #0x00
+    bl      spi1_byte_write
+    mov     r0, #0x00
+    bl      spi1_byte_write
+    mov     r0, #0x00
+    bl      spi1_byte_write
+    mov     r0, #0x00
+    bl      spi1_byte_write
+    mov     r0, #0x95
+    bl      spi1_byte_write
+
+    bl      spi1_byte_read
+    mov     r1, #16
+    bl      uart_u32_write*/
+
+loop:
+    bl      uart_byte_read
+    cmp     r0, #13
+    blne    uart_byte_write
+    bne     loop
+    mov     r0, r7
+    mov     r1, #2
+    bl      uart_write_bytes
+    b       loop
 
     /*mov     r0, #0
     mov     r1, #0

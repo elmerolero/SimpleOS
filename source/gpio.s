@@ -1,14 +1,27 @@
 .equ GPIO_BASE,  0x20200000 
 
-/* Funciones de los pines */
-.equ GPIO_INPUT,    0x00
-.equ GPIO_OUTPUT,   0x01
-.equ GPIO_ALTF0,    0x04
-.equ GPIO_ALTF1,    0x05
-.equ GPIO_ALTF2,    0x06
-.equ GPIO_ALTF3,    0x07
-.equ GPIO_ALTF4,    0x03
-.equ GPIO_ALTF5,    0x02
+// GPIO pin range
+.equ GPIO_MIN_PIN,  0
+.equ GPIO_MAX_PIN,  53
+
+// Available pin modes 
+.equ GPIO_MODE_INPUT,   0
+.equ GPIO_MODE_OUTPUT,  1
+.equ GPIO_MODE_ALTF0,   4
+.equ GPIO_MODE_ALTF1,   5
+.equ GPIO_MODE_ALTF2,   6
+.equ GPIO_MODE_ALTF3,   7
+.equ GPIO_MODE_ALTF4,   3
+.equ GPIO_MODE_ALTF5,   2
+.equ GPIO_MIN_MODE,     0
+.equ GPIO_MAX_MODE,     7
+
+// Available pull up/down mode
+.equ GPIO_PUD_MODE_DISABLE,     0
+.equ GPIO_PUD_MODE_DOWN_ENABLE, 1
+.equ GPIO_PUD_MODE_UP_ENABLE,   2
+.equ GPIO_MIN_PUD_MODE,         0
+.equ GPIO_MAX_PUD_MODE,         2
 
 /* Registers to set pin mode */
 .equ GPIO_GPFSEL0,  0x0 
@@ -59,9 +72,14 @@
 .equ GPIO_GPAFEN1,  0x8C
 
 /* Pin pull-up/down Enable */
-.equ GPIO_GPPUD,        0x20200094
-.equ GPIO_GPPUDCLK0,    0x20200098
-.equ GPIO_GPPUDCLK1,    0x2020009C
+.equ GPIO_GPPUD,        0x94
+.equ GPIO_GPPUDCLK0,    0x98
+.equ GPIO_GPPUDCLK1,    0x9C
+
+// GPIO PUD mode write errors
+.equ GPIO_ERROR_INVALID_PIN,        0xFFFFFFFF
+.equ GPIO_ERROR_INVALID_PIN_MODE,   0xFFFFFFFE
+.equ GPIO_ERROR_INVALID_PUD_MODE,   0xFFFFFFFE
 
 @ ----------------------------------------------------------------------------------------------------------
 @ Establece el modo del pin
@@ -100,3 +118,56 @@ gpio_setModeError:
     mov         pc,     lr
 gpio_setModeEnd:
     pop         {r4, pc}            @ Finaliza
+
+
+@ ----------------------------------------------------------------------------------------------------------
+@ Sets the indicated pull up/down mode for specific pin
+@ Parameters
+@ r0 - Pin Number (0 - 53)
+@ r1 - Pull up/down mode (0 - 2)
+@ Error codes:
+@ 0xFFFFFFFF - pin given is invalid.
+@ 0xFFFFFFFE - pud mode given is invalid.
+@ ----------------------------------------------------------------------------------------------------------
+.section .text
+gpio_pud_mode_write:
+    cmp     r0, #GPIO_MAX_PIN
+    movhi   r0, #GPIO_ERROR_INVALID_PIN
+    bxhi    lr
+    cmp     r1, #GPIO_MAX_PUD_MODE
+    movhi   r1, #GPIO_ERROR_INVALID_PUD_MODE
+    bxhi    lr
+
+    push { r4, lr } 
+
+    // Backs up the mode that will be updated
+    mov     r4, r1
+
+    // We get the bit for the desired pin and the offset
+    mov     r1, #32
+    bl      math_u32_divide
+    mov     r3, r0
+
+    // Prepares the PUD mode the pin will receive
+    ldr     r2, =GPIO_BASE
+    str     r4, [ r2, #GPIO_GPPUD ]
+    
+    // Wait 150 cycles required
+    mov     r0, #150
+    bl      utils_delay 
+
+    lsl     r3, #2
+    add     r0, r3, #GPIO_GPPUDCLK0
+    mov     r3, #1
+    lsl     r3, r3, r1
+    str     r3, [ r2, r0 ]
+
+    // Wait 150 cycles required again
+    mov     r0, #150
+    bl      utils_delay
+
+    mov     r0, #0
+    str     r0, [ r2, #GPIO_GPPUD ]
+    str     r0, [ r2, r0 ]
+
+    pop { r4, lr }

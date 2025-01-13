@@ -1,9 +1,5 @@
+.include "auxiliary.s"
 .include "gpio.s"
-
-.extern utils_delay
-
-.equ AUX_BASE,    0x20215000
-.equ AUX_ENABLES, 0x04
 
 // Mini UART
 .equ AUX_MU_IO_REG,   0x40
@@ -18,6 +14,8 @@
 .equ AUX_MU_STAT_REG, 0x64
 .equ AUX_MU_BAUD_REG, 0x68
 
+.equ AUX_MU_ENABLE,   0x01
+
 .equ MU_DATA_SIZE_7,  0x01
 .equ MU_DATA_SIZE_8,  0x03
 
@@ -29,7 +27,7 @@
 .equ MU_MAX_BAUDRATE, 31250000
 .section .data
 .align 1
-buffer: .skip 11
+buffer: .skip 33
 
 .section .text
 .global uart_init
@@ -48,14 +46,23 @@ uart_init:
 
     // Set ALT FUNC 5 on pins 14 and 15 (for AUX MINI UART)
     mov     r0, #14
-    mov     r1, #GPIO_ALTF5
+    mov     r1, #GPIO_MODE_ALTF5
     bl      gpio_setMode
 
     mov     r0, #15
-    mov     r1, #GPIO_ALTF5
+    mov     r1, #GPIO_MODE_ALTF5
     bl      gpio_setMode
 
-    # Calculates baud-rate register value
+    // Disables pull up/down resistors for pins 14 and 15
+    mov     r0, #14
+    mov     r1, #GPIO_PUD_MODE_DISABLE
+    bl      gpio_pud_mode_write
+
+    mov     r0, #15
+    mov     r1, #GPIO_PUD_MODE_DISABLE
+    bl      gpio_pud_mode_write
+
+    // Calculates baud-rate register value
     ldr     r0, =#250000000
     lsl     r1, r4, #3
     bl      math_u32_divide
@@ -64,7 +71,7 @@ uart_init:
     // Registers initialization
     ldr     r3, =AUX_BASE
     ldr     r2, [r3, #AUX_ENABLES]
-    orr     r2, #1
+    orr     r2, #AUX_MU_ENABLE
     str     r2, [r3, #AUX_ENABLES]
 
     mov     r2, #0
@@ -81,11 +88,10 @@ uart_init:
     mov     r2, #0x00
     str     r2, [r3, #AUX_MU_IIR_REG]
 
-    //mov     r2, #324
     str     r0, [r3, #AUX_MU_BAUD_REG]
 
     // Disables Pull up-down resistors
-    ldr     r3, =GPIO_GPPUD
+   /*ldr     r3, =GPIO_GPPUD
     mov     r2, #0
     str     r2, [ r3 ]
 
@@ -94,7 +100,7 @@ uart_init:
     bl      utils_delay
 
     ldr     r3, =GPIO_GPPUDCLK0
-    mov     r2, #1
+    mov     r2, #3
     lsl     r2, #14
     str     r2, [ r3 ]
 
@@ -103,7 +109,7 @@ uart_init:
     bl      utils_delay
 
     mov     r2, #0
-    str     r2, [ r3 ]
+    str     r2, [ r3 ]*/
 
     // Enables TX
     ldr     r3, =AUX_BASE

@@ -1,4 +1,5 @@
-.include "gpio.s"
+//.include "gpio.s"
+.include "auxiliary.s"
 
 .equ UART_BASE,     0x20201000  // UART Base Address
 
@@ -46,7 +47,7 @@
 @ r2 - Stop bits number
 @ r3 - Parity bit type
 @ -------------------------------------------------------------------
-.section .text
+/* .section .text
 uart_init:
     push    { r4, r5, lr }
 
@@ -125,3 +126,4 @@ uart_init:
     str     r1, [ r0, #UART_CR ]
 
     pop     { r4, r5, pc }
+*/

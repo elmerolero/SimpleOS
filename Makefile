@@ -27,6 +27,9 @@ MAP = kernel.map
 # The name of the linker script to use.
 LINKER = kernel.ld
 
+# Flags
+FLAGS = -march=armv6 -mfpu=vfp -mfloat-abi=hard
+
 # The names of all object files that must be generated. Deduced from the 
 # assembly code files in source.
 OBJECTS := $(patsubst $(SOURCE)%.s,$(BUILD)%.o,$(wildcard $(SOURCE)*.s))
@@ -51,7 +54,7 @@ $(BUILD)output.elf : $(OBJECTS) $(LINKER)
 
 # Rule to make the object files.
 $(BUILD)%.o: $(SOURCE)%.s $(BUILD)
-	$(ARMGNU)-as -g -I $(SOURCE) $< -o $@
+	$(ARMGNU)-as $(FLAGS) -g -I $(SOURCE) $< -o $@
 
 $(BUILD):
 	mkdir $@
