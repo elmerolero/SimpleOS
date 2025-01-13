@@ -40,8 +40,8 @@ math_u32_divide:
     lsl     r5, r1, r4
     sub     r6, r3, r5
     cmp     r6, r5              // Compare remainder with divisor << bit
-    addhi   r4, r4, #1
-    bhi     2b                  // If remainder <= divisor, increment bit position one position
+    addhs   r4, r4, #1
+    bhs     2b                  // If remainder <= divisor, increment bit position one position
     mov     r3, r6              // Subtract divisor << bit from remainder
     orr     r0, r0, r2, lsl r4  // Set the corresponding bit in the quotient
     cmp     r3, r1

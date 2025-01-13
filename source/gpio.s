@@ -161,13 +161,15 @@ gpio_pud_mode_write:
     mov     r3, #1
     lsl     r3, r3, r1
     str     r3, [ r2, r0 ]
+    mov     r1, r0
 
     // Wait 150 cycles required again
     mov     r0, #150
     bl      utils_delay
 
+    mov     r3, #0
+    str     r3, [ r2, #GPIO_GPPUD ]
+    str     r3, [ r2, r1 ]
     mov     r0, #0
-    str     r0, [ r2, #GPIO_GPPUD ]
-    str     r0, [ r2, r0 ]
 
     pop { r4, lr }

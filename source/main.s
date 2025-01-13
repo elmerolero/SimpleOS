@@ -3,7 +3,7 @@
 .include "frameBuffer.s"
 .include "systemTimer.s"
 .include "interrupts/interrupts.s"
-//.include "gpio.s"
+.include "gpio.s"
 
 .extern uart_write_bytes
 .extern uart_byte_write
@@ -26,7 +26,14 @@ screen_height: .ascii "Alto de pantalla: "
 interrupts_init_message: .ascii "Inicializando interrupciones.\r\n"
 
 .align 1
+error_message: .ascii "No se habilitó el módulo SPI\r\n"
+
+.align 1
+success_message: .ascii "Se recibió SPI!\r\n"
+
+.align 1
 endl: .ascii "\r\n"
+
 
 .align 4
 screen_dimmensions:
@@ -83,13 +90,42 @@ main:
     bl      interrupts_init
     bl      arm_timer_init
 
+    // Get dimmensions
+    ldr     r4, =screen_dimmensions
     bl      framebuffer_get_dimmensions
-    ldr     r2, =screen_dimmensions
-    str     r0, [ r2 ]
-    str     r1, [ r2, #4 ]
+    str     r0, [ r4 ]
+    str     r1, [ r4, #4 ]
 
-    ldr     r0, [ r2 ]
-    ldr     r1, [ r2, #4 ]
+
+    ldr     r0, =screen_width
+    mov     r1, #19
+    bl      uart_write_bytes
+    
+    ldr     r0, [ r4 ]
+    mov     r1, #10
+    bl      uart_u32_write
+    mov     r0, #'\r'
+    bl      uart_byte_write
+    mov     r0, #'\n'
+    bl      uart_byte_write
+
+    ldr     r0, =screen_height
+    mov     r1, #18
+    bl      uart_write_bytes
+
+    ldr     r0, [ r4, #4 ]
+    mov     r1, #10
+    bl      uart_u32_write
+    mov     r0, #'\r'
+    bl      uart_byte_write
+    mov     r0, #'\n'
+    bl      uart_byte_write
+
+    mov     r0, r5
+    mov     r1, #19
+
+    ldr     r0, [ r4 ]
+    ldr     r1, [ r4, #4 ]
     mov     r2, #32
     bl      framebuffer_init
 
@@ -125,6 +161,25 @@ main:
 
     bl      spi1_init
 
+    ldr     r0, =0x20215000
+    ldr     r0, [ r0, #0x80 ]
+    mov     r1, #10
+    bl      uart_u32_write
+
+    mov     r0, #' '
+    bl      uart_byte_write
+
+    ldr     r0, =0x20215000
+    ldr     r0, [ r0, #0x88 ]
+    mov     r1, #10
+    bl      uart_u32_write
+
+    mov     r0, #'\r'
+    bl      uart_byte_write
+
+    mov     r0, #'\n'
+    bl      uart_byte_write
+
     /*mov     r0, #16
     mov     r1, #GPIO_OUTPUT
     bl      gpio_setMode
@@ -134,14 +189,14 @@ main:
     lsl     r4, #16
     str     r4, [ r3, #GPIO_GPCLR0 ]    @ Apaga el pin*/
 
-    /*mov     r4, #10
+    mov     r4, #9
 1:
     mov     r0, #0xFF
     bl      spi1_byte_write
     subs    r4, r4, #1
-    bhs     1b*/
+    bhs     1b
 
-    /*mov     r0, #0x40
+    mov     r0, #0x40
     bl      spi1_byte_write
     mov     r0, #0x00
     bl      spi1_byte_write
@@ -154,9 +209,16 @@ main:
     mov     r0, #0x95
     bl      spi1_byte_write
 
+2:
     bl      spi1_byte_read
-    mov     r1, #16
-    bl      uart_u32_write*/
+    mov     r4, r0
+    bl      uart_u32_write
+    mov     r0, #'\r'
+    bl      uart_byte_write
+    mov     r0, #'\n'
+    bl      uart_byte_write
+    cmp     r4, #0x01
+    bne     2b 
 
 loop:
     bl      uart_byte_read

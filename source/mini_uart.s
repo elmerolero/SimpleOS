@@ -134,7 +134,8 @@ uart_byte_read:
     ldr     r1, =AUX_BASE
 1:
     ldr     r2, [ r1, #AUX_MU_LSR_REG ]
-    tst     r2, #0x01
+    and     r2, #0x01
+    cmp     r2, #0x00
     beq     1b
     ldr     r0, [ r1, #AUX_MU_IO_REG ]
 
@@ -152,7 +153,8 @@ uart_byte_write:
     ldr     r1, =AUX_BASE             // 0x20215000
 1:
     ldr     r2, [r1, #AUX_MU_LSR_REG] // AUX_BASE + 0x54
-    tst     r2, #0x20
+    and     r2, #0x20
+    cmp     r2, #0x00
     beq     1b
     and     r0, r0, #0xFF
     str     r0, [r1, #AUX_MU_IO_REG]  // AUX_BASE + 0x40

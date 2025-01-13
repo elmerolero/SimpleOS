@@ -1,12 +1,12 @@
 .include "auxiliary.s"
 .include "gpio.s"
 
-.equ AUX_SPI1_CNTL0,   0x80
-.equ AUX_SPI1_CNTL1,   0x84
-.equ AUX_SPI1_STAT,    0x88
-.equ AUX_SPI1_PEEK,    0x8C
-.equ AUX_SPI1_IO,      0xA0
-.equ AUX_SPI1_TXHOLD,  0xB0
+.equ AUX_SPI1_CNTL0,  0x80
+.equ AUX_SPI1_CNTL1,  0x84
+.equ AUX_SPI1_STAT,   0x88
+.equ AUX_SPI1_PEEK,   0x8C
+.equ AUX_SPI1_IO,     0xA0
+.equ AUX_SPI1_TXHOLD, 0xB0
 
 .equ AUX_SPI1_ENABLE, 0x02
 
@@ -24,8 +24,8 @@
 .equ AUX_SPI1_IN_FALLING_EDGE,  0x0000
 .equ AUX_SPI1_IN_RISING_EDGE,   0x0400 // CPOL
 
-.equ SPI1_DISABLE,          0x0000
-.equ SPI1_ENABLE,           0x0800
+.equ SPI1_DISABLE,  0x0000
+.equ SPI1_ENABLE,   0x0800
 
 .equ AUX_SPI1_DOUT_NO_HOLD,     0x0000
 
@@ -71,9 +71,11 @@ spi1_init:
     orr     r0, r0, #(AUX_SPI1_CNTRL_SHIFT_OUT_MS_BIT_FIRST | AUX_SPI1_OUT_RISING_EDGE | AUX_SPI1_IN_RISING_EDGE)
     mov     r1, #1024                @ Loads #1249 in r1
     add     r1, #224
-    orr     r0, r0, r1, lsl #20
-    mov     r1, #3                  @ Enables CS2
-    orr     r0, r0, r1, lsl #17
+    lsl     r1, r1, #20
+    orr     r0, r0, r1
+    mov     r1, #3                   @ Enables CS2
+    lsl     r1, #17
+    orr     r0, r0, r1
     
     str     r0, [ r4, #AUX_SPI1_CNTL0 ]
     
@@ -91,8 +93,9 @@ spi1_byte_write:
     and     r0, r0, #0xFF
 1:
     ldr     r1, [ r2, #AUX_SPI1_STAT ]
-    tst     r1, #0x400
-    beq     1b
+    and     r1, #0x400
+    cmp     r1, #0
+    bne     1b
     str     r0, [ r2, #AUX_SPI1_IO ]
     
     pop  { pc }
@@ -108,8 +111,9 @@ spi1_byte_read:
     ldr     r2, =AUX_BASE
 1:
     ldr     r1, [ r2, #AUX_SPI1_STAT ]
-    tst     r1, #0x80
-    beq     1b
+    and     r1, #0x80
+    cmp     r1, #0
+    bne     1b
     ldr     r0, [ r2, #AUX_SPI1_IO ]
     
     pop  { pc }
