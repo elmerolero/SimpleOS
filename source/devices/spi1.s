@@ -34,19 +34,19 @@
 spi1_init:
     push { r4, r5, lr }
     // Set ALT FUNC 0 from pin 9 to 11 (for SPI)
-    mov     r0, #21
+    mov     r0, #8
     mov     r1, #GPIO_MODE_ALTF4
     bl      gpio_setMode
 
-    mov     r0, #20
+    mov     r0, #9
     mov     r1, #GPIO_MODE_ALTF4
     bl      gpio_setMode
 
-    mov     r0, #19
+    mov     r0, #10
     mov     r1, #GPIO_MODE_ALTF4
     bl      gpio_setMode
 
-    mov     r0, #16
+    mov     r0, #11
     mov     r1, #GPIO_MODE_ALTF4
     bl      gpio_setMode
 

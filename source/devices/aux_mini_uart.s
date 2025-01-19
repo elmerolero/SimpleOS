@@ -30,7 +30,7 @@
 buffer: .skip 33
 
 .section .text
-.global uart_init
+.global aux_mini_uart_init
 uart_init:
     ldr     r3, =#MU_MAX_BAUDRATE
     cmp     r0, r3
@@ -89,27 +89,6 @@ uart_init:
     str     r2, [r3, #AUX_MU_IIR_REG]
 
     str     r0, [r3, #AUX_MU_BAUD_REG]
-
-    // Disables Pull up-down resistors
-   /*ldr     r3, =GPIO_GPPUD
-    mov     r2, #0
-    str     r2, [ r3 ]
-
-    // Wait 150 cicles required
-    mov     r0, #150
-    bl      utils_delay
-
-    ldr     r3, =GPIO_GPPUDCLK0
-    mov     r2, #3
-    lsl     r2, #14
-    str     r2, [ r3 ]
-
-    // Wait 150 cicles required again
-    mov     r0, #150
-    bl      utils_delay
-
-    mov     r2, #0
-    str     r2, [ r3 ]*/
 
     // Enables TX
     ldr     r3, =AUX_BASE

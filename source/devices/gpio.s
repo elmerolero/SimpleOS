@@ -1,8 +1,9 @@
+/*  */
 .equ GPIO_BASE,  0x20200000 
 
 // GPIO pin range
-.equ GPIO_MIN_PIN,  0
-.equ GPIO_MAX_PIN,  53
+.equ GPIO_PIN_MIN,  0
+.equ GPIO_PIN_MAX,  53
 
 // Available pin modes 
 .equ GPIO_MODE_INPUT,   0
@@ -13,15 +14,21 @@
 .equ GPIO_MODE_ALTF3,   7
 .equ GPIO_MODE_ALTF4,   3
 .equ GPIO_MODE_ALTF5,   2
-.equ GPIO_MIN_MODE,     0
-.equ GPIO_MAX_MODE,     7
+.equ GPIO_MODE_MIN,     0
+.equ GPIO_MODE_MAX,     7
 
 // Available pull up/down mode
 .equ GPIO_PUD_MODE_DISABLE,     0
 .equ GPIO_PUD_MODE_DOWN_ENABLE, 1
 .equ GPIO_PUD_MODE_UP_ENABLE,   2
-.equ GPIO_MIN_PUD_MODE,         0
-.equ GPIO_MAX_PUD_MODE,         2
+.equ GPIO_PUD_MODE_MIN,         0
+.equ GPIO_PUD_MODE_MAX,         2
+
+// Registers to set
+.equ GPIO_PIN_LOW,      0
+.equ GPIO_PIN_HIGH,     1
+.equ GPIO_PIN_WRITE_MIN, 0
+.equ GPIO_PIN_WRITE_MAX, 1
 
 /* Registers to set pin mode */
 .equ GPIO_GPFSEL0,  0x0 
@@ -131,10 +138,10 @@ gpio_setModeEnd:
 @ ----------------------------------------------------------------------------------------------------------
 .section .text
 gpio_pud_mode_write:
-    cmp     r0, #GPIO_MAX_PIN
+    cmp     r0, #GPIO_MODE_MAX
     movhi   r0, #GPIO_ERROR_INVALID_PIN
     bxhi    lr
-    cmp     r1, #GPIO_MAX_PUD_MODE
+    cmp     r1, #GPIO_PUD_MODE_MAX
     movhi   r1, #GPIO_ERROR_INVALID_PUD_MODE
     bxhi    lr
 
@@ -146,15 +153,12 @@ gpio_pud_mode_write:
     // We get the bit for the desired pin and the offset
     mov     r1, #32
     bl      math_u32_divide
-    mov     r3, r0
+    
+    // Select d
 
     // Prepares the PUD mode the pin will receive
     ldr     r2, =GPIO_BASE
     str     r4, [ r2, #GPIO_GPPUD ]
-    
-    // Wait 150 cycles required
-    mov     r0, #150
-    bl      utils_delay 
 
     lsl     r3, #2
     add     r0, r3, #GPIO_GPPUDCLK0
@@ -172,4 +176,47 @@ gpio_pud_mode_write:
     str     r3, [ r2, r1 ]
     mov     r0, #0
 
+    pop { r4, pc }
+
+
+@ ----------------------------------------------------------------------------------------------------------
+@ Sets the 
+@ Parameters
+@ r0 - Pin Number (0 - 53)
+@ r1 - Pull up/down mode (0 - 2)
+@ Error codes:
+@ 0xFFFFFFFF - pin given is invalid.
+@ ----------------------------------------------------------------------------------------------------------
+.section .text
+gpio_pin_write:
+    cmp     r0, #GPIO_PIN_MAX
+    movhi   r0, #GPIO_ERROR_INVALID_PIN
+    bxhi    lr
+
+    push { r4, lr } 
+
+    // Makes sure that value to write is zero or one and saves result in r4
+    and     r4, r1, #GPIO_PIN_WRITE_MAX
+
+    // We get the bit for the desired pin and the offset
+    mov     r1, #32
+    bl      math_u32_divide
+    
+    // Result is multiplied by 4
+    lsl     r0, r0, #2
+
+    // Sets the offset for specified pin
+    mov     r3, #1
+    lsl     r1, r3, r1
+
+    cmp     r4, #GPIO_PIN_LOW
+    addeq   r0, r0, #GPIO_GPCLR0
+    addne   r0, r0, #GPIO_GPSET0
+
+    // Sets the value
+    ldr     r2, =GPIO_BASE
+    ldr     r3, [ r2, r0 ]
+    orr     r3, r3, r1
+    str     r3, [ r2, r0 ]
+    
     pop { r4, lr }

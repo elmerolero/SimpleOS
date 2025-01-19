@@ -1,4 +1,4 @@
-.include "mailbox_interface.s"
+.include "devices/mailbox_interface.s"
 
 .extern uart_write_bytes
 

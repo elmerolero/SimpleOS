@@ -1,9 +1,8 @@
 /* Operating System for Raspberry Pi */
-
-.include "frameBuffer.s"
-.include "systemTimer.s"
 .include "interrupts/interrupts.s"
-.include "gpio.s"
+.include "graphics/frame_buffer.s"
+.include "devices/system_timer.s"
+.include "devices/gpio.s"
 
 .extern uart_write_bytes
 .extern uart_byte_write
@@ -71,6 +70,14 @@ stack_init:
 .section .text
 .global main
 main:
+    mov     r0, #4
+    mov     r1, #GPIO_MODE_OUTPUT
+    bl      gpio_setMode
+
+    mov     r0, #4
+    mov     r1, #GPIO_PIN_HIGH
+    bl      gpio_pin_write
+
     ldr     r0, =#96153
     mov     r1, #0x03
     bl      uart_init
@@ -228,6 +235,9 @@ loop:
     mov     r0, r7
     mov     r1, #2
     bl      uart_write_bytes
+    mov     r0, #4
+    mov     r1, #GPIO_PIN_LOW
+    bl      gpio_pin_write
     b       loop
 
     /*mov     r0, #0
