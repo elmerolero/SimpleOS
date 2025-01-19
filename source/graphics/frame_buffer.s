@@ -1,6 +1,6 @@
 .include "devices/mailbox_interface.s"
 
-.extern uart_write_bytes
+.extern aux_mini_uart_write_bytes
 
 .equ FRAMEBUFFER_PHYSICAL_WIDTH,    0x00
 .equ FRAMEBUFFER_PHYSICAL_HEIGHT,   0x04
@@ -99,5 +99,5 @@ error:
     cmp     r0, #-1
     ldreq     r0, =buffer_size_error
     moveq     r1, #54
-    bleq      uart_write_bytes
+    bleq      aux_mini_uart_write_bytes
     pop     { pc }

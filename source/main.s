@@ -1,11 +1,15 @@
 /* Operating System for Raspberry Pi */
+.include "lib/utils.s"
+.include "lib/math.s"
+.include "devices/gpio.s"
+.include "devices/spi0.s"
+.include "devices/spi1.s"
+.include "devices/aux_mini_uart.s"
+.include "devices/arm_timer.s"
 .include "interrupts/interrupts.s"
 .include "graphics/frame_buffer.s"
+.include "graphics/drawing.s"
 .include "devices/system_timer.s"
-.include "devices/gpio.s"
-
-.extern uart_write_bytes
-.extern uart_byte_write
 
 .data
 .align 1
@@ -72,7 +76,7 @@ stack_init:
 main:
     mov     r0, #4
     mov     r1, #GPIO_MODE_OUTPUT
-    bl      gpio_setMode
+    bl      gpio_mode_write
 
     mov     r0, #4
     mov     r1, #GPIO_PIN_HIGH
@@ -80,20 +84,20 @@ main:
 
     ldr     r0, =#96153
     mov     r1, #0x03
-    bl      uart_init
+    bl      aux_mini_uart_init
 
     ldr     r0, =welcome_message
     mov     r1, #23
-    bl      uart_write_bytes
+    bl      aux_mini_uart_write_bytes
 
     ldr     r7, =endl
     ldr     r8, =interrupts_init_message
     mov     r0, r5
     mov     r1, #19
-    bl      uart_write_bytes
+    bl      aux_mini_uart_write_bytes
     mov     r0, r8
     mov     r1, #31
-    bl      uart_write_bytes
+    bl      aux_mini_uart_write_bytes
     bl      interrupts_init
     bl      arm_timer_init
 
@@ -106,27 +110,27 @@ main:
 
     ldr     r0, =screen_width
     mov     r1, #19
-    bl      uart_write_bytes
+    bl      aux_mini_uart_write_bytes
     
     ldr     r0, [ r4 ]
     mov     r1, #10
-    bl      uart_u32_write
+    bl      aux_mini_uart_u32_write
     mov     r0, #'\r'
-    bl      uart_byte_write
+    bl      aux_mini_uart_byte_write
     mov     r0, #'\n'
-    bl      uart_byte_write
+    bl      aux_mini_uart_byte_write
 
     ldr     r0, =screen_height
     mov     r1, #18
-    bl      uart_write_bytes
+    bl      aux_mini_uart_write_bytes
 
     ldr     r0, [ r4, #4 ]
     mov     r1, #10
-    bl      uart_u32_write
+    bl      aux_mini_uart_u32_write
     mov     r0, #'\r'
-    bl      uart_byte_write
+    bl      aux_mini_uart_byte_write
     mov     r0, #'\n'
-    bl      uart_byte_write
+    bl      aux_mini_uart_byte_write
 
     mov     r0, r5
     mov     r1, #19
@@ -171,25 +175,25 @@ main:
     ldr     r0, =0x20215000
     ldr     r0, [ r0, #0x80 ]
     mov     r1, #10
-    bl      uart_u32_write
+    bl      aux_mini_uart_u32_write
 
     mov     r0, #' '
-    bl      uart_byte_write
+    bl      aux_mini_uart_byte_write
 
     ldr     r0, =0x20215000
     ldr     r0, [ r0, #0x88 ]
     mov     r1, #10
-    bl      uart_u32_write
+    bl      aux_mini_uart_u32_write
 
     mov     r0, #'\r'
-    bl      uart_byte_write
+    bl      aux_mini_uart_byte_write
 
     mov     r0, #'\n'
-    bl      uart_byte_write
+    bl      aux_mini_uart_byte_write
 
     /*mov     r0, #16
     mov     r1, #GPIO_OUTPUT
-    bl      gpio_setMode
+    bl      gpio_mode_write
 
     ldr     r3, =GPIO_BASE
     mov     r4, #1                      @
@@ -219,22 +223,22 @@ main:
 2:
     bl      spi1_byte_read
     mov     r4, r0
-    bl      uart_u32_write
+    bl      aux_mini_uart_u32_write
     mov     r0, #'\r'
-    bl      uart_byte_write
+    bl      aux_mini_uart_byte_write
     mov     r0, #'\n'
-    bl      uart_byte_write
+    bl      aux_mini_uart_byte_write
     cmp     r4, #0x01
     bne     2b 
 
 loop:
-    bl      uart_byte_read
+    bl      aux_mini_uart_byte_read
     cmp     r0, #13
-    blne    uart_byte_write
+    blne    aux_mini_uart_byte_write
     bne     loop
     mov     r0, r7
     mov     r1, #2
-    bl      uart_write_bytes
+    bl      aux_mini_uart_write_bytes
     mov     r0, #4
     mov     r1, #GPIO_PIN_LOW
     bl      gpio_pin_write
@@ -266,7 +270,7 @@ b   render*/
 error:
     mov     r0, #16
     mov     r1, #GPIO_OUTPUT
-    bl      gpio_setMode
+    bl      gpio_mode_write
     cmp     r0, #-1
     beq     error
     ldr     r3, =GPIO_BASE

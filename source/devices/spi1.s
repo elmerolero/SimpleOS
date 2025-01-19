@@ -1,5 +1,4 @@
-.include "auxiliary.s"
-.include "gpio.s"
+.include "devices/auxiliary.s"
 
 .equ AUX_SPI1_CNTL0,  0x80
 .equ AUX_SPI1_CNTL1,  0x84
@@ -36,19 +35,19 @@ spi1_init:
     // Set ALT FUNC 0 from pin 9 to 11 (for SPI)
     mov     r0, #8
     mov     r1, #GPIO_MODE_ALTF4
-    bl      gpio_setMode
+    bl      gpio_mode_write
 
     mov     r0, #9
     mov     r1, #GPIO_MODE_ALTF4
-    bl      gpio_setMode
+    bl      gpio_mode_write
 
     mov     r0, #10
     mov     r1, #GPIO_MODE_ALTF4
-    bl      gpio_setMode
+    bl      gpio_mode_write
 
     mov     r0, #11
     mov     r1, #GPIO_MODE_ALTF4
-    bl      gpio_setMode
+    bl      gpio_mode_write
 
     // Registers initialization
     ldr     r4, =AUX_BASE

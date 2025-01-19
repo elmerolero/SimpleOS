@@ -37,7 +37,7 @@
 .equ UART_FIFO_ENABLED,     0x10
 
 // External functions
-.extern gpio_setMode
+.extern gpio_mode_write
 .extern utils_delay
 
 @ -------------------------------------------------------------------
@@ -61,12 +61,12 @@ uart_init:
     // Set alternative modes
     mov     r0, #14
     mov     r1, #GPIO_ALTF0
-    bl      gpio_setMode
+    bl      gpio_mode_write
 
     mov     r4, r0
     mov     r0, #15
     mov     r1, #GPIO_ALTF0
-    bl      gpio_setMode
+    bl      gpio_mode_write
 
     ldr     r0, =UART_BASE
 

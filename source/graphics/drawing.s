@@ -1,4 +1,4 @@
-.include "font.s"
+.include "graphics/font.s"
 .extern utils_switchRegisters
 
 .equ CANVAS_ADDRESS,    0x00

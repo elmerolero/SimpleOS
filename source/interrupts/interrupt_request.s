@@ -1,3 +1,6 @@
+.extern aux_mini_uart_write_bytes
+.extern arm_timer_irq_clear
+
 .section .data
 .align 1
 irq_message: .ascii "IRQ request\r\n"
@@ -10,7 +13,7 @@ interrupt_request:
     push { r0 }
     ldr     r0, =irq_message
     mov     r1, #13
-    bl      uart_write_bytes
+    bl      aux_mini_uart_write_bytes
     bl      arm_timer_irq_clear
     pop { r0 }
     msr spsr_cxsf, r0

@@ -97,7 +97,7 @@
 @  0 Exitoso
 @ ----------------------------------------------------------------------------------------------------------
 .section .text
-gpio_setMode:
+gpio_mode_write:
     cmp         r0, #53             @ Compara el pin indicado (r0) con 53
     cmpls       r1, #7
     bhi         gpio_setModeError   @ If r0 > 53 then setModeError

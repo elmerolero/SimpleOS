@@ -1,6 +1,5 @@
 /* January 17th 2025 - Main SPI */
-/* Copyright 2025 Ismael Salas López */
-.include "gpio.s"
+/* Ismael Salas López */
 
 .equ SPI0_BASE,     0x20204000
 .equ SPI0_CS_REG,   0x00
@@ -53,19 +52,19 @@ spi0_init:
     // Set ALT FUNC 0 from pin 9 to 11 (for SPI)
     mov     r0, #21
     mov     r1, #GPIO_MODE_ALTF4
-    bl      gpio_setMode
+    bl      gpio_mode_write
 
     mov     r0, #20
     mov     r1, #GPIO_MODE_ALTF4
-    bl      gpio_setMode
+    bl      gpio_mode_write
 
     mov     r0, #19
     mov     r1, #GPIO_MODE_ALTF4
-    bl      gpio_setMode
+    bl      gpio_mode_write
 
     mov     r0, #16
     mov     r1, #GPIO_MODE_ALTF4
-    bl      gpio_setMode
+    bl      gpio_mode_write
 
     // Loads SPI1 options
     mov     r0, #0

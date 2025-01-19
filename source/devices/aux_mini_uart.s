@@ -1,5 +1,4 @@
-.include "auxiliary.s"
-.include "gpio.s"
+.include "devices/auxiliary.s"
 
 // Mini UART
 .equ AUX_MU_IO_REG,   0x40
@@ -30,8 +29,7 @@
 buffer: .skip 33
 
 .section .text
-.global aux_mini_uart_init
-uart_init:
+aux_mini_uart_init:
     ldr     r3, =#MU_MAX_BAUDRATE
     cmp     r0, r3
     bxhi    lr
@@ -47,11 +45,11 @@ uart_init:
     // Set ALT FUNC 5 on pins 14 and 15 (for AUX MINI UART)
     mov     r0, #14
     mov     r1, #GPIO_MODE_ALTF5
-    bl      gpio_setMode
+    bl      gpio_mode_write
 
     mov     r0, #15
     mov     r1, #GPIO_MODE_ALTF5
-    bl      gpio_setMode
+    bl      gpio_mode_write
 
     // Disables pull up/down resistors for pins 14 and 15
     mov     r0, #14
@@ -106,8 +104,7 @@ uart_init:
 @   r0: Byte read from receiver
 @ ------------------------------------------------------------------------------
 .section .text
-.global uart_byte_read
-uart_byte_read:
+aux_mini_uart_byte_read:
     push { lr }
 
     ldr     r1, =AUX_BASE
@@ -125,8 +122,7 @@ uart_byte_read:
 @ R0: Letter to send through UART
 @ ------------------------------------------------------------------------------
 .section .text
-.global uart_byte_write
-uart_byte_write:
+aux_mini_uart_byte_write:
     push { lr }
 
     ldr     r1, =AUX_BASE             // 0x20215000
@@ -146,8 +142,7 @@ uart_byte_write:
 @ R1: String size
 @ ------------------------------------------------------------------------------
 .section .text
-.global uart_write_bytes
-uart_write_bytes:
+aux_mini_uart_write_bytes:
     push { r4, r5, lr }
 
     mov     r3, r0
@@ -161,7 +156,7 @@ uart_write_bytes:
     ldrb    r0, [r3, r5]
     cmp     r0, #0
     beq     2f
-    bl      uart_byte_write
+    bl      aux_mini_uart_byte_write
     add     r5, #1
     b       1b
 2:
@@ -175,7 +170,7 @@ uart_write_bytes:
 @ ------------------------------------------------------------------------------
 .section .text
 .global uart_u32_write
-uart_u32_write:
+aux_mini_uart_u32_write:
     cmp     r1, #0xFF
     bxhi    lr
 
@@ -203,23 +198,23 @@ uart_u32_write:
 2:
     ldrb    r0, [r6, #-1]!
     cmp     r0, #0x00
-    blne    uart_byte_write
+    blne    aux_mini_uart_byte_write
     bne     2b
     pop  { r4 - r6, pc }
-    
+
+
 @ ------------------------------------------------------------------------------
 @ Convert a number to text and sends it through UART
 @ It only works in base 10
 @ R0: Number to be sent
 @ ------------------------------------------------------------------------------
 .section .text
-.global uart_s32_write
-uart_s32_write:
+aux_mini_uart_s32_write:
     push { r4, r5, r6, lr }
     mov     r4, r0
     cmp     r0, #0
     movlt   r0, #'-'
-    bl      uart_byte_write
+    bl      aux_mini_uart_byte_write
     
     ldr     r6, =buffer
     mov     r0, #0
@@ -239,6 +234,6 @@ uart_s32_write:
 2:
     ldrb    r0, [r6, #-1]!
     cmp     r0, #0
-    blne    uart_byte_write
+    blne    aux_mini_uart_byte_write
     bne     2b
     pop  { r4, r5, r6, pc }
