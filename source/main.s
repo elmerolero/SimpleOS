@@ -10,8 +10,9 @@
 .include "graphics/frame_buffer.s"
 .include "graphics/drawing.s"
 .include "devices/system_timer.s"
+.include "devices/msd_card.s"
 
-.data
+.section .data
 .align 1
 welcome_message: .ascii "Bienvenido a Mini+ OS\r\n"
 end_message: .byte 0
@@ -74,14 +75,6 @@ stack_init:
 .section .text
 .global main
 main:
-    mov     r0, #4
-    mov     r1, #GPIO_MODE_OUTPUT
-    bl      gpio_mode_write
-
-    mov     r0, #4
-    mov     r1, #GPIO_PIN_HIGH
-    bl      gpio_pin_write
-
     ldr     r0, =#96153
     mov     r1, #0x03
     bl      aux_mini_uart_init
@@ -170,8 +163,6 @@ main:
     mov     r3, #0
     bl      canvas_text_draw
 
-    bl      spi1_init
-
     ldr     r0, =0x20215000
     ldr     r0, [ r0, #0x80 ]
     mov     r1, #10
@@ -191,45 +182,73 @@ main:
     mov     r0, #'\n'
     bl      aux_mini_uart_byte_write
 
-    /*mov     r0, #16
-    mov     r1, #GPIO_OUTPUT
-    bl      gpio_mode_write
+    ldr     r0, =40000
+    mov     r1, #0
+    bl      spi0_init
 
-    ldr     r3, =GPIO_BASE
-    mov     r4, #1                      @
-    lsl     r4, #16
-    str     r4, [ r3, #GPIO_GPCLR0 ]    @ Apaga el pin*/
-
-    mov     r4, #9
+    mov     r4, #10
 1:
     mov     r0, #0xFF
-    bl      spi1_byte_write
-    subs    r4, r4, #1
-    bhs     1b
+    bl      spi0_byte_write
+    subs    r4, #1
+    bge     1b
 
-    mov     r0, #0x40
-    bl      spi1_byte_write
-    mov     r0, #0x00
-    bl      spi1_byte_write
-    mov     r0, #0x00
-    bl      spi1_byte_write
-    mov     r0, #0x00
-    bl      spi1_byte_write
-    mov     r0, #0x00
-    bl      spi1_byte_write
-    mov     r0, #0x95
-    bl      spi1_byte_write
-
-2:
-    bl      spi1_byte_read
-    mov     r4, r0
+    mov     r1, #16
     bl      aux_mini_uart_u32_write
     mov     r0, #'\r'
     bl      aux_mini_uart_byte_write
     mov     r0, #'\n'
     bl      aux_mini_uart_byte_write
-    cmp     r4, #0x01
-    bne     2b 
+
+    ldr     r4, =cmd00
+    mov     r5, #0
+2:  
+    ldrb    r0, [ r4, r5 ]
+    bl      spi0_byte_write
+    add     r5, r5, #1
+    cmp     r5, #6
+    bne     2b
+
+    mov     r1, #16
+    bl      aux_mini_uart_u32_write
+    mov     r0, #'\r'
+    bl      aux_mini_uart_byte_write
+    mov     r0, #'\n'
+    bl      aux_mini_uart_byte_write
+
+    mov     r5, #10
+3:
+    mov     r0, #0xFF
+    bl      spi0_byte_write
+    mov     r1, #16
+    bl      aux_mini_uart_u32_write
+    mov     r0, #'\r'
+    bl      aux_mini_uart_byte_write
+    mov     r0, #'\n'
+    bl      aux_mini_uart_byte_write
+    subs    r5, #1
+    bge     3b
+
+/*  mov     r0, #0x40
+    bl      spi0_byte_write
+    mov     r0, #0x00
+    bl      spi0_byte_write
+    mov     r0, #0x00
+    bl      spi0_byte_write
+    mov     r0, #0x00
+    bl      spi0_byte_write
+    mov     r0, #0x00
+    bl      spi0_byte_write
+    mov     r0, #0x00
+    bl      spi0_byte_write
+    mov     r0, #0x95
+    bl      spi0_byte_write
+2:
+    mov     r0, #0xFF
+    bl      spi0_byte_write
+    bl      spi0_byte_read
+    cmp     r0, #0x01
+    bne     2b*/
 
 loop:
     bl      aux_mini_uart_byte_read
@@ -239,9 +258,6 @@ loop:
     mov     r0, r7
     mov     r1, #2
     bl      aux_mini_uart_write_bytes
-    mov     r0, #4
-    mov     r1, #GPIO_PIN_LOW
-    bl      gpio_pin_write
     b       loop
 
     /*mov     r0, #0

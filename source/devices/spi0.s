@@ -1,8 +1,9 @@
 /* January 17th 2025 - Main SPI */
 /* Ismael Salas López */
+.include "globals/variables.s"
 
-.equ SPI0_BASE,     0x20204000
-.equ SPI0_CS_REG,   0x00
+.equ SPI0_BASE,      0x20204000
+.equ SPI0_CS_REG,    0x00
 .equ SPI0_FIFO_REG,  0x04
 .equ SPI0_CLK_REG,   0x08
 .equ SPI0_DLEN_REG,  0x0C
@@ -41,43 +42,125 @@
 .equ SPI0_RXR_STATUS,           0x80000
 .equ SPI0_RXF_STATUS,           0x100000
 
-
-
-
 .section .text
 .global spi0_init
 spi0_init:
+    # Makes sure that a right value was set up
+    cmp     r1, #3
+    bxhi    lr
+
     push { r4, r5, lr }
-    mov r0, #SPI0_DONE_STATUS
-    // Set ALT FUNC 0 from pin 9 to 11 (for SPI)
-    mov     r0, #21
-    mov     r1, #GPIO_MODE_ALTF4
+
+    // Backs up registers
+    mov     r4, r0
+    mov     r5, r1
+
+    // Set ALT FUNC 0 from pin 9 to pin 11
+    mov     r0, #8
+    mov     r1, #GPIO_MODE_ALTF0
     bl      gpio_mode_write
 
-    mov     r0, #20
-    mov     r1, #GPIO_MODE_ALTF4
+    mov     r0, #9
+    mov     r1, #GPIO_MODE_ALTF0
     bl      gpio_mode_write
 
-    mov     r0, #19
-    mov     r1, #GPIO_MODE_ALTF4
+    mov     r0, #10
+    mov     r1, #GPIO_MODE_ALTF0
     bl      gpio_mode_write
 
-    mov     r0, #16
-    mov     r1, #GPIO_MODE_ALTF4
+    mov     r0, #11
+    mov     r1, #GPIO_MODE_ALTF0
     bl      gpio_mode_write
-
-    // Loads SPI1 options
-    mov     r0, #0
-    orr     r0, #0
-    orr     r0, r0, #0
-    mov     r1, #1024                @ Loads #1249 in r1
-    add     r1, #224
-    lsl     r1, r1, #20
-    orr     r0, r0, r1
-    mov     r1, #3                   @ Enables CS2
-    lsl     r1, #17
-    orr     r0, r0, r1
     
-    str     r0, [ r4 ]
-    
+    // Calculates clock register value
+    ldr     r0, =core_freq
+    mov     r1, r4
+    ldr     r0, [ r0 ]
+    bl      math_u32_divide
+    sub     r0, r0, #1
+
+    // Disable SPI0
+    ldr     r4, =SPI0_BASE
+    mov     r1, #0
+    str     r1, [ r4, #SPI0_CS_REG ]
+
+    // Saves calculated value
+    str     r0, [ r4, #SPI0_CLK_REG ]
+
+    // Load SPI options
+    orr     r5, r5, #(SPI0_CLK_PHA_0 | SPI0_CLK_POL_0)
+    str     r5, [ r4, #SPI0_CS_REG ]
+
     pop { r4, r5, pc }
+
+.section .text
+spi0_byte_write:
+    push { lr }
+
+    // Crean sent byte
+    and     r0, r0, #0xFF
+
+    // Enable transfer bit
+    ldr     r1, =SPI0_BASE
+    ldr     r2, [ r1, #SPI0_CS_REG ]
+    orr     r2, r2, #(SPI0_TA_ENABLE | SPI0_CLEAR_TX | SPI0_CLEAR_RX)
+    str     r2, [ r1, #SPI0_CS_REG ]
+
+    // Write byte in FIFO
+    str     r0, [ r1, #SPI0_FIFO_REG ]
+
+    // Check for done transfer
+    mov     r2, #SPI0_DONE_STATUS
+1:
+    ldr     r3, [ r1, #SPI0_CS_REG ]
+    and     r3, r3, r2
+    cmp     r3, r2
+    bne     1b
+
+    // Wait to make sure that slave data was received
+    mov     r2, #SPI0_RXD_STATUS
+2:
+    ldr     r3, [ r1, #SPI0_CS_REG ]
+    and     r3, r3, r2
+    cmp     r3, r2
+    bne     2b
+
+    // Read returned data
+    ldr     r0, [ r1, #SPI0_FIFO_REG ]
+
+    pop { pc }
+
+.section
+spi0_bytes_write:
+    push { lr }
+    
+    pop { pc }
+
+
+.section .text
+spi0_byte_read:
+    push { r4, lr }
+    and     r0, r0, #0xFF
+    ldr     r1, =SPI0_BASE
+    mov     r3, #0x40000
+    mov     r4, #0x10000
+    mov     r2, #(SPI0_CLEAR_RX | SPI0_CLEAR_TX | SPI0_TA_ENABLE )
+    orr     r2, #SPI0_REN_ENABLE
+    str     r2, [ r1, #SPI0_CS_REG ]
+1:
+    ldr     r2, [ r1, #SPI0_CS_REG ]
+    and     r2, r2, r3
+    cmp     r2, r3
+    bne     1b
+
+    str     r0, [ r1, #SPI0_FIFO_REG ]
+2:
+    ldr     r2, [ r1, #SPI0_CS_REG ]
+    and     r2, r4
+    cmp     r2, r4
+    bne     2b
+
+    mov     r2, #0
+    str     r2, [ r1, #SPI0_CS_REG]
+
+    pop  { r4, pc }

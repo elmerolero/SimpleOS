@@ -59,7 +59,7 @@
 .equ GPIO_GPREN1,   0x50
 
 /* FAlling Edge Detect Enable */
-.equ GPIO_GPFEN0,   0x58
+.equ GPIO_GPFEN0,   0x58 
 .equ GPIO_GPFEN1,   0x5C
 
 /* High Detect Enable */
@@ -180,10 +180,9 @@ gpio_pud_mode_write:
 
 
 @ ----------------------------------------------------------------------------------------------------------
-@ Sets the 
-@ Parameters
-@ r0 - Pin Number (0 - 53)
-@ r1 - Pull up/down mode (0 - 2)
+@ Writes a pin output
+@ r0 - Pin number (0 - 53)
+@ r1 - Pin output (0 - 1)
 @ Error codes:
 @ 0xFFFFFFFF - pin given is invalid.
 @ ----------------------------------------------------------------------------------------------------------
