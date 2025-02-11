@@ -130,11 +130,21 @@ spi0_byte_write:
 
     pop { pc }
 
-.section
+.section .text
 spi0_bytes_write:
-    push { lr }
-    
-    pop { pc }
+    push { r4, r5, r6, lr }
+    mov     r4, r0
+    mov     r5, r1
+    mov     r6, #0
+1:
+    cmp     r6, r5
+    bhs     2f
+    ldr     r0, [ r4, r6 ]
+    bl      spi0_byte_write
+    add     r6, r6, #1
+    b       1b
+2:
+    pop { r4, r5, r6, pc }
 
 
 .section .text

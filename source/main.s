@@ -11,6 +11,7 @@
 .include "graphics/drawing.s"
 .include "devices/system_timer.s"
 .include "devices/msd_card.s"
+.include "filesystems/fat32.s"
 
 .section .data
 .align 1
@@ -163,25 +164,6 @@ main:
     mov     r3, #0
     bl      canvas_text_draw
 
-    ldr     r0, =0x20215000
-    ldr     r0, [ r0, #0x80 ]
-    mov     r1, #10
-    bl      aux_mini_uart_u32_write
-
-    mov     r0, #' '
-    bl      aux_mini_uart_byte_write
-
-    ldr     r0, =0x20215000
-    ldr     r0, [ r0, #0x88 ]
-    mov     r1, #10
-    bl      aux_mini_uart_u32_write
-
-    mov     r0, #'\r'
-    bl      aux_mini_uart_byte_write
-
-    mov     r0, #'\n'
-    bl      aux_mini_uart_byte_write
-
     ldr     r0, =40000
     mov     r1, #0
     bl      spi0_init
@@ -193,62 +175,94 @@ main:
     subs    r4, #1
     bge     1b
 
-    mov     r1, #16
-    bl      aux_mini_uart_u32_write
-    mov     r0, #'\r'
-    bl      aux_mini_uart_byte_write
-    mov     r0, #'\n'
-    bl      aux_mini_uart_byte_write
-
-    ldr     r4, =cmd00
-    mov     r5, #0
-2:  
-    ldrb    r0, [ r4, r5 ]
-    bl      spi0_byte_write
-    add     r5, r5, #1
-    cmp     r5, #6
-    bne     2b
-
-    mov     r1, #16
-    bl      aux_mini_uart_u32_write
-    mov     r0, #'\r'
-    bl      aux_mini_uart_byte_write
-    mov     r0, #'\n'
-    bl      aux_mini_uart_byte_write
-
-    mov     r5, #10
-3:
-    mov     r0, #0xFF
-    bl      spi0_byte_write
-    mov     r1, #16
-    bl      aux_mini_uart_u32_write
-    mov     r0, #'\r'
-    bl      aux_mini_uart_byte_write
-    mov     r0, #'\n'
-    bl      aux_mini_uart_byte_write
-    subs    r5, #1
-    bge     3b
-
-/*  mov     r0, #0x40
-    bl      spi0_byte_write
-    mov     r0, #0x00
-    bl      spi0_byte_write
-    mov     r0, #0x00
-    bl      spi0_byte_write
-    mov     r0, #0x00
-    bl      spi0_byte_write
-    mov     r0, #0x00
-    bl      spi0_byte_write
-    mov     r0, #0x00
-    bl      spi0_byte_write
-    mov     r0, #0x95
-    bl      spi0_byte_write
+    ldr     r0, =cmd0
+    mov     r1, #6
+    bl      spi0_bytes_write
 2:
+    cmp     r0, #1
+    beq     3f
     mov     r0, #0xFF
     bl      spi0_byte_write
-    bl      spi0_byte_read
-    cmp     r0, #0x01
-    bne     2b*/
+    b       2b
+
+3:
+    ldr     r0, =cmd8
+    mov     r1, #6
+    bl      spi0_bytes_write
+4:
+    cmp     r0, #1
+    beq     5f
+    mov     r0, #0xFF
+    bl      spi0_byte_write
+    b       4b
+
+5:
+    ldr     r0, =cmd1
+    mov     r1, #6
+    bl      spi0_bytes_write
+6:
+    cmp     r0, #1
+    beq     5b
+    cmp     r0, #0
+    beq     7f
+    mov     r0, #0xFF
+    bl      spi0_byte_write
+    b       6b
+
+7:
+    ldr     r0, =cmd55
+    mov     r1, #6
+    bl      spi0_bytes_write
+8:
+    cmp     r0, #0
+    beq     9f
+    mov     r0, #0xFF
+    bl      spi0_byte_write
+    b       8b
+
+9:
+    ldr     r0, =cmd41
+    mov     r1, #6
+    bl      spi0_bytes_write
+10:
+    cmp     r0, #1
+    beq     9b
+    cmp     r0, #0
+    beq     11f
+    mov     r0, #0xFF
+    bl      spi0_byte_write
+    b       10b
+
+11:
+    ldr     r0, =cmd17
+    mov     r1, #6
+    bl      spi0_bytes_write
+12:
+    cmp     r0, #0xFE
+    beq     13f
+    mov     r0, #0xFF
+    bl      spi0_byte_write
+    b       12b
+
+    mov     r4, #0
+    mov     r5, #90
+    ldr     r6, =bpb_fat32
+13:
+    mov     r0, #0xFF
+    bl      spi0_byte_write
+    and     r0, r0, #0xFF
+    str     r0, [ r6, r4 ]
+    add     r4, r4, #1
+    cmp     r4, r5
+    blt     13b
+
+// Read reserved sectors
+    ldrb    r0, [ r6, #FAT32_RESERVED_SECTORS ]
+    ldrb    r1, [ r6, #(FAT32_RESERVED_SECTORS + 1) ]
+    orr     r0, r1, r0, lsl #8
+
+    mov     r1, #16
+    bl      aux_mini_uart_u32_write
 
 loop:
     bl      aux_mini_uart_byte_read
