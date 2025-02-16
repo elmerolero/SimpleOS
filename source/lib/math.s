@@ -31,7 +31,7 @@ math_u32_divide:
     movlo   r1, r3              
     bxlo    lr                  // If true, return (quotient = 0, remainder = dividend)
 
-    push { r4 - r6, lr }
+    push { r4, r5, r6, lr }
 
     mov     r2, #1
 1:
@@ -47,7 +47,7 @@ math_u32_divide:
     cmp     r3, r1
     bhs     1b
     mov     r1, r3
-    pop { r4 - r6, pc }                
+    pop { r4, r5, r6, pc }                
 
 math_u32_divide_error:
     mov r0, #0           // En caso de error, cociente = 0

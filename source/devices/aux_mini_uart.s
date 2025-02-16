@@ -33,7 +33,7 @@ aux_mini_uart_init:
     ldr     r3, =#MU_MAX_BAUDRATE
     cmp     r0, r3
     bxhi    lr
-    cmp     r1, #3
+    cmp     r1, #MU_DATA_SIZE_8
     bxhi    lr
 
     push { r4 - r5, lr }
@@ -169,12 +169,12 @@ aux_mini_uart_write_bytes:
 @ R1: Numerical base of the number
 @ ------------------------------------------------------------------------------
 .section .text
-.global uart_u32_write
+.global aux_mini_uart_u32_write
 aux_mini_uart_u32_write:
-    cmp     r1, #0xFF
+    cmp     r1, #0x10
     bxhi    lr
 
-    push { r4 - r6, lr }
+    push { r4, r5, r6, lr }
 
     mov     r4, r0
     mov     r5, r1
@@ -200,7 +200,7 @@ aux_mini_uart_u32_write:
     cmp     r0, #0x00
     blne    aux_mini_uart_byte_write
     bne     2b
-    pop  { r4 - r6, pc }
+    pop  { r4, r5, r6, pc }
 
 
 @ ------------------------------------------------------------------------------

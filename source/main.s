@@ -2,8 +2,6 @@
 .include "lib/utils.s"
 .include "lib/math.s"
 .include "devices/gpio.s"
-.include "devices/spi0.s"
-.include "devices/spi1.s"
 .include "devices/aux_mini_uart.s"
 .include "devices/arm_timer.s"
 .include "interrupts/interrupts.s"
@@ -11,7 +9,6 @@
 .include "graphics/drawing.s"
 .include "devices/system_timer.s"
 .include "devices/msd_card.s"
-.include "filesystems/fat32.s"
 
 .section .data
 .align 1
@@ -101,7 +98,6 @@ main:
     str     r0, [ r4 ]
     str     r1, [ r4, #4 ]
 
-
     ldr     r0, =screen_width
     mov     r1, #19
     bl      aux_mini_uart_write_bytes
@@ -164,76 +160,11 @@ main:
     mov     r3, #0
     bl      canvas_text_draw
 
-    ldr     r0, =40000
-    mov     r1, #0
-    bl      spi0_init
-
-    mov     r4, #10
-1:
-    mov     r0, #0xFF
-    bl      spi0_byte_write
-    subs    r4, #1
-    bge     1b
-
-    ldr     r0, =cmd0
-    mov     r1, #6
-    bl      spi0_bytes_write
-2:
-    cmp     r0, #1
-    beq     3f
-    mov     r0, #0xFF
-    bl      spi0_byte_write
-    b       2b
-
-3:
-    ldr     r0, =cmd8
-    mov     r1, #6
-    bl      spi0_bytes_write
-4:
-    cmp     r0, #1
-    beq     5f
-    mov     r0, #0xFF
-    bl      spi0_byte_write
-    b       4b
-
-5:
-    ldr     r0, =cmd1
-    mov     r1, #6
-    bl      spi0_bytes_write
-6:
-    cmp     r0, #1
-    beq     5b
-    cmp     r0, #0
-    beq     7f
-    mov     r0, #0xFF
-    bl      spi0_byte_write
-    b       6b
-
-7:
-    ldr     r0, =cmd55
-    mov     r1, #6
-    bl      spi0_bytes_write
-8:
-    cmp     r0, #0
-    beq     9f
-    mov     r0, #0xFF
-    bl      spi0_byte_write
-    b       8b
-
-9:
-    ldr     r0, =cmd41
-    mov     r1, #6
-    bl      spi0_bytes_write
-10:
-    cmp     r0, #1
-    beq     9b
-    cmp     r0, #0
-    beq     11f
-    mov     r0, #0xFF
-    bl      spi0_byte_write
-    b       10b
-
-11:
+    bl      msd_card_init
+    bl      msd_card_fat32_init
+/*11:
+    mov     r0, #0x800
+    bl      msd_card_sector_index_write
     ldr     r0, =cmd17
     mov     r1, #6
     bl      spi0_bytes_write
@@ -244,25 +175,51 @@ main:
     bl      spi0_byte_write
     b       12b
 
-    mov     r4, #0
-    mov     r5, #90
-    ldr     r6, =bpb_fat32
 13:
+    mov     r4, #90
+14:
     mov     r0, #0xFF
     bl      spi0_byte_write
-    and     r0, r0, #0xFF
-    str     r0, [ r6, r4 ]
-    add     r4, r4, #1
-    cmp     r4, r5
-    blt     13b
-
-// Read reserved sectors
-    ldrb    r0, [ r6, #FAT32_RESERVED_SECTORS ]
-    ldrb    r1, [ r6, #(FAT32_RESERVED_SECTORS + 1) ]
-    orr     r0, r1, r0, lsl #8
-
     mov     r1, #16
     bl      aux_mini_uart_u32_write
+    mov     r0, #'\r'
+    bl      aux_mini_uart_byte_write
+    mov     r0, #'\n'
+    bl      aux_mini_uart_byte_write
+    subs    r4, r4, #1
+    bhs     14b
+
+    ldr     r4, =422
+15:
+    mov     r0, #0xFF
+    bl      spi0_byte_write
+    subs    r4, r4, #1
+    bhs     15b
+
+    ldr     r0, =0x6801
+    bl      msd_card_sector_index_write
+    ldr     r0, =cmd17
+    mov     r1, #6
+    bl      spi0_bytes_write
+17:
+    cmp     r0, #0xFE
+    beq     18f
+    mov     r0, #0xFF
+    bl      spi0_byte_write
+    b       17b
+18:
+    mov     r4, #512
+19:
+    mov     r0, #0xFF
+    bl      spi0_byte_write
+    mov     r1, #10
+    bl      aux_mini_uart_u32_write
+    mov     r0, #','
+    bl      aux_mini_uart_byte_write
+    mov     r0, #' '
+    bl      aux_mini_uart_byte_write
+    subs    r4, r4, #1
+    bge     19b*/
 
 loop:
     bl      aux_mini_uart_byte_read
