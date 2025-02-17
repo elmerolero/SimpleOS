@@ -284,4 +284,8 @@ msd_card_fat32_init:
 
     pop { r4, r5, pc }
 
+.section .text
+msd_card_list_directories:
+    push { lr }
 
+    pop { pc }

@@ -9,6 +9,7 @@
 .include "graphics/drawing.s"
 .include "devices/system_timer.s"
 .include "devices/msd_card.s"
+.include "devices/pwm.s"
 
 .section .data
 .align 1
@@ -174,130 +175,22 @@ main:
     bl      msd_card_init
     bl      msd_card_fat32_init
 
-    // Shows FAT32 data
-    ldr     r0, =fat32_bytes_per_sector_message
-    mov     r1, #18
-    bl      aux_mini_uart_write_bytes
-    ldr     r0, =fat32_bpb_bytesPerSector
-    ldr     r0, [ r0 ]
-    mov     r1, #10
-    bl      aux_mini_uart_u32_write
-    ldr     r0, =endl
-    mov     r1, #2
-    bl      aux_mini_uart_write_bytes
-    ldr     r0, =fat32_sectors_per_cluster
-    mov     r1, #22
-    bl      aux_mini_uart_write_bytes
-    ldr     r0, =fat32_bpb_secsPerCluster
-    ldr     r0, [ r0 ]
-    mov     r1, #10
-    bl      aux_mini_uart_u32_write
-    ldr     r0, =endl
-    mov     r1, #2
-    bl      aux_mini_uart_write_bytes
-    ldr     r0, =fat32_reserved_sectors
-    mov     r1, #21
-    bl      aux_mini_uart_write_bytes
-    ldr     r0, =fat32_bpb_reservedSectors
-    ldr     r0, [ r0 ]
-    mov     r1, #10
-    bl      aux_mini_uart_u32_write
-    ldr     r0, =endl
-    mov     r1, #2
-    bl      aux_mini_uart_write_bytes
-    ldr     r0, =fat32_num_FATS
-    mov     r1, #16
-    bl      aux_mini_uart_write_bytes
-    ldr     r0, =fat32_bpb_numFATs
-    ldr     r0, [ r0 ]
-    mov     r1, #10
-    bl      aux_mini_uart_u32_write
-    ldr     r0, =endl
-    mov     r1, #2
-    bl      aux_mini_uart_write_bytes
-    ldr     r0, =fat32_FAT_size
-    mov     r1, #15
-    bl      aux_mini_uart_write_bytes
-    ldr     r0, =fat32_bpb_FATSize
-    ldr     r0, [ r0 ]
-    mov     r1, #10
-    bl      aux_mini_uart_u32_write
-    ldr     r0, =endl
-    mov     r1, #2
-    bl      aux_mini_uart_write_bytes
-    ldr     r0, =fat32_total_sectors
-    mov     r1, #26
-    bl      aux_mini_uart_write_bytes
-    ldr     r0, =fat32_bpb_totalSectors
-    ldr     r0, [ r0 ]
-    mov     r1, #10
-    bl      aux_mini_uart_u32_write
-    ldr     r0, =endl
-    mov     r1, #2
-    bl      aux_mini_uart_write_bytes
-    ldr     r0, =fat32_root_cluster
-    mov     r1, #29
-    bl      aux_mini_uart_write_bytes
-    ldr     r0, =fat32_bpb_rootCluster
-    ldr     r0, [ r0 ]
-    mov     r1, #10
-    bl      aux_mini_uart_u32_write
-    ldr     r0, =endl
-    mov     r1, #2
-    bl      aux_mini_uart_write_bytes
     ldr     r0, =fat32_root_sector
     ldr     r0, [ r0 ]
-    mov     r1, #16
-    bl      aux_mini_uart_u32_write
-
-/*11:
-    mov     r0, #0x800
+    add     r0, #1
     bl      msd_card_sector_index_write
     ldr     r0, =cmd17
     mov     r1, #6
     bl      spi0_bytes_write
-12:
+1:
     cmp     r0, #0xFE
-    beq     13f
+    beq     2f
     mov     r0, #0xFF
     bl      spi0_byte_write
-    b       12b
-
-13:
-    mov     r4, #90
-14:
-    mov     r0, #0xFF
-    bl      spi0_byte_write
-    mov     r1, #16
-    bl      aux_mini_uart_u32_write
-    mov     r0, #'\r'
-    bl      aux_mini_uart_byte_write
-    mov     r0, #'\n'
-    bl      aux_mini_uart_byte_write
-    subs    r4, r4, #1
-    bhs     14b
-
-    ldr     r4, =422
-15:
-    mov     r0, #0xFF
-    bl      spi0_byte_write
-    subs    r4, r4, #1
-    bhs     15b
-
-    ldr     r0, =0x6801
-    bl      msd_card_sector_index_write
-    ldr     r0, =cmd17
-    mov     r1, #6
-    bl      spi0_bytes_write
-17:
-    cmp     r0, #0xFE
-    beq     18f
-    mov     r0, #0xFF
-    bl      spi0_byte_write
-    b       17b
-18:
+    b       1b
+2:
     mov     r4, #512
-19:
+3:
     mov     r0, #0xFF
     bl      spi0_byte_write
     mov     r1, #10
@@ -307,7 +200,9 @@ main:
     mov     r0, #' '
     bl      aux_mini_uart_byte_write
     subs    r4, r4, #1
-    bge     19b*/
+    bge     3b
+
+    bl      pwm_init
 
 loop:
     bl      aux_mini_uart_byte_read
