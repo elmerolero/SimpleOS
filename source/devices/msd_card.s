@@ -145,9 +145,9 @@ msd_card_fat32_init:
     mov     r5, r0
     mov     r0, #0xFF
     bl      spi0_byte_write
-    orr     r5, r5, r0, lsl #8
+    orr     r0, r5, r0, lsl #8
     ldr     r6, =fat32_bpb_bytesPerSector
-    str     r5, [ r6 ]
+    str     r0, [ r6 ]
     add     r4, #1
 
 4:
@@ -173,18 +173,114 @@ msd_card_fat32_init:
     mov     r5, r0
     mov     r0, #0xFF
     bl      spi0_byte_write
-    orr     r5, r5, r0, lsl #8
-    ldr     r6, =fat32_bpb_bytesPerSector
-    str     r5, [ r6 ]
+    orr     r0, r5, r0, lsl #8
+    ldr     r6, =fat32_bpb_reservedSectors
+    str     r0, [ r6 ]
     add     r4, #1
 
-    mov     r0, r5
-    mov     r1, #10
-    bl      aux_mini_uart_u32_write
-    mov     r0, #'\r'
-    bl      aux_mini_uart_byte_write
-    mov     r0, #'\n'
-    bl      aux_mini_uart_byte_write
+    // Num of fats
+    mov     r0, #0xFF
+    bl      spi0_byte_write
+    add     r6, r6, #4
+    str     r0, [ r6 ]
+    add     r4, #1
+
+    // Root entry count
+    mov     r0, #0xFF
+    bl      spi0_byte_write
+    add     r4, #1
+    mov     r5, r0
+    mov     r0, #0xFF
+    bl      spi0_byte_write
+    add     r4, #1
+    orr     r0, r5, r0, lsl #8
+    add     r6, r6, #4
+    str     r0, [ r6 ]
+
+    // Continues reading until get to total sectors FAT32
+6:
+    mov     r0, #0xFF
+    bl      spi0_byte_write
+    cmp     r4, #FAT32_TOTAL_SECTORS
+    add     r4, #1
+    bne     6b
+
+    mov     r5, r0
+    mov     r0, #0xFF
+    bl      spi0_byte_write
+    orr     r5, r5, r0, lsl #8
+    add     r4, r4, #1
+
+    mov     r0, #0xFF
+    bl      spi0_byte_write
+    orr     r5, r5, r0, lsl #16
+    add     r4, r4, #1
+
+    mov     r0, #0xFF
+    bl      spi0_byte_write
+    orr     r0, r5, r0, lsl #24
+    add     r6, #4
+    str     r0, [ r6 ] 
+    add     r4, r4, #1
+
+    // FAT Size
+    mov     r0, #0xFF
+    bl      spi0_byte_write
+    mov     r5, r0
+    add     r4, r4, #1
+    mov     r0, #0xFF
+    bl      spi0_byte_write
+    orr     r5, r5, r0, lsl #8
+    add     r4, r4, #1
+
+    mov     r0, #0xFF
+    bl      spi0_byte_write
+    orr     r5, r5, r0, lsl #16
+    add     r4, r4, #1
+
+    mov     r0, #0xFF
+    bl      spi0_byte_write
+    orr     r0, r5, r0, lsl #24
+    add     r6, #4
+    str     r0, [ r6 ] 
+    add     r4, r4, #1
+
+    // Continues reading until get first byte of Root cluster
+7:
+    mov     r0, #0xFF
+    bl      spi0_byte_write
+    cmp     r4, #FAT32_ROOT_CLUSTER
+    add     r4, #1
+    bne     7b
+
+    mov     r5, r0
+    mov     r0, #0xFF
+    bl      spi0_byte_write
+    orr     r5, r5, r0, lsl #8
+    add     r4, r4, #1
+
+    mov     r0, #0xFF
+    bl      spi0_byte_write
+    orr     r5, r5, r0, lsl #16
+    add     r4, r4, #1
+
+    mov     r0, #0xFF
+    bl      spi0_byte_write
+    orr     r0, r5, r0, lsl #24
+    add     r6, #8
+    str     r0, [ r6 ] 
+    add     r4, r4, #1
+
+    // Read the remaining bytes
+8:
+    mov     r0, #0xFF
+    bl      spi0_byte_write
+    add     r4, r4, #1
+    cmp     r4, #512
+    blo     8b
+
+    // Calculates root directory 
+    bl      fat32_calulate_root_directory
 
     pop { r4, r5, pc }
 

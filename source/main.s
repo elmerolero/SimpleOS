@@ -12,29 +12,32 @@
 
 .section .data
 .align 1
-welcome_message: .ascii "Bienvenido a Mini+ OS\r\n"
-end_message: .byte 0
+    clear_screen:   .asciz "\033[2J\033[H"
 
 .align 1
-peciosa: .ascii "Alondra Itzaliny, te amo pechocha <3\r\n"
+    welcome_message: .asciz "Bienvenido a Mini+ OS\r\n"
+
+    screen_width: .asciz "Ancho de pantalla: "
+    screen_height: .asciz "Alto de pantalla: "
 
 .align 1
-screen_width: .ascii "Ancho de pantalla: "
+    interrupts_init_message: .asciz "Inicializando interrupciones.\r\n"
 
 .align 1
-screen_height: .ascii "Alto de pantalla: "
+    msd_card_init_message:            .asciz "Inicializando Tarjeta SD.\r\n"
+    fat32_bytes_per_sector_message:   .asciz "Bytes por sector: "
+    fat32_sectors_per_cluster:        .asciz "Sectores por cluster: "
+    fat32_reserved_sectors:           .asciz "Sectores reservados: "
+    fat32_num_FATS:                   .asciz "Numero de FATs: "
+    fat32_FAT_size:                   .asciz "Tamaño de FAT: "
+    fat32_total_sectors:              .asciz "Número total de sectores: "
+    fat32_root_cluster:               .asciz "Cluster del directorio raiz: "
 
 .align 1
-interrupts_init_message: .ascii "Inicializando interrupciones.\r\n"
+    endl: .ascii "\r\n"
 
 .align 1
-error_message: .ascii "No se habilitó el módulo SPI\r\n"
-
-.align 1
-success_message: .ascii "Se recibió SPI!\r\n"
-
-.align 1
-endl: .ascii "\r\n"
+    peciosa: .ascii "Alondra Itzaliny, te amo pechocha <3\r\n"
 
 
 .align 4
@@ -76,6 +79,10 @@ main:
     ldr     r0, =#96153
     mov     r1, #0x03
     bl      aux_mini_uart_init
+
+    ldr     r0, =clear_screen
+    mov     r1, #7
+    bl      aux_mini_uart_write_bytes
 
     ldr     r0, =welcome_message
     mov     r1, #23
@@ -160,8 +167,89 @@ main:
     mov     r3, #0
     bl      canvas_text_draw
 
+    ldr     r0, =msd_card_init_message
+    mov     r1, #27
+    bl      aux_mini_uart_write_bytes
+
     bl      msd_card_init
     bl      msd_card_fat32_init
+
+    // Shows FAT32 data
+    ldr     r0, =fat32_bytes_per_sector_message
+    mov     r1, #18
+    bl      aux_mini_uart_write_bytes
+    ldr     r0, =fat32_bpb_bytesPerSector
+    ldr     r0, [ r0 ]
+    mov     r1, #10
+    bl      aux_mini_uart_u32_write
+    ldr     r0, =endl
+    mov     r1, #2
+    bl      aux_mini_uart_write_bytes
+    ldr     r0, =fat32_sectors_per_cluster
+    mov     r1, #22
+    bl      aux_mini_uart_write_bytes
+    ldr     r0, =fat32_bpb_secsPerCluster
+    ldr     r0, [ r0 ]
+    mov     r1, #10
+    bl      aux_mini_uart_u32_write
+    ldr     r0, =endl
+    mov     r1, #2
+    bl      aux_mini_uart_write_bytes
+    ldr     r0, =fat32_reserved_sectors
+    mov     r1, #21
+    bl      aux_mini_uart_write_bytes
+    ldr     r0, =fat32_bpb_reservedSectors
+    ldr     r0, [ r0 ]
+    mov     r1, #10
+    bl      aux_mini_uart_u32_write
+    ldr     r0, =endl
+    mov     r1, #2
+    bl      aux_mini_uart_write_bytes
+    ldr     r0, =fat32_num_FATS
+    mov     r1, #16
+    bl      aux_mini_uart_write_bytes
+    ldr     r0, =fat32_bpb_numFATs
+    ldr     r0, [ r0 ]
+    mov     r1, #10
+    bl      aux_mini_uart_u32_write
+    ldr     r0, =endl
+    mov     r1, #2
+    bl      aux_mini_uart_write_bytes
+    ldr     r0, =fat32_FAT_size
+    mov     r1, #15
+    bl      aux_mini_uart_write_bytes
+    ldr     r0, =fat32_bpb_FATSize
+    ldr     r0, [ r0 ]
+    mov     r1, #10
+    bl      aux_mini_uart_u32_write
+    ldr     r0, =endl
+    mov     r1, #2
+    bl      aux_mini_uart_write_bytes
+    ldr     r0, =fat32_total_sectors
+    mov     r1, #26
+    bl      aux_mini_uart_write_bytes
+    ldr     r0, =fat32_bpb_totalSectors
+    ldr     r0, [ r0 ]
+    mov     r1, #10
+    bl      aux_mini_uart_u32_write
+    ldr     r0, =endl
+    mov     r1, #2
+    bl      aux_mini_uart_write_bytes
+    ldr     r0, =fat32_root_cluster
+    mov     r1, #29
+    bl      aux_mini_uart_write_bytes
+    ldr     r0, =fat32_bpb_rootCluster
+    ldr     r0, [ r0 ]
+    mov     r1, #10
+    bl      aux_mini_uart_u32_write
+    ldr     r0, =endl
+    mov     r1, #2
+    bl      aux_mini_uart_write_bytes
+    ldr     r0, =fat32_root_sector
+    ldr     r0, [ r0 ]
+    mov     r1, #16
+    bl      aux_mini_uart_u32_write
+
 /*11:
     mov     r0, #0x800
     bl      msd_card_sector_index_write
