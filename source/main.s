@@ -35,10 +35,10 @@
     fat32_root_cluster:               .asciz "Cluster del directorio raiz: "
 
 .align 1
-    endl: .ascii "\r\n"
+    endl: .asciz "\r\n"
 
 .align 1
-    peciosa: .ascii "Alondra Itzaliny, te amo pechocha <3\r\n"
+    peciosa: .asciz "Alondra Itzaliny, te amo pechocha <3\r\n"
 
 
 .align 4
@@ -50,7 +50,7 @@ screen_dimmensions:
 .section .init
 .global _start
 _start:
-    ldr     sp, =0x8000
+    mov     sp, #0x8000
     bl      stack_init
     b       main
 
@@ -77,7 +77,7 @@ stack_init:
 .section .text
 .global main
 main:
-    ldr     r0, =#96153
+    ldr     r0, =96153
     mov     r1, #0x03
     bl      aux_mini_uart_init
 
@@ -175,32 +175,118 @@ main:
     bl      msd_card_init
     bl      msd_card_fat32_init
 
+    mov     r5, #0
+    mov     r8, #0
+    mov     r9, #0
+    mov     r11, #0
+1:
     ldr     r0, =fat32_root_sector
     ldr     r0, [ r0 ]
-    add     r0, #1
-    bl      msd_card_sector_index_write
-    ldr     r0, =cmd17
-    mov     r1, #6
-    bl      spi0_bytes_write
-1:
-    cmp     r0, #0xFE
-    beq     2f
-    mov     r0, #0xFF
-    bl      spi0_byte_write
-    b       1b
+    add     r0, r0, r8
+    bl      msd_card_sector_read
+ 
+    ldr     r4, =sector_buffer
+    mov     r5, #0
 2:
-    mov     r4, #512
+    ldrb    r0, [ r4, r5 ]      // Looks for an entry
+    cmp     r0, #0x00
+    beq     5f
+    cmp     r0, #0xE5           // Is it a deleted entry?
+    beq     4f
+    add     r6, r5, #11
+    ldrb    r0, [ r4, r6 ]
+    cmp     r0, #0x0F           // LNF?
+    beq     4f
+
+    ldr     r10, =files
+    mov     r6, #0
 3:
-    mov     r0, #0xFF
-    bl      spi0_byte_write
-    mov     r1, #10
-    bl      aux_mini_uart_u32_write
-    mov     r0, #','
+    add     r7, r5, r6
+    ldrb    r0, [ r4, r7 ]
+    add     r7, r6, r11  
+    strb    r0, [ r10, r7 ]
+    bl      aux_mini_uart_byte_write
+    add     r6, r6, #1
+    cmp     r6, #8
+    blo     3b
+    mov     r0, #'.'
+    bl      aux_mini_uart_byte_write
+    add     r7, r5, #8
+    ldrb    r0, [ r4, r7 ]
+    add     r7, r6, r11  
+    strb    r0, [ r10, r7 ]
+    bl      aux_mini_uart_byte_write
+    add     r7, r5, #9
+    ldrb    r0, [ r4, r7 ]
+    add     r7, r6, r11  
+    strb    r0, [ r10, r7 ]
+    bl      aux_mini_uart_byte_write
+    add     r7, r5, #10
+    ldrb    r0, [ r4, r7 ]
+    add     r7, r6, r11  
+    strb    r0, [ r10, r7 ]
     bl      aux_mini_uart_byte_write
     mov     r0, #' '
     bl      aux_mini_uart_byte_write
-    subs    r4, r4, #1
-    bge     3b
+
+    // Read cluster msb
+    add     r6, r5, #0x15
+    ldrb    r1, [ r4, r6 ]
+    add     r6, r5, #0x14
+    ldrb    r0, [ r4, r6 ]
+    orr     r1, r0, r1, lsl #8
+
+    // Read cluster lsb
+    add     r6, r5, #0x1B
+    ldrb    r2, [ r4, r6 ]
+    add     r6, r5, #0x1A
+    ldrb    r0, [ r4, r6 ]
+    orr     r2, r0, r2, lsl #8
+    orr     r1, r2, r1, lsl #16
+
+    // Read file size from msb to lsb
+    add     r6, r5, #0x1C
+    ldrb    r2, [ r4, r6 ]
+    add     r6, r5, #0x1D
+    ldrb    r0, [ r4, r6 ]
+    orr     r2, r2, r0, lsl #8
+    add     r6, r5, #0x1E
+    ldrb    r0, [ r4, r6 ]
+    orr     r2, r2, r0, lsl #16
+    add     r6, r5, #0x1F
+    ldrb    r0, [ r4, r6 ]
+    orr     r2, r2, r0, lsl #24
+    
+    add     r6, r11, #0x0C
+    str     r1, [ r10, r6 ]
+
+    add     r6, r11, #0x10
+    str     r2, [ r10, r6 ]   
+
+    mov     r0, r1
+    mov     r1, #16
+    mov     r7, r2
+    bl      aux_mini_uart_u32_write
+    mov     r0, #' '
+    bl      aux_mini_uart_byte_write
+
+    mov     r0, r7
+    mov     r1, #16
+    bl      aux_mini_uart_u32_write
+
+    mov     r0, #'\r'
+    bl      aux_mini_uart_byte_write
+    mov     r0, #'\n'
+    bl      aux_mini_uart_byte_write
+
+    add     r11, r11, #20
+4:                                          // Next entry
+    add     r5, r5, #32
+    b       2b
+5:
+    add     r8, r8, #1
+    cmp     r5, #512
+    beq     1b
 
     bl      pwm_init
 
@@ -209,9 +295,10 @@ loop:
     cmp     r0, #13
     blne    aux_mini_uart_byte_write
     bne     loop
-    mov     r0, r7
-    mov     r1, #2
-    bl      aux_mini_uart_write_bytes
+    mov     r0, #'\r'
+    bl      aux_mini_uart_byte_write
+    mov     r0, #'\n'
+    bl      aux_mini_uart_byte_write
     b       loop
 
     /*mov     r0, #0

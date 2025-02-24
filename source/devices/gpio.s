@@ -1,3 +1,5 @@
+.include "utils/assembler.s"
+
 /*  */
 .equ GPIO_BASE,  0x20200000 
 
@@ -101,8 +103,8 @@ gpio_mode_write:
     cmp         r0, #53             @ Compara el pin indicado (r0) con 53
     cmpls       r1, #7
     bhi         gpio_setModeError   @ If r0 > 53 then setModeError
-    push        {r4, lr}            @ 
-    ldr         r2, =GPIO_BASE      @ Carga la dirección base
+    push        {r4, lr}            @
+    imm32       r2, GPIO_BASE
 gpio_setModeLoop:
     cmp         r0, #10             @ Se verifica que sea menor que diez
     bmi         gpio_mode           @ Sale del bucle
@@ -157,7 +159,7 @@ gpio_pud_mode_write:
     // Select d
 
     // Prepares the PUD mode the pin will receive
-    ldr     r2, =GPIO_BASE
+    imm32   r2, GPIO_BASE
     str     r4, [ r2, #GPIO_GPPUD ]
 
     lsl     r3, #2
@@ -213,7 +215,7 @@ gpio_pin_write:
     addne   r0, r0, #GPIO_GPSET0
 
     // Sets the value
-    ldr     r2, =GPIO_BASE
+    imm32   r2, GPIO_BASE
     ldr     r3, [ r2, r0 ]
     orr     r3, r3, r1
     str     r3, [ r2, r0 ]

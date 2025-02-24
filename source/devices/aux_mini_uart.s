@@ -30,7 +30,7 @@ buffer: .skip 33
 
 .section .text
 aux_mini_uart_init:
-    ldr     r3, =#MU_MAX_BAUDRATE
+    imm32   r3, MU_MAX_BAUDRATE
     cmp     r0, r3
     bxhi    lr
     cmp     r1, #MU_DATA_SIZE_8

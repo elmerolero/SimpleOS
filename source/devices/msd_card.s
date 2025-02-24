@@ -1,6 +1,17 @@
 .include "devices/spi0.s"
 .include "filesystems/fat32.s"
 
+// These values are used to read the offset when reading bytes from spi
+.equ MSD_FAT32_BYTES_PER_SECTOR,    0x0B    // Sector size - 2 bytes
+.equ MSD_FAT32_SECS_PER_CLUSTER,    0x0D    // Sectors per cluster - 1 byte
+.equ MSD_FAT32_RESERVED_SECTORS,    0x0E    // Reserved sector count - 2 bytes
+.equ MSD_FAT32_FATS_NUMBER,         0x10    // Num of FATs - 1
+.equ MSD_FAT32_TOTAL_SECTORS,       0x20    // Total of available sectors - 4 bytes
+.equ MSD_FAT32_FAT_SIZE,            0x24    // FAT Size
+.equ MSD_FAT32_HIDDEN_SECTORS,      0x1C    // Hidden sectors
+.equ MSD_FAT32_ROOT_CLUSTER,        0x2C    // Root cluster
+
+
 .section .data
 .align 1
     cmd0:       .byte 0x40, 0x00, 0x00, 0x00, 0x00, 0x95
@@ -16,6 +27,17 @@
     cmd58:      .byte 0x7A, 0x00, 0x00, 0x00, 0x00, 0xFD
 .align 1
     cmd17:      .byte 0x51, 0x00, 0x00, 0x00, 0x00, 0xFF
+
+.align 1
+    sector_buffer:  .skip 512
+.align 1
+    eos:        .byte 0
+
+.align 4
+    number_of_files: .word 2
+
+.align 4
+    files:      .skip 40
 
 .section .text
 msd_card_init:
@@ -137,7 +159,7 @@ msd_card_fat32_init:
 3:
     mov     r0, #0xFF
     bl      spi0_byte_write
-    cmp     r4, #FAT32_BYTES_PER_SECTOR
+    cmp     r4, #MSD_FAT32_BYTES_PER_SECTOR
     add     r4, r4, #1
     bne     3b
 
@@ -153,7 +175,7 @@ msd_card_fat32_init:
 4:
     mov     r0, #0xFF
     bl      spi0_byte_write
-    cmp     r4, #FAT32_SECS_PER_CLUSTER
+    cmp     r4, #MSD_FAT32_SECS_PER_CLUSTER
     add     r4, r4, #1
     bne     4b
 
@@ -164,7 +186,7 @@ msd_card_fat32_init:
 5:
     mov     r0, #0xFF
     bl      spi0_byte_write
-    cmp     r4, #FAT32_RESERVED_SECTORS
+    cmp     r4, #MSD_FAT32_RESERVED_SECTORS
     add     r4, r4, #1
     bne     5b
 
@@ -201,7 +223,7 @@ msd_card_fat32_init:
 6:
     mov     r0, #0xFF
     bl      spi0_byte_write
-    cmp     r4, #FAT32_TOTAL_SECTORS
+    cmp     r4, #MSD_FAT32_TOTAL_SECTORS
     add     r4, #1
     bne     6b
 
@@ -249,7 +271,7 @@ msd_card_fat32_init:
 7:
     mov     r0, #0xFF
     bl      spi0_byte_write
-    cmp     r4, #FAT32_ROOT_CLUSTER
+    cmp     r4, #MSD_FAT32_ROOT_CLUSTER
     add     r4, #1
     bne     7b
 
@@ -280,9 +302,52 @@ msd_card_fat32_init:
     blo     8b
 
     // Calculates root directory 
-    bl      fat32_calulate_root_directory
+    bl      fat32_calculate_root_directory
 
     pop { r4, r5, pc }
+
+
+@ ------------------------------------------------------------------------------
+@ Read an specific sector 
+@ R0: Sector address
+@ ------------------------------------------------------------------------------
+.section .text
+msd_card_sector_read:
+    push { r4, r5, r6, lr }
+    bl      msd_card_sector_index_write
+    ldr     r0, =cmd17
+    mov     r1, #6
+    bl      spi0_bytes_write
+1:
+    cmp     r0, #0xFE
+    beq     2f
+    mov     r0, #0xFF
+    bl      spi0_byte_write
+    b       1b
+2:
+    mov     r4, #512
+    sub     r4, r4, #1
+    ldr     r5, =sector_buffer
+3:
+    mov     r0, #0xFF
+    bl      spi0_byte_write
+    strb    r0, [ r5 ]
+    add     r5, r5, #1
+    subs    r4, r4, #1
+    bhs     3b
+    
+    /*ldr     r4, =sector_buffer
+    mov     r5, #0
+4:
+    ldrb    r0, [ r4, r5 ]
+    mov     r1, #16
+    bl      aux_mini_uart_u32_write
+    mov     r0, #','
+    bl      aux_mini_uart_byte_write
+    add     r5, #1
+    cmp     r5, #512
+    blo     4b*/
+    pop { r4, r5, r6, pc }
 
 .section .text
 msd_card_list_directories:
