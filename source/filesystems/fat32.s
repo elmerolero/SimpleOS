@@ -49,13 +49,15 @@ fat32_calculate_root_directory:
 @ ------------------------------------------------------------------------------
 .section .text
 fat32_calculate_sector_from_cluster:
-    push { r4, r5, lr }
-    ldr     r3, =fat32_bpb_bytesPerSector
-    ldr     r1, [ r3, #FAT32_RESERVED_SECTORS ]
-    ldr     r2, [ r3, #FAT32_NUMBER_FATS ]
-    ldr     r3, [ r3, #FAT32_FAT_SIZE ]
+    push { r4, lr }
+    ldr     r4, =fat32_bpb_bytesPerSector
+    ldr     r1, [ r4, #FAT32_RESERVED_SECTORS ]
+    ldr     r2, [ r4, #FAT32_NUMBER_FATS ]
+    ldr     r3, [ r4, #FAT32_FAT_SIZE ]
+    ldr     r4, [ r4, #FAT32_SECTORS_PER_CLUSTER ]
     sub     r0, #2                              
+    mul     r0, r0, r4
     mla     r0, r2, r3, r0 
     add     r0, r0, r1                          
     add     r0, r0, #FAT32_PARTITION_BOOT_PARAMETER_SECTOR
-    pop { r4, r5, pc }
+    pop { r4, pc }

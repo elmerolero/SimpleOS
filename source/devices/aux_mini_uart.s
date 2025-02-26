@@ -61,13 +61,13 @@ aux_mini_uart_init:
     bl      gpio_pud_mode_write
 
     // Calculates baud-rate register value
-    ldr     r0, =#250000000
+    imm32   r0, 250000000
     lsl     r1, r4, #3
     bl      math_u32_divide
     sub     r0, r0, #1
 
     // Registers initialization
-    ldr     r3, =AUX_BASE
+    imm32   r3, AUX_BASE
     ldr     r2, [r3, #AUX_ENABLES]
     orr     r2, #AUX_MU_ENABLE
     str     r2, [r3, #AUX_ENABLES]

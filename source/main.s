@@ -16,7 +16,7 @@
     clear_screen:   .asciz "\033[2J\033[H"
 
 .align 1
-    welcome_message: .asciz "Bienvenido a Mini+ OS\r\n"
+    welcome_message: .asciz "Bienvenido\r\n"
 
     screen_width: .asciz "Ancho de pantalla: "
     screen_height: .asciz "Alto de pantalla: "
@@ -78,7 +78,7 @@ stack_init:
 .global main
 main:
     ldr     r0, =96153
-    mov     r1, #0x03
+    mov     r1, #3
     bl      aux_mini_uart_init
 
     ldr     r0, =clear_screen
@@ -86,10 +86,9 @@ main:
     bl      aux_mini_uart_write_bytes
 
     ldr     r0, =welcome_message
-    mov     r1, #23
+    mov     r1, #12
     bl      aux_mini_uart_write_bytes
 
-    ldr     r7, =endl
     ldr     r8, =interrupts_init_message
     mov     r0, r5
     mov     r1, #19
@@ -163,114 +162,24 @@ main:
     bl      canvas_foreground_write
 
     ldr     r0, =welcome_message
-    mov     r1, #23
+    mov     r1, #12
     mov     r2, #0
     mov     r3, #0
     bl      canvas_text_draw
 
-    ldr     r0, =msd_card_init_message
-    mov     r1, #27
-    bl      aux_mini_uart_write_bytes
+    //ldr     r0, =msd_card_init_message
+    //mov     r1, #27
+    //bl      aux_mini_uart_write_bytes
 
     bl      msd_card_init
     bl      msd_card_fat32_init
+    bl      msd_card_list_directories
 
-    mov     r5, #0
-    mov     r8, #0
-    mov     r9, #0
-    mov     r11, #0
-1:
-    ldr     r0, =fat32_root_sector
-    ldr     r0, [ r0 ]
-    add     r0, r0, r8
-    bl      msd_card_sector_read
- 
-    ldr     r4, =sector_buffer
-    mov     r5, #0
-2:
-    ldrb    r0, [ r4, r5 ]      // Looks for an entry
-    cmp     r0, #0x00
-    beq     5f
-    cmp     r0, #0xE5           // Is it a deleted entry?
-    beq     4f
-    add     r6, r5, #11
-    ldrb    r0, [ r4, r6 ]
-    cmp     r0, #0x0F           // LNF?
-    beq     4f
+    ldr     r0, =files
+    add     r0, r0, #20
+    ldr     r0, [ r0, #0x0C ]
 
-    ldr     r10, =files
-    mov     r6, #0
-3:
-    add     r7, r5, r6
-    ldrb    r0, [ r4, r7 ]
-    add     r7, r6, r11  
-    strb    r0, [ r10, r7 ]
-    bl      aux_mini_uart_byte_write
-    add     r6, r6, #1
-    cmp     r6, #8
-    blo     3b
-    mov     r0, #'.'
-    bl      aux_mini_uart_byte_write
-    add     r7, r5, #8
-    ldrb    r0, [ r4, r7 ]
-    add     r7, r6, r11  
-    strb    r0, [ r10, r7 ]
-    bl      aux_mini_uart_byte_write
-    add     r7, r5, #9
-    ldrb    r0, [ r4, r7 ]
-    add     r7, r6, r11  
-    strb    r0, [ r10, r7 ]
-    bl      aux_mini_uart_byte_write
-    add     r7, r5, #10
-    ldrb    r0, [ r4, r7 ]
-    add     r7, r6, r11  
-    strb    r0, [ r10, r7 ]
-    bl      aux_mini_uart_byte_write
-    mov     r0, #' '
-    bl      aux_mini_uart_byte_write
-
-    // Read cluster msb
-    add     r6, r5, #0x15
-    ldrb    r1, [ r4, r6 ]
-    add     r6, r5, #0x14
-    ldrb    r0, [ r4, r6 ]
-    orr     r1, r0, r1, lsl #8
-
-    // Read cluster lsb
-    add     r6, r5, #0x1B
-    ldrb    r2, [ r4, r6 ]
-    add     r6, r5, #0x1A
-    ldrb    r0, [ r4, r6 ]
-    orr     r2, r0, r2, lsl #8
-    orr     r1, r2, r1, lsl #16
-
-    // Read file size from msb to lsb
-    add     r6, r5, #0x1C
-    ldrb    r2, [ r4, r6 ]
-    add     r6, r5, #0x1D
-    ldrb    r0, [ r4, r6 ]
-    orr     r2, r2, r0, lsl #8
-    add     r6, r5, #0x1E
-    ldrb    r0, [ r4, r6 ]
-    orr     r2, r2, r0, lsl #16
-    add     r6, r5, #0x1F
-    ldrb    r0, [ r4, r6 ]
-    orr     r2, r2, r0, lsl #24
-    
-    add     r6, r11, #0x0C
-    str     r1, [ r10, r6 ]
-
-    add     r6, r11, #0x10
-    str     r2, [ r10, r6 ]   
-
-    mov     r0, r1
-    mov     r1, #16
-    mov     r7, r2
-    bl      aux_mini_uart_u32_write
-    mov     r0, #' '
-    bl      aux_mini_uart_byte_write
-
-    mov     r0, r7
+    mov     r4, r0
     mov     r1, #16
     bl      aux_mini_uart_u32_write
 
@@ -279,16 +188,22 @@ main:
     mov     r0, #'\n'
     bl      aux_mini_uart_byte_write
 
-    add     r11, r11, #20
-4:                                          // Next entry
-    add     r5, r5, #32
-    b       2b
-5:
-    add     r8, r8, #1
-    cmp     r5, #512
-    beq     1b
+    mov     r0, r4
+    bl      fat32_calculate_sector_from_cluster
+    mov     r4, r0
+    mov     r1, #16
+    bl      aux_mini_uart_u32_write
 
-    bl      pwm_init
+    mov     r0, #'\r'
+    bl      aux_mini_uart_byte_write
+    mov     r0, #'\n'
+    bl      aux_mini_uart_byte_write
+
+
+    mov     r0, r4
+    bl      msd_card_sector_read
+
+    //bl      pwm_init
 
 loop:
     bl      aux_mini_uart_byte_read

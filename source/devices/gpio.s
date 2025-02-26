@@ -103,7 +103,7 @@ gpio_mode_write:
     cmp         r0, #53             @ Compara el pin indicado (r0) con 53
     cmpls       r1, #7
     bhi         gpio_setModeError   @ If r0 > 53 then setModeError
-    push        {r4, lr}            @
+    push    {r4, lr}            @
     imm32       r2, GPIO_BASE
 gpio_setModeLoop:
     cmp         r0, #10             @ Se verifica que sea menor que diez
@@ -124,9 +124,9 @@ gpio_mode:
     b           gpio_setModeEnd
 gpio_setModeError:
     mov         r0,     #-1
-    mov         pc,     lr
+    pop { r4, pc }
 gpio_setModeEnd:
-    pop         {r4, pc}            @ Finaliza
+    pop {r4, pc}            @ Finaliza
 
 
 @ ----------------------------------------------------------------------------------------------------------

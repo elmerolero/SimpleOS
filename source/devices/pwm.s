@@ -23,7 +23,7 @@ pwm_init:
     mov     r1, #GPIO_MODE_ALTF0
     bl      gpio_mode_write
     
-    ldr     r0, =PWM_BASE
+    imm32     r0, PWM_BASE
     ldr     r1, =0x2C48
     str     r1, [ r0, #PWM_RNG1_REG ]
     str     r1, [ r0, #PWM_RNG2_REG ]
