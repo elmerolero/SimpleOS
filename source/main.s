@@ -296,9 +296,10 @@ main:
     bl      clock_manager_init
     bl      pwm_init
     ldr   r4, =start_song
+    add   r4, r4, #0xD0
     ldr   r5, =PWM_BASE
 1:
-    ldrh  r0, [r4], #2
+    ldrh  r0, [r4], #4
     lsr   r0, r0, #2
     str   r0, [r5, #PWM_FIF1_REG]
     2:

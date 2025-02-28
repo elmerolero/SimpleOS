@@ -12,6 +12,7 @@
 
 .section .data
 start_song:
+.align 4
 .incbin "applications/Sample.bin"
 end_song:
     .word 0
