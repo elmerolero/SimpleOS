@@ -6,10 +6,11 @@
 .include "devices/arm_timer.s"
 .include "interrupts/interrupts.s"
 .include "graphics/frame_buffer.s"
+.include "applications/wav_player.s"
 .include "graphics/drawing.s"
-.include "devices/system_timer.s"
 .include "devices/msd_card.s"
 .include "devices/pwm.s"
+.include "devices/clock_manager.s"
 
 .section .data
 .align 1
@@ -167,11 +168,11 @@ main:
     mov     r3, #0
     bl      canvas_text_draw
 
-    //ldr     r0, =msd_card_init_message
-    //mov     r1, #27
-    //bl      aux_mini_uart_write_bytes
+    /*ldr     r0, =msd_card_init_message
+    mov     r1, #27
+    bl      aux_mini_uart_write_bytes
 
-    bl      msd_card_init
+    /*bl      msd_card_init
     bl      msd_card_fat32_init
     bl      msd_card_list_directories
 
@@ -199,11 +200,113 @@ main:
     mov     r0, #'\n'
     bl      aux_mini_uart_byte_write
 
-
     mov     r0, r4
     bl      msd_card_sector_read
+    
+    // Reads file size
+    mov     r0, #4
+    mov     r1, #4
+    bl      msd_card_buffer_read
+    str     r0, [ r5, #WAV_FILE_SIZE ]
+    
+    // Reads block size
+    mov     r0, #16
+    mov     r1, #4
+    bl      msd_card_buffer_read
+    str     r0, [ r5, #WAV_BLOCK_SIZE ]
+    mov     r1, #10
+    bl      aux_mini_uart_u32_write
+    mov     r0, #' '
+    bl      aux_mini_uart_byte_write
 
-    //bl      pwm_init
+    // Reads format
+    mov     r0, #20
+    mov     r1, #2
+    bl      msd_card_buffer_read
+    str     r0, [ r5, #WAV_FORMAT ]
+    mov     r1, #16
+    bl      aux_mini_uart_u32_write
+    mov     r0, #' '
+    bl      aux_mini_uart_byte_write
+
+    // Reads channels
+    mov     r0, #22
+    mov     r1, #2
+    bl      msd_card_buffer_read
+    str     r0, [ r5, #WAV_CHANNELS ]
+    mov     r1, #16
+    bl      aux_mini_uart_u32_write
+    mov     r0, #' '
+    bl      aux_mini_uart_byte_write
+
+    // Reads frequency
+    mov     r0, #24
+    mov     r1, #4
+    bl      msd_card_buffer_read
+    str     r0, [ r5, #WAV_FREQUENCY ]
+    mov     r1, #10
+    bl      aux_mini_uart_u32_write
+    mov     r0, #' '
+    bl      aux_mini_uart_byte_write
+
+    // Reads byte rate
+    mov     r0, #28
+    mov     r1, #4
+    bl      msd_card_buffer_read
+    str     r0, [ r5, #WAV_BYTE_RATE ]
+    mov     r1, #16
+    bl      aux_mini_uart_u32_write
+    mov     r0, #' '
+    bl      aux_mini_uart_byte_write
+
+    // Reads block align
+    mov     r0, #32
+    mov     r1, #2
+    bl      msd_card_buffer_read
+    str     r0, [ r5, #WAV_BLOCK_ALIGN ]
+    mov     r1, #16
+    bl      aux_mini_uart_u32_write
+    mov     r0, #' '
+    bl      aux_mini_uart_byte_write
+
+    // Reads bits/sample
+    mov     r0, #34
+    mov     r1, #2
+    bl      msd_card_buffer_read
+    str     r0, [ r5, #WAV_BITS_PER_SAMPLE ]
+    mov     r1, #16
+    bl      aux_mini_uart_u32_write
+    mov     r0, #' '
+    bl      aux_mini_uart_byte_write
+
+    // Reads data size
+    mov     r0, #40
+    mov     r1, #4
+    bl      msd_card_buffer_read
+    str     r0, [ r5, #WAV_DATA_SIZE ]
+    mov     r1, #16
+    bl      aux_mini_uart_u32_write
+    mov     r0, #' '
+    bl      aux_mini_uart_byte_write
+
+    add     r4, r4, #31
+    mov     r0, r4
+    bl      msd_card_sector_read*/
+
+    bl      clock_manager_init
+    bl      pwm_init
+    ldr   r4, =start_song
+    ldr   r5, =PWM_BASE
+1:
+    ldrh  r0, [r4], #2
+    lsr   r0, r0, #2
+    str   r0, [r5, #PWM_FIF1_REG]
+    2:
+        ldr   r0, [r5, #PWM_STA_REG]
+        tst   r0, #1
+        bne   2b
+    cmp r4, #0x00
+    bne 1b
 
 loop:
     bl      aux_mini_uart_byte_read

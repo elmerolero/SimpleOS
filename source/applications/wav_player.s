@@ -11,4 +11,11 @@
 .equ WAV_DATA_SIZE,         0x28
 
 .section .data
+start_song:
+.incbin "applications/Sample.bin"
+end_song:
+    .word 0
+
+.section .data
     wav_data:   .skip 44
+

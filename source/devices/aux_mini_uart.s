@@ -89,7 +89,7 @@ aux_mini_uart_init:
     str     r0, [r3, #AUX_MU_BAUD_REG]
 
     // Enables TX
-    ldr     r3, =AUX_BASE
+    imm32     r3, AUX_BASE
     mov     r2, #MU_RECEIVER_TRANSMITER_ENABLE
     str     r2, [ r3, #AUX_MU_CNTL_REG ]
 
@@ -107,7 +107,7 @@ aux_mini_uart_init:
 aux_mini_uart_byte_read:
     push { lr }
 
-    ldr     r1, =AUX_BASE
+    imm32   r1, AUX_BASE
 1:
     ldr     r2, [ r1, #AUX_MU_LSR_REG ]
     and     r2, #0x01
@@ -125,7 +125,7 @@ aux_mini_uart_byte_read:
 aux_mini_uart_byte_write:
     push { lr }
 
-    ldr     r1, =AUX_BASE             // 0x20215000
+    imm32   r1, AUX_BASE             // 0x20215000
 1:
     ldr     r2, [r1, #AUX_MU_LSR_REG] // AUX_BASE + 0x54
     and     r2, #0x20

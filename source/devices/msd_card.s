@@ -457,3 +457,19 @@ msd_card_list_directories:
     cmp     r5, #512
     beq     1b
     pop { r4, r5, r6, r7, r8, r9, r10, r11, pc }
+
+.section .text
+msd_card_buffer_read:
+    push { r4, lr }
+    ldr     r4, =sector_buffer
+    add     r4, r4, r0
+    mov     r3, r1
+    mov     r2, #0
+    mov     r0, #0
+1:
+    ldrb    r1, [ r4 ], #1
+    orr     r0, r0, r1, lsl r2
+    add     r2, r2, #8
+    subs    r3, r3, #1
+    bhi     1b
+    pop { r4, pc }
