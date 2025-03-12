@@ -13,7 +13,7 @@
 .section .data
 start_song:
 .align 4
-.incbin "applications/Sample.bin"
+.incbin "applications/Maripo.wav"
 end_song:
     .word 0
 

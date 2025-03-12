@@ -30,7 +30,7 @@ pwm_init:
     mov     r1, #0
     str     r1, [ r0, #PWM_CTL_REG ]
 
-    imm32   r1, 0x2C48
+    imm32   r1, 0x1624//0xDA
     str     r1, [ r0, #PWM_RNG1_REG ]
     str     r1, [ r0, #PWM_RNG2_REG ]
 

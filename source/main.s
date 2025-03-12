@@ -292,15 +292,26 @@ main:
     add     r4, r4, #31
     mov     r0, r4
     bl      msd_card_sector_read*/
-
+    imm32   r6, 0x8000
+    imm32   r7, 62471
+    imm32   r8, 1000000
     bl      clock_manager_init
     bl      pwm_init
     ldr   r4, =start_song
     add   r4, r4, #0xD0
     ldr   r5, =PWM_BASE
 1:
-    ldrh  r0, [r4], #4
-    lsr   r0, r0, #2
+    ldrsh  r0, [r4], #2
+    add   r0, r0, r6
+    mul   r0, r0, r7
+    mov   r1, r8
+    bl    math_u32_divide
+    str   r0, [r5, #PWM_FIF1_REG]
+    ldrh  r0, [r4], #2
+    add   r0, r0, r6
+    mul   r0, r0, r7
+    mov   r1, r8
+    bl    math_u32_divide
     str   r0, [r5, #PWM_FIF1_REG]
     2:
         ldr   r0, [r5, #PWM_STA_REG]
