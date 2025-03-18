@@ -1,2 +1,1 @@
-.equ AUX_BASE,    0x20215000
 .equ AUX_ENABLES, 0x04

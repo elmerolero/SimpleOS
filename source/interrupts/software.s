@@ -1,4 +1,4 @@
-.extern aux_mini_uart_write_bytes
+.extern uart0_write_bytes
 
 .section .data
 .align 1
@@ -12,6 +12,6 @@ interrupt_software:
 
     ldr     r0, =software_interrupt_message
     mov     r1, #20
-    bl      aux_mini_uart_write_bytes
+    bl      uart0_write_bytes
 
     pop { r0-r12, pc }

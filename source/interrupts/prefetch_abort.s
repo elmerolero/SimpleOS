@@ -1,4 +1,4 @@
-.extern aux_mini_uart_write_bytes
+.extern uart0_write_bytes
 
 .section .data
 .align 1
@@ -12,7 +12,7 @@ interrupt_prefetch_abort:
     push { r0 }
     ldr     r0, =prefetch_abort_message
     mov     r1, #22
-    bl      aux_mini_uart_write_bytes
+    bl      uart0_write_bytes
     pop { r0 }
     msr spsr_cxsf, r0
     pop { r0-r12, lr }

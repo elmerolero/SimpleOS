@@ -1,8 +1,5 @@
 .include "utils/assembler.s"
 
-/*  */
-.equ GPIO_BASE,  0x20200000 
-
 // GPIO pin range
 .equ GPIO_PIN_MIN,  0
 .equ GPIO_PIN_MAX,  53
@@ -99,33 +96,34 @@
 @  0 Exitoso
 @ ----------------------------------------------------------------------------------------------------------
 .section .text
-gpio_mode_write:
-    cmp         r0, #53             @ Compara el pin indicado (r0) con 53
-    cmpls       r1, #7
-    bhi         gpio_setModeError   @ If r0 > 53 then setModeError
-    push    {r4, lr}            @
-    imm32       r2, GPIO_BASE
-gpio_setModeLoop:
-    cmp         r0, #10             @ Se verifica que sea menor que diez
-    bmi         gpio_mode           @ Sale del bucle
-    add         r2, #4              @ Incrementa la dirección base en dos (cambiará en )
-    sub         r0, #10
-    b           gpio_setModeLoop
-gpio_mode:
-    add         r0, r0, r0, lsl #1  @ r0 = r0 * 3 (each pin mode is represented by 3 bits)
-    lsl         r1, r1, r0          @ Se desplaza ALTFX hacia el campo correspondiente indicado por r0
-    ldr         r3, [ r2 ]          @ Carga en r3 el contenido de r2 (los cuatro bytes de GPFSELX)
-    mov         r4, #7              @ Se mueve el numero 7 en r4
-    mvn         r4, r4, lsl r0      @ Se desplaza y su valor negado seguarda ahí mismo
-    and         r3, r3, r4          @ Limpia el espacio que se desea establecer
-    orr         r1, r1, r3          @ Graba el nuevo modo en el espacio 
-    str         r1, [ r2 ]          @ Se guarda la nueva configuración en el espacio al que apunta r2
-    mov         r0, #0              @ Indica que finalizó correctamente 
-    b           gpio_setModeEnd
-gpio_setModeError:
+gpio_ModeSet:
+    cmp         r0, #53             
+    cmpls       r1, #GPIO_MODE_MAX
+    bhi         3f
+    push {r4, lr}            
+    mov         r2, r0                  // Pin number
+    mov         r3, r1                  // Pin mode
+    mov         r0, #GPIO_DEVICES
+    bl          devices_AddressGet
+1:
+    cmp         r2, #10                 // If r2 < 10 goes next step
+    bmi         2f                      
+    add         r0, #4 
+    sub         r2, #10
+    b           1b
+2:
+    add         r2, r2, r2, lsl #1      // r3 << (r2 * 3)
+    ldr         r1, [ r0 ]              // r1 = GPIOSELX
+    mov         r4, #7              
+    mvn         r4, r4, lsl r2      
+    and         r1, r1, r4          
+    orr         r1, r1, r3, lsl r2      // r1 | (r3 << r2)
+    str         r1, [ r0 ]          
+    mov         r0, #0  
+    b           4f
+3:
     mov         r0,     #-1
-    pop { r4, pc }
-gpio_setModeEnd:
+4:
     pop {r4, pc}            @ Finaliza
 
 
@@ -147,38 +145,42 @@ gpio_pud_mode_write:
     movhi   r1, #GPIO_ERROR_INVALID_PUD_MODE
     bxhi    lr
 
-    push { r4, lr } 
+    push { r4, r5, r6, lr } 
 
     // Backs up the mode that will be updated
     mov     r4, r1
 
     // We get the bit for the desired pin and the offset
+    mov     r0, r4
     mov     r1, #32
     bl      math_u32_divide
+    mov     r5, r0
+    mov     r6, r1
+
+    // Gets GPIO address
+    mov     r0, #GPIO_DEVICES
+    bl      devices_AddressGet
     
-    // Select d
-
-    // Prepares the PUD mode the pin will receive
-    imm32   r2, GPIO_BASE
-    str     r4, [ r2, #GPIO_GPPUD ]
-
-    lsl     r3, #2
-    add     r0, r3, #GPIO_GPPUDCLK0
+    // Set GPPUD mode
+    str     r4, [ r0, #GPIO_GPPUD ]
+    lsl     r3, r5, #2
+    add     r2, r3, #GPIO_GPPUDCLK0
     mov     r3, #1
-    lsl     r3, r3, r1
-    str     r3, [ r2, r0 ]
-    mov     r1, r0
+    lsl     r3, r3, r6
+    str     r3, [ r0, r2 ]
 
     // Wait 150 cycles required again
     mov     r0, #150
     bl      utils_delay
 
+    mov     r0, #GPIO_DEVICES
+    bl      devices_AddressGet
     mov     r3, #0
-    str     r3, [ r2, #GPIO_GPPUD ]
-    str     r3, [ r2, r1 ]
+    str     r3, [ r0, #GPIO_GPPUD ]
+    str     r3, [ r0, r2 ]
     mov     r0, #0
 
-    pop { r4, pc }
+    pop { r4, r5, r6, pc }
 
 
 @ ----------------------------------------------------------------------------------------------------------
@@ -189,12 +191,12 @@ gpio_pud_mode_write:
 @ 0xFFFFFFFF - pin given is invalid.
 @ ----------------------------------------------------------------------------------------------------------
 .section .text
-gpio_pin_write:
+gpio_PinSet:
     cmp     r0, #GPIO_PIN_MAX
     movhi   r0, #GPIO_ERROR_INVALID_PIN
     bxhi    lr
 
-    push { r4, lr } 
+    push { r4, r5, lr } 
 
     // Makes sure that value to write is zero or one and saves result in r4
     and     r4, r1, #GPIO_PIN_WRITE_MAX
@@ -208,16 +210,17 @@ gpio_pin_write:
 
     // Sets the offset for specified pin
     mov     r3, #1
-    lsl     r1, r3, r1
+    lsl     r5, r3, r1
 
     cmp     r4, #GPIO_PIN_LOW
-    addeq   r0, r0, #GPIO_GPCLR0
-    addne   r0, r0, #GPIO_GPSET0
+    addeq   r2, r0, #GPIO_GPCLR0
+    addne   r2, r0, #GPIO_GPSET0
 
     // Sets the value
-    imm32   r2, GPIO_BASE
-    ldr     r3, [ r2, r0 ]
-    orr     r3, r3, r1
-    str     r3, [ r2, r0 ]
+    mov     r0, #GPIO_DEVICES
+    bl      devices_AddressGet
+    ldr     r3, [ r0, r2 ]
+    orr     r3, r3, r5
+    str     r3, [ r0, r2 ]
     
-    pop { r4, lr }
+    pop { r4, r5, lr }
