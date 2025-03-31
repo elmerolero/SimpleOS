@@ -24,5 +24,5 @@ For any suggestion or concern, you can send me an email to isma.salas24 at gmail
 
 I want to reference the followings repos that helped me to accomplish the current progress and I thank them a lot.
 
-- [Dwelch67] (/dwelch67/raspberrypi)
+- [Dwelch67] (https://github.com/dwelch67/raspberrypi)
 - [PeterLemon] (https://github.com/PeterLemon/RaspberryPi)
