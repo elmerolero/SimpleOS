@@ -7,8 +7,6 @@
 .equ AUX_SPI1_IO,     0xA0
 .equ AUX_SPI1_TXHOLD, 0xB0
 
-.equ AUX_SPI1_ENABLE, 0x02
-
 .equ AUX_SPI1_CNTL_SHIFT_LENGTH_8, 0x08
 
 .equ AUX_SPI1_CNTRL_SHIFT_OUT_LS_BIT_FIRST, 0x00
@@ -51,9 +49,9 @@ spi1_init:
 
     // Registers initialization
     ldr     r4, =AUX_BASE
-    ldr     r2, [r4, #AUX_ENABLES]
+    ldr     r2, [r4, #AUX_ENABLE_REG]
     orr     r2, #AUX_SPI1_ENABLE
-    str     r2, [r4, #AUX_ENABLES]
+    str     r2, [r4, #AUX_ENABLE_REG]
 
     // Clear CNTL register
     mov     r0, #1

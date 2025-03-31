@@ -1,5 +1,4 @@
 .include "devices/system.s"
-.include "devices/devices.s"
 .include "devices/auxiliary.s"
 
 // Mini UART
@@ -15,8 +14,6 @@
 .equ AUX_MU_STAT_REG,       0x64
 .equ AUX_MU_BAUD_REG,       0x68
 
-.equ AUX_MU_ENABLE,         0x01
-
 .equ MU_DATA_SIZE_7,        0x01
 .equ MU_DATA_SIZE_8,        0x03
 
@@ -24,6 +21,9 @@
 .equ MU_RECEIVER_ENABLE,            0x01
 .equ MU_TRANSMITER_ENABLE,          0x02
 .equ MU_RECEIVER_TRANSMITER_ENABLE, 0x03
+
+.equ MU_RECEIVE_INTERRUPT_ENABLE,   0x01
+.equ MU_TRANSMIT_INTERRUPT_ENABLE,  0x02
 
 .equ GPIO_MODE_ALTF5,           2
 .equ GPIO_PUD_MODE_DISABLE,     0
@@ -39,11 +39,12 @@ uart0_Init:
     cmpls   r1, #MU_DATA_SIZE_8
     bxhi    lr
 
-    push { r4, r5, lr }
+    push { r4, r5, r6, lr }
     
     # Back up baud-rate and data size parameter
     mov     r4, r0
     mov     r5, r1
+    mov     r6, r2
 
     // Set ALT FUNC 5 on pins 14 and 15 (for AUX MINI UART)
     mov     r0, #14
@@ -70,13 +71,11 @@ uart0_Init:
     sub     r0, r0, #1
     mov     r3, r0
 
-    // Registers initialization
-    mov     r0, #AUX_DEVICES
-    bl      devices_AddressGet          
-    ldr     r2, [r0, #AUX_ENABLES]
-    orr     r2, #AUX_MU_ENABLE
-    str     r2, [r0, #AUX_ENABLES]
+    // Enables mini UART
+    mov     r0, #AUX_UART_ENABLE
+    bl      auxiliary_Enable
 
+    // Clean registers
     mov     r2, #0
     str     r2, [r0, #AUX_MU_IER_REG]
     
@@ -88,7 +87,7 @@ uart0_Init:
     mov     r2, #0
     str     r2, [r0, #AUX_MU_MCR_REG]
     
-    mov     r2, #0x00
+    and     r2, r6, #(MU_RECEIVE_INTERRUPT_ENABLE | MU_TRANSMIT_INTERRUPT_ENABLE)
     str     r2, [r0, #AUX_MU_IIR_REG]
 
     str     r3, [r0, #AUX_MU_BAUD_REG]
@@ -97,7 +96,7 @@ uart0_Init:
     mov     r2, #MU_RECEIVER_TRANSMITER_ENABLE
     str     r2, [ r0, #AUX_MU_CNTL_REG ]
 
-    pop     { r4 - r5, pc }
+    pop     { r4, r5, r6, pc }
 
 
 @ ------------------------------------------------------------------------------
@@ -108,7 +107,7 @@ uart0_Init:
 @   r0: Byte read from receiver
 @ ------------------------------------------------------------------------------
 .section .text
-uart0_byte_read:
+uart0_read:
     push { lr }
     mov     r0, #AUX_DEVICES
     bl      devices_AddressGet       
@@ -124,7 +123,7 @@ uart0_byte_read:
 @ R0: Letter to send through UART
 @ ------------------------------------------------------------------------------
 .section .text
-uart0_byte_write:
+uart0_write:
     push { lr }
     and     r2, r0, #0xFF
     mov     r0, #AUX_DEVICES
@@ -156,7 +155,7 @@ uart0_write_bytes:
     ldrb    r0, [r3, r5]
     cmp     r0, #0
     beq     2f
-    bl      uart0_byte_write
+    bl      uart0_write
     add     r5, #1
     b       1b
 2:
@@ -198,7 +197,7 @@ uart0_u32_write:
 2:
     ldrb    r0, [r6, #-1]!
     cmp     r0, #0x00
-    blne    uart0_byte_write
+    blne    uart0_write
     bne     2b
     pop  { r4, r5, r6, pc }
 
@@ -214,7 +213,7 @@ uart0_s32_write:
     mov     r4, r0
     cmp     r0, #0
     movlt   r0, #'-'
-    bl      uart0_byte_write
+    bl      uart0_write
     
     ldr     r6, =buffer
     mov     r0, #0
@@ -234,7 +233,7 @@ uart0_s32_write:
 2:
     ldrb    r0, [r6, #-1]!
     cmp     r0, #0
-    blne    uart0_byte_write
+    blne    uart0_write
     bne     2b
     pop  { r4, r5, r6, pc }
 
