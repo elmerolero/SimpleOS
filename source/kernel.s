@@ -6,6 +6,11 @@
 .include "graphics/frame_buffer.s"
 .include "interrupts/interrupts.s"
 .include "graphics/drawing.s"
+.include "lib/std.s"
+
+.section .data
+.align 1
+    buffer0: .asciz "Hello\0"
 
 .section .init
 .global _start
@@ -42,14 +47,13 @@ main:
     mov     r2, #(MU_RECEIVE_INTERRUPT_ENABLE | MU_TRANSMIT_INTERRUPT_ENABLE)
     bl      uart0_Init
 
-    mov     r0, #'H'
-    bl      uart0_write
-    mov     r0, #'o'
-    bl      uart0_write
-    mov     r0, #'l'
-    bl      uart0_write
-    mov     r0, #'a'
-    bl      uart0_write
+    ldr     r0, =uart0_write
+    ldr     r1, =buffer0
+    mov     r2, #5
+    bl      write
+
+    mov     r1, #10
+    bl      uart0_u32_write
 
 loop:
     bl      uart0_read
