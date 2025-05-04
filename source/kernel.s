@@ -5,12 +5,9 @@
 .include "devices/arm_timer.s"
 .include "graphics/frame_buffer.s"
 .include "interrupts/interrupts.s"
-.include "graphics/drawing.s"
-.include "lib/std.s"
+.include "lib/posix.s"
 
 .section .data
-.align 1
-    buffer0: .asciz "Hello\0"
 
 .section .init
 .global _start
