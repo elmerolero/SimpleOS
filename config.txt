@@ -57,6 +57,7 @@
 
 # Automatically load overlays for detected DSI displays
 display_auto_detect=1
+gpu_mem=64
 
 # Enable DRM VC4 V3D driver
 #dtoverlay=vc4-kms-v3d
@@ -71,20 +72,17 @@ kernel_old=1
 # Enable host mode on the 2711 built-in XHCI USB controller.
 # This line should be removed if the legacy DWC2 controller is required
 # (e.g. for USB device mode) or if USB support is not required.
-<<<<<<< HEAD
 otg_mode=1
 core_freq=250
 gpu_freq=250
 core_freq_min=250
 gpu_freq_min=250
-=======
 #otg_mode=1
->>>>>>> math_division_implementation
 
 [all]
-max_usb_current=1
-hdmi_group=2
-hdmi_mode=1
-hdmi_mode=87
-hdmi_cvt 1024 600 60 6 0 0 0
+#max_usb_current=1
+#hdmi_group=2
+#hdmi_mode=1
+#hdmi_mode=87
+#hdmi_cvt 1024 600 60 6 0 0 0
 
