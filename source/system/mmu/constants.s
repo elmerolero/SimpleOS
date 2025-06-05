@@ -1,0 +1,4 @@
+.equ MMU_TYPE_COARSE, 0x0001
+.equ MMU_FLAGS,       0x03FA @ Complete access, caché, etc.
+.equ MMU_FIRST_TABLE_LOCATION,  0x00000C000
+.equ MMU_SECOND_TABLE_LOCATION, 0x000010000

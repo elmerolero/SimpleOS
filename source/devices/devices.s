@@ -10,7 +10,7 @@ devices_AddressGet:
 
 .section .data
 devices:
-    .word 0x2000B200    // Interrupts
-    .word 0x20200000    // GPIO
-    .word 0x20215000    // Auxiliary
+    .word 0x00000000    // Interrupts
+    .word 0x00000000    // GPIO
+    .word 0x20215000@0x00005000    // Auxiliary
     

@@ -1,3 +1,6 @@
+.section .data
+buffer0: .skip 0x1000
+
 .section .text
 write:
     cmp     r2, #0

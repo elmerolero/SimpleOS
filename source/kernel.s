@@ -2,10 +2,10 @@
 .include "lib/math.s"
 .include "devices/gpio.s"
 .include "devices/uart0.s"
-.include "devices/arm_timer.s"
-.include "graphics/frame_buffer.s"
-.include "interrupts/interrupts.s"
-.include "lib/posix.s"
+//.include "devices/arm_timer.s"
+//.include "graphics/frame_buffer.s"
+//.include "interrupts/interrupts.s"
+//.include "lib/posix.s"
 
 .section .data
 
@@ -13,9 +13,9 @@
 .global _start
 _start:
     mov     sp, #0x8000
-    bl      stack_Init
-    bl      interrupts_Init
-    b       main
+    //bl      stack_Init
+    //bl      interrupts_Init
+    b         _start
 
 stack_Init:
     mov       r0, #0xDB       @ Undefined
@@ -37,20 +37,22 @@ stack_Init:
     msr       cpsr, r0
     bx        lr
 
-.section .text
+/* .section .text
 main:
+    b       main
+
     ldr     r0, =96153
     mov     r1, #3
     mov     r2, #(MU_RECEIVE_INTERRUPT_ENABLE | MU_TRANSMIT_INTERRUPT_ENABLE)
     bl      uart0_Init
 
-    ldr     r0, =uart0_write
-    ldr     r1, =buffer0
-    mov     r2, #5
-    bl      write
+    //ldr     r0, =uart0_write
+    //ldr     r1, =buffer0
+    //mov     r2, #5
+    //bl      write
 
-    mov     r1, #10
-    bl      uart0_u32_write
+    //mov     r1, #10
+    //bl      uart0_u32_write
 
 loop:
     bl      uart0_read
@@ -62,3 +64,4 @@ loop:
     mov     r0, #'\n'
     bl      uart0_write
     b       loop
+*/
