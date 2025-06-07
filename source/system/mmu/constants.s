@@ -1,4 +1,5 @@
 .equ MMU_TYPE_COARSE, 0x0001
-.equ MMU_FLAGS,       0x03FA @ Complete access, caché, etc.
+.equ MMU_FLAGS_STRONG_ORDER, 0x00000C0A @ Complete access, caché, etc.
+.equ MMU_FLAGS_DEVICE,       0x0000001E
 .equ MMU_FIRST_TABLE_LOCATION,  0x00000C000
 .equ MMU_SECOND_TABLE_LOCATION, 0x000010000

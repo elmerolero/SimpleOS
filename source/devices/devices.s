@@ -1,6 +1,10 @@
 .section .text
 devices_AddressGet:
-    ldr     r1, =devices
+    ldr     r1, =mmu_enabled
+    ldr     r1, [ r1 ]
+    tst     r1, #1
+    ldreq   r1, =devices
+    ldrne   r1, =devices_mmu
     ldr     r0, [ r1, r0, lsl #2 ]
     bx      lr
 
@@ -9,8 +13,15 @@ devices_AddressGet:
 .equ AUX_DEVICES,       0x02
 
 .section .data
+mmu_enabled:
+    .word 0
+
 devices:
-    .word 0x00000000    // Interrupts
-    .word 0x00000000    // GPIO
-    .word 0x20215000@0x00005000    // Auxiliary
-    
+    .word 0x2000B200 // Interrupts
+    .word 0x20200000  // GPIO
+    .word 0x20215000  // Auxiliary
+
+devices_mmu:
+    .word 0x00008200 // Interrupts
+    .word 0x00009000 // GPIO
+    .word 0x0000A000 // Auxiliary

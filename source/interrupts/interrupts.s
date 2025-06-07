@@ -26,7 +26,7 @@
 .equ ILLEGAL_ACCESS_TYPE0_IRQ_PENDING,  0x40
 .equ ILLEGAL_ACCESS_TYPE1_IRQ_PENDING,  0x80
 
-.section .text
+.section .init
 .global interrupts_Init
 interrupts_Init:
     push    { r4, r5, r6, r7, r8, r9, lr }
@@ -38,10 +38,11 @@ interrupts_Init:
     ldmia   r0!, { r2, r3, r4, r5, r6, r7, r8, r9 }
     stmia   r1!, { r2, r3, r4, r5, r6, r7, r8, r9 }  
 
-    mov     r0, #INTERRUPT_DEVICES
-    bl      devices_AddressGet
-    mov     r1, #ARM_TIMER_IRQ_PENDING
-    str     r1, [r0, #ENABLE_BASIC_IRQS]
+    ldr     r0, =0x00007200
+    //mov     r0, #INTERRUPT_DEVICES
+    //bl      devices_AddressGet
+    //mov     r1, #ARM_TIMER_IRQ_PENDING
+    //str     r1, [r0, #ENABLE_BASIC_IRQS]
 
     mrs     r0, cpsr
     bic     r0, r0, #0x80
@@ -50,7 +51,7 @@ interrupts_Init:
 
     pop { r4, r5, r6, r7, r8, r9, pc }
 
-.section .text
+.section .init
 interrupt_vector_table:
     ldr     pc, _interrupt_reset
     ldr     pc, _interrupt_undefined

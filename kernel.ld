@@ -7,15 +7,16 @@
 ******************************************************************************/
 
 SECTIONS {
+
 	/*
 	* First and formost we need the .init section, containing the code to 
         * be run first. We allow room for the ATAGs and stack and conform to 
         * the bootloader's expectation by putting this code at 0x8000.
 	*/
-	.init 0x8000 : {
+	.init 0x8000 : AT(0x8000) {
 		*(.init)
 	}
-    
+
     /*
     * First table
     */
@@ -25,60 +26,56 @@ SECTIONS {
         _page_table_end = .;
     }
 
-    .coarse_table 0x10000 : {
+    /*
+    * Second table
+    */
+    .coarse_table : AT(0x10000) {
         _coarse_table_start = .;
-        . = . + 0x1C00;  /* 4 KB * 7  */
+        . = . + 0x400;  /* 4 KB */
         _coarse_table_end = .;
     }
 
-    /*. = 0x00000000;    Aquí empieza la parte que será virtual */
-
-	.undefined_stack : {
-        . = ALIGN(4096);
+	.undefined_stack 0x1000 : AT(0x11000) {
         _undefined_stack_start = .;
         . = . + 0x1000;  /* 4 KB for Undefined */
         _undefined_stack_end = .;
     }
 	
-	.abort_stack : {
-        . = ALIGN(4096);
+	.abort_stack ALIGN(4096) : AT(0x12000) {
         _abort_stack_start = .;
         . = . + 0x1000;  /* 4 KB for Data Abort */
         _abort_stack_end = .;
     }
 
-    .irq_stack : {
-        . = ALIGN(4096);
+    .irq_stack ALIGN(4096) : AT(0x13000) {
         _irq_stack_start = .;
         . = . + 0x1000;  /* 4 KB for IRQ */
         _irq_stack_end = .;
     }
 
-    .fiq_stack : {
-        . = ALIGN(4096);
+    .fiq_stack ALIGN(4096) : AT(0x14000){
         _fiq_stack_start = .;
         . = . + 0x1000;  /* 4 KB for FIQ */
         _fiq_stack_end = .;
     }
 
-    .sys_stack : {
-        . = ALIGN(4096);
+    .sys_stack ALIGN(4096) : AT(0x15000) {
         _sys_stack_start = .;
         . = . + 0x1000;  /* 4 KB for SYS */
         _sys_stack_end = .;
     }
 
-	/* 
+    /* 
 	* Next we put the rest of the code.
 	*/
-	.text ALIGN(4096): {
+	.text ALIGN(4096) : AT(0x16000) {
 		*(.text)
 	}
-	
-	/* 
+
+    /* 
 	* Next we put the data.
 	*/
-	.data ALIGN(4096): {
+	.data 0x0000 : AT(0x17000) {
 		*(.data)
 	}
 
