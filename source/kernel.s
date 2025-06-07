@@ -2,7 +2,7 @@
 .global _start
 _start:
     mov     sp, #0x8000
-    bl      mmu_Init
+    //bl      mmu_Init
     bl      stack_Init
     bl      interrupts_Init
     mov     r0, #8192
@@ -21,8 +21,8 @@ _start:
     mov     r0, #'\n'
     bl      uart0_write
 
-    ldr     r0, start_addr
-    mov     r1, #16
+    mov     r0, #10
+    mov     r1, #10
     bl      uart0_u32_write
 
     b       loop
@@ -59,10 +59,9 @@ stack_Init:
     msr       cpsr, r0
     bx        lr
 
-start_addr:
-    .word start_second_addr
+//start_addr:
+  //  .word start_second_addr
 
-.include "system/mmu/mmu.s"
 .include "lib/math.s"
 .include "lib/utils.s"
 .include "devices/gpio.s"
