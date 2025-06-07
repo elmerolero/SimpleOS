@@ -5,4 +5,4 @@ system_CoreFreqGet:
     bx      lr
 
 system_CoreFreq:
-    .word 250000000
+    .word 2721600

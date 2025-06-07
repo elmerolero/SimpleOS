@@ -68,14 +68,14 @@ SECTIONS {
     /* 
 	* Next we put the rest of the code.
 	*/
-	.text ALIGN(4096) : AT(0x16000) {
+	.text 0x16000 : AT(0x16000) {
 		*(.text)
 	}
 
     /* 
 	* Next we put the data.
 	*/
-	.data 0x0000 : AT(0x17000) {
+	.data 0x17000 : AT(0x17000) {
 		*(.data)
 	}
 

@@ -201,7 +201,6 @@ uart0_u32_write:
     bne     2b
     pop  { r4, r5, r6, pc }
 
-
 @ ------------------------------------------------------------------------------
 @ Convert a number to text and sends it through UART
 @ It only works in base 10
