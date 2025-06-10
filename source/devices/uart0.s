@@ -20,8 +20,8 @@
 .equ MU_DISABLE,                    0x00
 .equ MU_RECEIVER_ENABLE,            0x01
 .equ MU_TRANSMITER_ENABLE,          0x02
-.equ MU_RECEIVER_TRANSMITER_ENABLE, 0x03
 
+.equ MU_INTERRUPTS_DISABLE,         0x00
 .equ MU_RECEIVE_INTERRUPT_ENABLE,   0x01
 .equ MU_TRANSMIT_INTERRUPT_ENABLE,  0x02
 
@@ -31,6 +31,13 @@
 .section .data
 buffer: .skip 32
 
+@ ------------------------------------------------------------------------------
+@ Initializes UART 0
+@ r0: Baudrate
+@ r1: Data size
+@ r2: Enabling options
+@ r3: Enabling interrupt options
+@ ------------------------------------------------------------------------------
 .section .text
 uart0_Init:
     ldr     r3, =mu_MaxBaudRate
@@ -39,12 +46,13 @@ uart0_Init:
     cmpls   r1, #MU_DATA_SIZE_8
     bxhi    lr
 
-    push { r4, r5, r6, lr }
+    push { r4, r5, r6, r7, lr }
     
     # Back up baud-rate and data size parameter
     mov     r4, r0
     mov     r5, r1
     mov     r6, r2
+    mov     r7, r3
 
     // Set ALT FUNC 5 on pins 14 and 15 (for AUX MINI UART)
     mov     r0, #14
@@ -54,15 +62,6 @@ uart0_Init:
     mov     r0, #15
     mov     r1, #GPIO_MODE_ALTF5
     bl      gpio_ModeSet
-
-    // Disables pull up/down resistors for pins 14 and 15
-    mov     r0, #14
-    mov     r1, #GPIO_PUD_MODE_DISABLE
-    bl      gpio_pud_mode_write
-
-    mov     r0, #15
-    mov     r1, #GPIO_PUD_MODE_DISABLE
-    bl      gpio_pud_mode_write
 
     // Calculates baud-rate register value
     bl      system_CoreFreqGet
@@ -78,25 +77,39 @@ uart0_Init:
     // Clean registers
     mov     r2, #0
     str     r2, [r0, #AUX_MU_IER_REG]
-    
-    mov     r2, #0
     str     r2, [r0, #AUX_MU_CNTL_REG]
-
-    str     r5, [r0, #AUX_MU_LCR_REG]
-    
-    mov     r2, #0
+    str     r2, [r0, #AUX_MU_LCR_REG]
     str     r2, [r0, #AUX_MU_MCR_REG]
-    
-    and     r2, r6, #(MU_RECEIVE_INTERRUPT_ENABLE | MU_TRANSMIT_INTERRUPT_ENABLE)
-    str     r2, [r0, #AUX_MU_IIR_REG]
 
-    str     r3, [r0, #AUX_MU_BAUD_REG]
+    // Sets baud rate
+    mov     r2, r3
+    str     r2, [r0, #AUX_MU_BAUD_REG]
 
-    // Enables TX
-    mov     r2, #MU_RECEIVER_TRANSMITER_ENABLE
+    // Set data size
+    mov     r2, r5
+    str     r2, [r0, #AUX_MU_LCR_REG]
+
+    // Interrupts
+    and     r2, r7, #(MU_RECEIVE_INTERRUPT_ENABLE | MU_TRANSMIT_INTERRUPT_ENABLE)
+    str     r2, [r0, #AUX_MU_IER_REG]
+
+    // Disables pull up/down resistors for pins 14 and 15
+    mov     r0, #14
+    mov     r1, #GPIO_PUD_MODE_DISABLE
+    bl      gpio_pud_mode_write
+
+    mov     r0, #15
+    mov     r1, #GPIO_PUD_MODE_DISABLE
+    bl      gpio_pud_mode_write
+
+    // Enabling UART options
+    mov     r0, #AUX_DEVICES
+    bl      devices_AddressGet
+    and     r2, r6, #(MU_RECEIVER_ENABLE | MU_TRANSMITER_ENABLE)
     str     r2, [ r0, #AUX_MU_CNTL_REG ]
+    mov     r0, #0
 
-    pop     { r4, r5, r6, pc }
+    pop     { r4, r5, r6, r7, pc }
 
 
 @ ------------------------------------------------------------------------------
@@ -170,7 +183,7 @@ uart0_write_bytes:
 .section .text
 .global uart0_u32_write
 uart0_u32_write:
-    cmp     r1, #0x10
+    cmp     r1, #16
     bxhi    lr
 
     push { r4, r5, r6, lr }

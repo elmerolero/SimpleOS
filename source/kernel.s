@@ -2,43 +2,12 @@
 .global _start
 _start:
     mov     sp, #0x8000
-    //bl      mmu_Init
-    bl      stack_Init
     bl      interrupts_Init
-    mov     r0, #8192
-    add     r0, #1024
-    add     r0, #384
-    add     r0, #256
-    add     r0, #128
-    mov     r1, #3
-    mov     r2, #(MU_RECEIVE_INTERRUPT_ENABLE | MU_TRANSMIT_INTERRUPT_ENABLE)
-    bl      uart0_Init
+    bl      stack_Init
+    bl      clock_manager_init
+    bl      main
 
-    mov     r0, #'A'
-    bl      uart0_write
-    mov     r0, #'\r'
-    bl      uart0_write
-    mov     r0, #'\n'
-    bl      uart0_write
-
-    mov     r0, #10
-    mov     r1, #10
-    bl      uart0_u32_write
-
-    b       loop
-
-loop:
-    bl      uart0_read
-    cmp     r0, #13
-    blne    uart0_write
-    bne     loop
-    mov     r0, #'\r'
-    bl      uart0_write
-    mov     r0, #'\n'
-    bl      uart0_write
-    b       loop
-
-.section .init
+.section .text
 stack_Init:
     mov       r0, #0xDB       @ Undefined
     msr       cpsr, r0
@@ -59,12 +28,44 @@ stack_Init:
     msr       cpsr, r0
     bx        lr
 
+.section .text
+main:
+    ldr     r0, baudrate_speed
+    mov     r1, #MU_DATA_SIZE_8
+    mov     r2, #(MU_RECEIVER_ENABLE | MU_TRANSMITER_ENABLE)
+    mov     r3, #MU_INTERRUPTS_DISABLE
+    bl      uart0_Init
+
+    bl      frameBuffer_GetDimmensions
+
+    mov     r4, r1
+    mov     r1, #16
+    bl      uart0_u32_write
+
+loop:
+    bl      uart0_read
+    cmp     r0, #13
+    blne    uart0_write
+    bne     loop
+    mov     r0, #'\r'
+    bl      uart0_write
+    mov     r0, #'\n'
+    bl      uart0_write
+    b       loop
+
+baudrate_speed:
+    .word 9600
+
+
 //start_addr:
   //  .word start_second_addr
-
+.include "devices/mailbox_interface/mailbox_interface.s"
+.include "devices/mailbox_interface/mailbox_tags.s"
 .include "lib/math.s"
 .include "lib/utils.s"
 .include "devices/gpio.s"
 .include "devices/uart0.s"
 .include "interrupts/interrupts.s"
 .include "devices/arm_timer.s"
+.include "devices/clock_manager.s"
+.include "graphics/frame_buffer.s"

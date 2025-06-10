@@ -14,14 +14,14 @@ mmu_Init:
     add     r4, r4, #1
     cmp     r4, #10
     bls     1b
-    /*bl      mmu_setTTBR
+    bl      mmu_setTTBR
     bl      mmu_flushTLB
     mov r0, #0xFFFFFFFF
-    mcr p15, 0, r0, c3, c0, 0    @ DACR = todo en modo manager
+    mcr p15, 0, r0, c3, c0, 0       @ DACR = todo en modo manager
     mrc     p15, 0, r0, c1, c0, 0   @ leer control register
     orr     r0, r0, #(1 << 0)       @ habilitar MMU (bit 0)
     bic     r0, r0, #(1 << 2)       @ opcional: deshabilita caché
-    mcr     p15, 0, r0, c1, c0, 0   @ escribir control register*/
+    mcr     p15, 0, r0, c1, c0, 0   @ escribir control register
     bx      lr
 
 .section .init

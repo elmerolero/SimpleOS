@@ -1,5 +1,3 @@
-.include "devices/mailbox_interface.s"
-
 .extern uart0_write_bytes
 
 .equ FRAMEBUFFER_PHYSICAL_WIDTH,    0x00
@@ -31,7 +29,7 @@ FrameBufferInfo:
 RequestData:
 .int 32                                 // Buffer size
 .int 0                                  // Request
-.int TAG_GET_PHYSICAL_SIZE              // Tag
+.int MB_TAG_GET_PHYSICAL_SIZE           // Tag
 .int 8                                  // Answer buffer size
 .int 0                                  // Request code
 .int 0                                  // Width (output)
@@ -69,12 +67,11 @@ framebuffer_init:
     pop { pc } 
 
 .section .text
-framebuffer_get_dimmensions:
+frameBuffer_GetDimmensions:
     push    { lr }
 
     // Dirección de RequestData para la GPU
-    ldr     r2, =RequestData
-    add     r0, r2, #0x40000000    // Dirección no cacheada
+    ldr     r0, =RequestData
     mov     r1, #8                 // Canal del framebuffer
     bl      mailbox_write
 
@@ -97,7 +94,7 @@ framebuffer_get_dimmensions:
 
 error:
     cmp     r0, #-1
-    ldreq     r0, =buffer_size_error
-    moveq     r1, #54
-    bleq      uart0_write_bytes
+    ldreq   r0, =buffer_size_error
+    moveq   r1, #54
+    bleq    uart0_write_bytes
     pop     { pc }
