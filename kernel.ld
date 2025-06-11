@@ -33,7 +33,7 @@ SECTIONS {
         _coarse_table_end = .;
     }
 
-	.undefined_stack 0x11000 : AT(0x11000) {
+	.undefined_stack 0x0000 : AT(0x11000) {
         _undefined_stack_start = .;
         . = . + 0x1000;  /* 4KB for Undefined */
         _undefined_stack_end = .;

@@ -119,7 +119,7 @@
 buffer: .skip 32
 
 .section .init
-uart0A_Init:
+uart0_Init:
     push { r4, r5, r6, lr }
     
     # Back up baud-rate and data size parameter
@@ -130,20 +130,20 @@ uart0A_Init:
     // Set ALT FUNC 5 on pins 14 and 15 (for AUX MINI UART)
     mov     r0, #14
     mov     r1, #GPIO_MODE_ALTF5
-    bl      gpioA_ModeSet
+    bl      gpio_ModeSet
 
     mov     r0, #15
     mov     r1, #GPIO_MODE_ALTF5
-    bl      gpioA_ModeSet
+    bl      gpio_ModeSet
 
     // Disables pull up/down resistors for pins 14 and 15
     mov     r0, #14
     mov     r1, #GPIO_PUD_MODE_DISABLE
-    bl      gpioA_pud_mode_write
+    bl      gpio_pud_mode_write
 
     mov     r0, #15
     mov     r1, #GPIO_PUD_MODE_DISABLE
-    bl      gpioA_pud_mode_write
+    bl      gpio_pud_mode_write
 
     // Calculates baud-rate register value
     //ldr     r0, =250000000
@@ -189,7 +189,7 @@ uart0A_Init:
 @   r0: Byte read from receiver
 @ ------------------------------------------------------------------------------
 .section .init
-uart0A_read:
+uart0_read:
     push { lr }
     ldr     r0, =0x20215000     
 1:
@@ -204,7 +204,7 @@ uart0A_read:
 @ R0: Letter to send through UART
 @ ------------------------------------------------------------------------------
 .section .init
-uart0A_write:
+uart0_write:
     push { lr }
     and     r2, r0, #0xFF
     ldr     r0, =0x20215000
@@ -221,7 +221,7 @@ uart0A_write:
 @ R1: String size
 @ ------------------------------------------------------------------------------
 .section .init
-uart0A_write_bytes:
+uart0_write_bytes:
     push { r4, r5, lr }
 
     mov     r3, r0
@@ -235,7 +235,7 @@ uart0A_write_bytes:
     ldrb    r0, [r3, r5]
     cmp     r0, #0
     beq     2f
-    bl      uart0A_write
+    bl      uart0_write
     add     r5, #1
     b       1b
 2:
@@ -249,7 +249,7 @@ uart0A_write_bytes:
 @ ------------------------------------------------------------------------------
 .section .init
 .global uart0_u32_write
-uart0A_u32_write:
+uart0_u32_write:
     cmp     r1, #0x10
     bxhi    lr
 
@@ -277,48 +277,12 @@ uart0A_u32_write:
 2:
     ldrb    r0, [r6, #-1]!
     cmp     r0, #0x00
-    blne    uart0A_write
-    bne     2b
-    pop  { r4, r5, r6, pc }
-
-
-@ ------------------------------------------------------------------------------
-@ Convert a number to text and sends it through UART
-@ It only works in base 10
-@ R0: Number to be sent
-@ ------------------------------------------------------------------------------
-.section .init
-uart0A_s32_write:
-    push { r4, r5, r6, lr }
-    mov     r4, r0
-    cmp     r0, #0
-    movlt   r0, #'-'
-    bl      uart0A_write
-    
-    ldr     r6, =buffer
-    mov     r0, #0
-    strb    r0, [r6], #1
-1:
-    mov     r0, r4
-    mov     r1, #10
-    bl      math_s32_divide
-    mov     r4, r0
-    mov     r0, r1
-    bl      math_s32_abs
-    add     r0, r0, #48
-    and     r0, r0, #0xFF
-    strb    r0, [r6], #1
-    teq     r4, #0
-    bne     1b
-2:
-    ldrb    r0, [r6, #-1]!
-    cmp     r0, #0
-    blne    uart0A_write
+    blne    uart0_write
     bne     2b
     pop  { r4, r5, r6, pc }
 
 .section .init
-gpioA_ModeSet:
+gpio_ModeSet:
     cmp         r0, #53             
     cmpls       r1, #GPIO_MODE_MAX
     bhi         3f
@@ -348,7 +312,7 @@ gpioA_ModeSet:
     pop {r4, pc}            @ Finaliza
 
 .section .init
-gpioA_pud_mode_write:
+gpio_pud_mode_write:
     cmp     r0, #GPIO_MODE_MAX
     movhi   r0, #GPIO_ERROR_INVALID_PIN
     bxhi    lr
@@ -381,7 +345,7 @@ gpioA_pud_mode_write:
 
     // Wait 150 cycles required again
     mov     r0, #150
-    bl      utilsA_delay
+    bl      utils_delay
 
     ldr     r0, =0x20200000
     mov     r3, #0
@@ -395,10 +359,51 @@ gpioA_pud_mode_write:
 @ Waits the number of cycles specified in R0
 @ R0: Number of cycles
 @ ------------------------------------------------------------------------------
-.section .text
-.global utilsA_delay
-utilsA_delay:
+.section .init
+.global utils_delay
+utils_delay:
 1:
     subs    r0, #1
     bne     1b
     bx      lr
+
+@ ------------------------------------------------------------------------------
+@ Integer division in ARMv6
+@ r0: dividend
+@ r1: divisor
+@ Ouputs:
+@ r0: quotient
+@ r1: remainder (optional)
+@ ------------------------------------------------------------------------------
+.global math_u32_divide
+math_u32_divide:         
+    cmp     r1, #0           
+    beq     math_u32_divide_error   // Handle division by 0
+
+    mov     r3, r0
+    mov     r0, #0
+    cmp     r3, r1              // if dividend < divisor then
+    movlo   r1, r3              
+    bxlo    lr                  // If true, return (quotient = 0, remainder = dividend)
+
+    push { r4, r5, r6, lr }
+
+    mov     r2, #1
+1:
+    mov     r4, #0              // Set the lowest bit position (0)
+2:
+    lsl     r5, r1, r4
+    sub     r6, r3, r5
+    cmp     r6, r5              // Compare remainder with divisor << bit
+    addhs   r4, r4, #1
+    bhs     2b                  // If remainder <= divisor, increment bit position one position
+    mov     r3, r6              // Subtract divisor << bit from remainder
+    orr     r0, r0, r2, lsl r4  // Set the corresponding bit in the quotient
+    cmp     r3, r1
+    bhs     1b
+    mov     r1, r3
+    pop { r4, r5, r6, pc }                
+
+math_u32_divide_error:
+    mov r0, #0           // En caso de error, cociente = 0
+    bx lr

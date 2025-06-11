@@ -40,8 +40,7 @@ buffer: .skip 32
 @ ------------------------------------------------------------------------------
 .section .text
 uart0_Init:
-    ldr     r3, =mu_MaxBaudRate
-    ldr     r3, [ r3 ]
+    ldr     r3, mu_MaxBaudRate
     cmp     r0, r3
     cmpls   r1, #MU_DATA_SIZE_8
     bxhi    lr
@@ -110,6 +109,8 @@ uart0_Init:
     mov     r0, #0
 
     pop     { r4, r5, r6, r7, pc }
+
+mu_MaxBaudRate: .word 31250000
 
 
 @ ------------------------------------------------------------------------------
@@ -249,4 +250,43 @@ uart0_s32_write:
     bne     2b
     pop  { r4, r5, r6, pc }
 
-mu_MaxBaudRate: .word 31250000
+@ ------------------------------------------------------------------------------
+@ Integer division in ARMv6
+@ r0: dividend
+@ r1: divisor
+@ Ouputs:
+@ r0: quotient
+@ r1: remainder (optional)
+@ ------------------------------------------------------------------------------
+.global math_u32_divide
+math_u32_divide:         
+    cmp     r1, #0           
+    beq     math_u32_divide_error   // Handle division by 0
+
+    mov     r3, r0
+    mov     r0, #0
+    cmp     r3, r1              // if dividend < divisor then
+    movlo   r1, r3              
+    bxlo    lr                  // If true, return (quotient = 0, remainder = dividend)
+
+    push { r4, r5, r6, lr }
+
+    mov     r2, #1
+1:
+    mov     r4, #0              // Set the lowest bit position (0)
+2:
+    lsl     r5, r1, r4
+    sub     r6, r3, r5
+    cmp     r6, r5              // Compare remainder with divisor << bit
+    addhs   r4, r4, #1
+    bhs     2b                  // If remainder <= divisor, increment bit position one position
+    mov     r3, r6              // Subtract divisor << bit from remainder
+    orr     r0, r0, r2, lsl r4  // Set the corresponding bit in the quotient
+    cmp     r3, r1
+    bhs     1b
+    mov     r1, r3
+    pop { r4, r5, r6, pc }                
+
+math_u32_divide_error:
+    mov r0, #0           // En caso de error, cociente = 0
+    bx lr
