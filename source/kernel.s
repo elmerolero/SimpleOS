@@ -1,32 +1,41 @@
 .section .init
 .global _start
 _start:
-    mov     sp, #0x8000
-    bl      interrupts_Init
     bl      stack_Init
+    bl      mmu_Init
+    bl      interrupts_Init
     bl      clock_manager_init
+    
     bl      main
 
-.section .text
+.section .init
 stack_Init:
     mov       r0, #0xDB       @ Undefined
     msr       cpsr, r0
-    ldr       sp, =_undefined_stack_end
+    ldr       sp, _undefined_stack
     mov       r0, #0xD7       @ Abort
     msr       cpsr, r0
-    ldr       sp, =_abort_stack_end
+    ldr       sp, _abort_stack
     mov       r0, #0xD1       @ Fast Interrupt Request
     msr       cpsr, r0
-    ldr       sp, =_fiq_stack_end
+    ldr       sp, _fiq_stack
     mov       r0, #0xD2       @ IRQ
     msr       cpsr, r0
-    ldr       sp, =_irq_stack_end
+    ldr       sp, _irq_stack
     mov       r0, #0xDF       @ SYS
     msr       cpsr, r0
-    ldr       sp, =_sys_stack_end
+    ldr       sp, _sys_stack
     mov       r0, #0xD3       @ SVC
     msr       cpsr, r0
+    ldr       sp, _init_stack
     bx        lr
+
+_undefined_stack: .word _undefined_stack_end
+_abort_stack: .word _abort_stack_end
+_irq_stack: .word _irq_stack_end
+_fiq_stack: .word _fiq_stack_end
+_sys_stack: .word _sys_stack_end
+_init_stack: .word _init_stack_end
 
 .section .text
 main:
@@ -35,12 +44,6 @@ main:
     mov     r2, #(MU_RECEIVER_ENABLE | MU_TRANSMITER_ENABLE)
     mov     r3, #MU_INTERRUPTS_DISABLE
     bl      uart0_Init
-
-    bl      frameBuffer_GetDimmensions
-
-    mov     r4, r1
-    mov     r1, #16
-    bl      uart0_u32_write
 
 loop:
     bl      uart0_read
@@ -69,3 +72,4 @@ baudrate_speed:
 .include "devices/arm_timer.s"
 .include "devices/clock_manager.s"
 .include "graphics/frame_buffer.s"
+.include "system/mmu/mmu.s"

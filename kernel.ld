@@ -11,56 +11,69 @@ SECTIONS {
         * be run first. We allow room for the ATAGs and stack and conform to 
         * the bootloader's expectation by putting this code at 0x8000.
 	*/
-	.init 0x8000 : {
+	.init 0x8000 : AT(0x8000) {
 		*(.init)
 	}
 
-	.undefined_stack : {
-        . = ALIGN(8);
+    .init_stack 0x7000 : AT(0x7000) {
+        _init_stack_start = .;
+        . = . + 0x1000;  /* 4 KB for init */
+        _init_stack_end = .;
+    }
+
+    .main_page_table 0xC000 : {
+        _page_table_start = .;
+        . = . + 0x4000;  /* 16KB for first table */
+        _page_table_end = .;
+    }
+
+    .secondary_page_table 0x10000 : {
+        _coarse_table_start = .;
+        . = . + 0x400;  /* 1KB for secondary table */
+        _coarse_table_end = .;
+    }
+
+	.undefined_stack 0x11000 : AT(0x11000) {
         _undefined_stack_start = .;
-        . = . + 0x400;  /* 1 KB for Undefined */
+        . = . + 0x1000;  /* 4KB for Undefined */
         _undefined_stack_end = .;
     }
 	
 	.abort_stack : {
-        . = ALIGN(8);
         _abort_stack_start = .;
-        . = . + 0x400;  /* 1 KB for Data Abort */
+        . = . + 0x1000;  /* 4 KB for Data Abort */
         _abort_stack_end = .;
     }
 
     .irq_stack : {
-        . = ALIGN(8);
         _irq_stack_start = .;
-        . = . + 0x400;  /* 1 KB for IRQ */
+        . = . + 0x1000;  /* 4 KB for IRQ */
         _irq_stack_end = .;
     }
 
     .fiq_stack : {
-        . = ALIGN(8);
         _fiq_stack_start = .;
-        . = . + 0x400;  /* 1 KB for FIQ */
+        . = . + 0x1000;  /* 4 KB for FIQ */
         _fiq_stack_end = .;
     }
 
     .sys_stack : {
-        . = ALIGN(8);
         _sys_stack_start = .;
-        . = . + 0x400;  /* 1 KB for SYS */
+        . = . + 0x1000;  /* 4 KB for SYS */
         _sys_stack_end = .;
     }
 
 	/* 
 	* Next we put the rest of the code.
 	*/
-	.text : {
+	.text ALIGN(0x1000) : {
 		*(.text)
 	}
 	
 	/* 
 	* Next we put the data.
 	*/
-	.data : {
+	.data ALIGN(0x1000) : {
 		*(.data)
 	}
 
