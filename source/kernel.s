@@ -5,11 +5,7 @@ _start:
     //bl      mmu_Init
     //bl      interrupts_Init
     //bl      clock_manager_init
-    ldr     r0, baudrate_speed
-    mov     r1, #3
-    mov     r2, #0
-    bl      uart0_Init
-
+    
     /*ldr     r0, =main
     mov     r1, #16
     bl      uart0_u32_write
@@ -33,17 +29,6 @@ _start:
     cmp     r4, #11
     bls     1b
 
-    mov     r0, #0x10000
-    add     r0, r0, #0x14
-    ldr     r0, [r0]
-    mov     r1, #16
-    bl      uart0_u32_write
-    mov     r0, #'\n'
-    bl      uart0_write
-    mov     r0, #'\r'
-    bl      uart0_write
-    mov     r4, #0
-
     mov     r0, #0
     mcr     p15, 0, r0, c2, c0, 2           @ TTBCR = 0 → usar solo TTBR0
     mov     r0, #0xC000                     @ Page table start
@@ -61,16 +46,11 @@ _start:
     orr     r0, r0, #MMU_C1_MBIT_ENABLE     @ habilitar MMU (bit 0)
     mcr     p15, 0, r0, c1, c0, 0           @ escribir control register
     
-    /*mrc     p15, 0, r0, c1, c0, 0           @ leer control register
-    and     r0, r0, #0                      @ deshabilitar habilitar MMU (bit 0)
-    mcr     p15, 0, r0, c1, c0, 0           @ escribir control register*/
-    mov     r0, #0xB000
-    mov     r2, #'B'
-2:
-    ldr     r1, [r0, #AUX_MU_LSR_REG]
-    tst     r1, #0x20
-    beq     2b
-    str     r2, [r0, #AUX_MU_IO_REG]
+    ldr     r0, baudrate_speed
+    mov     r1, #3
+    mov     r2, #(MU_TRANSMITER_ENABLE | MU_RECEIVER_ENABLE)
+    mov     r3, #0
+    bl      uart0_Init
     bl      loop
 
 
@@ -102,8 +82,8 @@ secondary_table:
     .word (0x00017000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ entrada 6 (data)
     .word (0x00007000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ entrada 7 (VA 0x00007000) (init_stack)
     .word (0x00008000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ entrada 8 (VA 0x00008000) (.init)
-    .word (0x20215000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ entrada 9 (VA FOR DEVICES TEMPORARY) Interrupts & Mailbox
-    .word (0x20215000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ entrada A (VA FOR DEVICES TEMPORARY) GPIO
+    .word (0x2000B000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ entrada 9 (VA FOR DEVICES TEMPORARY) Interrupts & Mailbox
+    .word (0x20200000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ entrada A (VA FOR DEVICES TEMPORARY) GPIO
     .word (0x20215000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ entrada B (VA FOR DEVICES TEMPORARY) UART
     .word (0x20215000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ entrada B (VA FOR DEVICES TEMPORARY) UART
 
@@ -158,16 +138,15 @@ loop:
 
 //start_addr:
   //  .word start_second_addr
-  .include "devices/uart0_absolute.s"
+//.include "devices/uart0_absolute.s"
 .include "devices/mailbox_interface/mailbox_interface.s"
 .include "devices/mailbox_interface/mailbox_tags.s"
-//.include "lib/math.s"
-//.include "lib/utils.s"
-//.include "devices/gpio.s"
-//.include "devices/uart0.s"
-//.include "interrupts/interrupts.s"
+.include "lib/math.s"
+.include "lib/utils.s"
+.include "devices/gpio.s"
+.include "devices/uart0.s"
+.include "interrupts/interrupts.s"
 .include "devices/arm_timer.s"
-//.include "devices/clock_manager.s"
+.include "devices/clock_manager.s"
 .include "graphics/frame_buffer.s"
 .include "system/mmu/constants.s"
-//.include "lib/utils.s"
