@@ -5,167 +5,168 @@ build/output.elf:     file format elf32-littlearm
 Disassembly of section .init:
 
 00008000 <_start>:
-    8000:	eb000033 	bl	80d4 <stack_Init>
-    8004:	e3a00903 	mov	r0, #49152	@ 0xc000
-    8008:	e59f108c 	ldr	r1, [pc, #140]	@ 809c <main_table>
-    800c:	e5801000 	str	r1, [r0]
-    8010:	e3a01801 	mov	r1, #65536	@ 0x10000
-    8014:	e59f207c 	ldr	r2, [pc, #124]	@ 8098 <secondary_table_addr>
-    8018:	e3a04000 	mov	r4, #0
-    801c:	e7923104 	ldr	r3, [r2, r4, lsl #2]
-    8020:	e7813104 	str	r3, [r1, r4, lsl #2]
-    8024:	e2844001 	add	r4, r4, #1
-    8028:	e354000b 	cmp	r4, #11
-    802c:	9afffffa 	bls	801c <TAG_SET_CURSOR_INFO+0xb>
-    8030:	e3a00000 	mov	r0, #0
-    8034:	ee020f50 	mcr	15, 0, r0, cr2, cr0, {2}
-    8038:	e3a00903 	mov	r0, #49152	@ 0xc000
-    803c:	ee020f10 	mcr	15, 0, r0, cr2, cr0, {0}
-    8040:	e3a00000 	mov	r0, #0
-    8044:	ee080f17 	mcr	15, 0, r0, cr8, cr7, {0}
-    8048:	e3e00000 	mvn	r0, #0
-    804c:	ee030f10 	mcr	15, 0, r0, cr3, cr0, {0}
-    8050:	ee110f10 	mrc	15, 0, r0, cr1, cr0, {0}
-    8054:	e3a00000 	mov	r0, #0
-    8058:	ee070f15 	mcr	15, 0, r0, cr7, cr5, {0}
-    805c:	e3c00a01 	bic	r0, r0, #4096	@ 0x1000
-    8060:	e3c00004 	bic	r0, r0, #4
-    8064:	e3c00201 	bic	r0, r0, #268435456	@ 0x10000000
-    8068:	e3800001 	orr	r0, r0, #1
-    806c:	ee010f10 	mcr	15, 0, r0, cr1, cr0, {0}
-    8070:	e59f0010 	ldr	r0, [pc, #16]	@ 8088 <baudrate_speed>
-    8074:	e3a01003 	mov	r1, #3
-    8078:	e3a02003 	mov	r2, #3
-    807c:	e3a03000 	mov	r3, #0
-    8080:	ebfff4bb 	bl	5374 <uart0_Init>
-    8084:	ebfff3dd 	bl	5000 <_sys_stack_end>
+    8000:	eb000007 	bl	8024 <stack_Init>
+    8004:	eb000041 	bl	8110 <mmu_Init>
+    8008:	e59f0010 	ldr	r0, [pc, #16]	@ 8020 <baudrate_speed>
+    800c:	e3a01003 	mov	r1, #3
+    8010:	e3a02003 	mov	r2, #3
+    8014:	e3a03000 	mov	r3, #0
+    8018:	ebfff4d5 	bl	5374 <uart0_Init>
+    801c:	ebfff3f7 	bl	5000 <_sys_stack_end>
 
-00008088 <baudrate_speed>:
-    8088:	00002580 	.word	0x00002580
+00008020 <baudrate_speed>:
+    8020:	00002580 	.word	0x00002580
 
-0000808c <palabra_addr>:
-    808c:	00017000 	.word	0x00017000
+00008024 <stack_Init>:
+    8024:	e3a000db 	mov	r0, #219	@ 0xdb
+    8028:	e129f000 	msr	CPSR_fc, r0
+    802c:	e59fd03c 	ldr	sp, [pc, #60]	@ 8070 <_undefined_stack>
+    8030:	e3a000d7 	mov	r0, #215	@ 0xd7
+    8034:	e129f000 	msr	CPSR_fc, r0
+    8038:	e59fd034 	ldr	sp, [pc, #52]	@ 8074 <_abort_stack>
+    803c:	e3a000d1 	mov	r0, #209	@ 0xd1
+    8040:	e129f000 	msr	CPSR_fc, r0
+    8044:	e59fd030 	ldr	sp, [pc, #48]	@ 807c <_fiq_stack>
+    8048:	e3a000d2 	mov	r0, #210	@ 0xd2
+    804c:	e129f000 	msr	CPSR_fc, r0
+    8050:	e59fd020 	ldr	sp, [pc, #32]	@ 8078 <_irq_stack>
+    8054:	e3a000df 	mov	r0, #223	@ 0xdf
+    8058:	e129f000 	msr	CPSR_fc, r0
+    805c:	e59fd01c 	ldr	sp, [pc, #28]	@ 8080 <_sys_stack>
+    8060:	e3a000d3 	mov	r0, #211	@ 0xd3
+    8064:	e129f000 	msr	CPSR_fc, r0
+    8068:	e59fd014 	ldr	sp, [pc, #20]	@ 8084 <_init_stack>
+    806c:	e12fff1e 	bx	lr
 
-00008090 <start_main_addr>:
-    8090:	0000c000 	.word	0x0000c000
+00008070 <_undefined_stack>:
+    8070:	00001000 	.word	0x00001000
 
-00008094 <start_second_addr>:
-    8094:	00010000 	.word	0x00010000
+00008074 <_abort_stack>:
+    8074:	00002000 	.word	0x00002000
 
-00008098 <secondary_table_addr>:
-    8098:	000080a0 	.word	0x000080a0
+00008078 <_irq_stack>:
+    8078:	00003000 	.word	0x00003000
 
-0000809c <main_table>:
-    809c:	00010001 	.word	0x00010001
+0000807c <_fiq_stack>:
+    807c:	00004000 	.word	0x00004000
 
-000080a0 <secondary_table>:
-    80a0:	00011c02 	.word	0x00011c02
-    80a4:	00012c02 	.word	0x00012c02
-    80a8:	00013c02 	.word	0x00013c02
-    80ac:	00014c02 	.word	0x00014c02
-    80b0:	00015c02 	.word	0x00015c02
-    80b4:	00016c02 	.word	0x00016c02
-    80b8:	00017c02 	.word	0x00017c02
-    80bc:	00007c02 	.word	0x00007c02
-    80c0:	00008c02 	.word	0x00008c02
-    80c4:	2000bc02 	.word	0x2000bc02
-    80c8:	20200c02 	.word	0x20200c02
-    80cc:	20215c02 	.word	0x20215c02
-    80d0:	20215c02 	.word	0x20215c02
+00008080 <_sys_stack>:
+    8080:	00005000 	.word	0x00005000
 
-000080d4 <stack_Init>:
-    80d4:	e3a000db 	mov	r0, #219	@ 0xdb
-    80d8:	e129f000 	msr	CPSR_fc, r0
-    80dc:	e59fd03c 	ldr	sp, [pc, #60]	@ 8120 <_undefined_stack>
-    80e0:	e3a000d7 	mov	r0, #215	@ 0xd7
-    80e4:	e129f000 	msr	CPSR_fc, r0
-    80e8:	e59fd034 	ldr	sp, [pc, #52]	@ 8124 <_abort_stack>
-    80ec:	e3a000d1 	mov	r0, #209	@ 0xd1
-    80f0:	e129f000 	msr	CPSR_fc, r0
-    80f4:	e59fd030 	ldr	sp, [pc, #48]	@ 812c <_fiq_stack>
-    80f8:	e3a000d2 	mov	r0, #210	@ 0xd2
-    80fc:	e129f000 	msr	CPSR_fc, r0
-    8100:	e59fd020 	ldr	sp, [pc, #32]	@ 8128 <_irq_stack>
-    8104:	e3a000df 	mov	r0, #223	@ 0xdf
-    8108:	e129f000 	msr	CPSR_fc, r0
-    810c:	e59fd01c 	ldr	sp, [pc, #28]	@ 8130 <_sys_stack>
-    8110:	e3a000d3 	mov	r0, #211	@ 0xd3
-    8114:	e129f000 	msr	CPSR_fc, r0
-    8118:	e59fd014 	ldr	sp, [pc, #20]	@ 8134 <_init_stack>
-    811c:	e12fff1e 	bx	lr
+00008084 <_init_stack>:
+    8084:	00008000 	.word	0x00008000
 
-00008120 <_undefined_stack>:
-    8120:	00001000 	.word	0x00001000
+00008088 <interrupts_Init>:
+    8088:	e92d43f0 	push	{r4, r5, r6, r7, r8, r9, lr}
+    808c:	e59f0130 	ldr	r0, [pc, #304]	@ 81c4 <level2_table_entries+0x30>
+    8090:	e3a01000 	mov	r1, #0
+    8094:	e8b003fc 	ldm	r0!, {r2, r3, r4, r5, r6, r7, r8, r9}
+    8098:	e8a103fc 	stmia	r1!, {r2, r3, r4, r5, r6, r7, r8, r9}
+    809c:	e8b003fc 	ldm	r0!, {r2, r3, r4, r5, r6, r7, r8, r9}
+    80a0:	e8a103fc 	stmia	r1!, {r2, r3, r4, r5, r6, r7, r8, r9}
+    80a4:	e3a00000 	mov	r0, #0
+    80a8:	e3800cb2 	orr	r0, r0, #45568	@ 0xb200
+    80ac:	e3800000 	orr	r0, r0, #0
+    80b0:	e3800202 	orr	r0, r0, #536870912	@ 0x20000000
+    80b4:	e3a01001 	mov	r1, #1
+    80b8:	e5801018 	str	r1, [r0, #24]
+    80bc:	e10f0000 	mrs	r0, CPSR
+    80c0:	e3c00080 	bic	r0, r0, #128	@ 0x80
+    80c4:	e121f000 	msr	CPSR_c, r0
+    80c8:	f1080080 	cpsie	i
+    80cc:	e8bd83f0 	pop	{r4, r5, r6, r7, r8, r9, pc}
 
-00008124 <_abort_stack>:
-    8124:	00002000 	.word	0x00002000
+000080d0 <interrupt_vector_table>:
+    80d0:	e59ff018 	ldr	pc, [pc, #24]	@ 80f0 <_interrupt_reset>
+    80d4:	e59ff018 	ldr	pc, [pc, #24]	@ 80f4 <_interrupt_undefined>
+    80d8:	e59ff018 	ldr	pc, [pc, #24]	@ 80f8 <_interrupt_software>
+    80dc:	e59ff018 	ldr	pc, [pc, #24]	@ 80fc <_interrupt_prefetch_abort>
+    80e0:	e59ff018 	ldr	pc, [pc, #24]	@ 8100 <_interrupt_data_abort>
+    80e4:	e59ff018 	ldr	pc, [pc, #24]	@ 8104 <_interrupt_unused>
+    80e8:	e59ff018 	ldr	pc, [pc, #24]	@ 8108 <_interrupt_request>
+    80ec:	e59ff018 	ldr	pc, [pc, #24]	@ 810c <_interrupt_fast_request>
 
-00008128 <_irq_stack>:
-    8128:	00003000 	.word	0x00003000
+000080f0 <_interrupt_reset>:
+    80f0:	0000556c 	.word	0x0000556c
 
-0000812c <_fiq_stack>:
-    812c:	00004000 	.word	0x00004000
+000080f4 <_interrupt_undefined>:
+    80f4:	00005574 	.word	0x00005574
 
-00008130 <_sys_stack>:
-    8130:	00005000 	.word	0x00005000
+000080f8 <_interrupt_software>:
+    80f8:	0000559c 	.word	0x0000559c
 
-00008134 <_init_stack>:
-    8134:	00008000 	.word	0x00008000
+000080fc <_interrupt_prefetch_abort>:
+    80fc:	000055b0 	.word	0x000055b0
 
-00008138 <interrupts_Init>:
-    8138:	e92d43f0 	push	{r4, r5, r6, r7, r8, r9, lr}
-    813c:	e59f007c 	ldr	r0, [pc, #124]	@ 81c0 <_interrupt_fast_request+0x4>
-    8140:	e3a01000 	mov	r1, #0
-    8144:	e8b003fc 	ldm	r0!, {r2, r3, r4, r5, r6, r7, r8, r9}
-    8148:	e8a103fc 	stmia	r1!, {r2, r3, r4, r5, r6, r7, r8, r9}
-    814c:	e8b003fc 	ldm	r0!, {r2, r3, r4, r5, r6, r7, r8, r9}
-    8150:	e8a103fc 	stmia	r1!, {r2, r3, r4, r5, r6, r7, r8, r9}
-    8154:	e3a00000 	mov	r0, #0
-    8158:	e3800cb2 	orr	r0, r0, #45568	@ 0xb200
-    815c:	e3800000 	orr	r0, r0, #0
-    8160:	e3800202 	orr	r0, r0, #536870912	@ 0x20000000
-    8164:	e3a01001 	mov	r1, #1
-    8168:	e5801018 	str	r1, [r0, #24]
-    816c:	e10f0000 	mrs	r0, CPSR
-    8170:	e3c00080 	bic	r0, r0, #128	@ 0x80
-    8174:	e121f000 	msr	CPSR_c, r0
-    8178:	f1080080 	cpsie	i
-    817c:	e8bd83f0 	pop	{r4, r5, r6, r7, r8, r9, pc}
+00008100 <_interrupt_data_abort>:
+    8100:	000055d8 	.word	0x000055d8
 
-00008180 <interrupt_vector_table>:
-    8180:	e59ff018 	ldr	pc, [pc, #24]	@ 81a0 <_interrupt_reset>
-    8184:	e59ff018 	ldr	pc, [pc, #24]	@ 81a4 <_interrupt_undefined>
-    8188:	e59ff018 	ldr	pc, [pc, #24]	@ 81a8 <_interrupt_software>
-    818c:	e59ff018 	ldr	pc, [pc, #24]	@ 81ac <_interrupt_prefetch_abort>
-    8190:	e59ff018 	ldr	pc, [pc, #24]	@ 81b0 <_interrupt_data_abort>
-    8194:	e59ff018 	ldr	pc, [pc, #24]	@ 81b4 <_interrupt_unused>
-    8198:	e59ff018 	ldr	pc, [pc, #24]	@ 81b8 <_interrupt_request>
-    819c:	e59ff018 	ldr	pc, [pc, #24]	@ 81bc <_interrupt_fast_request>
+00008104 <_interrupt_unused>:
+    8104:	00005570 	.word	0x00005570
 
-000081a0 <_interrupt_reset>:
-    81a0:	0000556c 	.word	0x0000556c
+00008108 <_interrupt_request>:
+    8108:	000055dc 	.word	0x000055dc
 
-000081a4 <_interrupt_undefined>:
-    81a4:	00005574 	.word	0x00005574
+0000810c <_interrupt_fast_request>:
+    810c:	00005608 	.word	0x00005608
 
-000081a8 <_interrupt_software>:
-    81a8:	0000559c 	.word	0x0000559c
+00008110 <mmu_Init>:
+    8110:	e92d4010 	push	{r4, lr}
+    8114:	e59f0068 	ldr	r0, [pc, #104]	@ 8184 <level1_table_addr>
+    8118:	e59f1070 	ldr	r1, [pc, #112]	@ 8190 <level1_table_entries>
+    811c:	e5801000 	str	r1, [r0]
+    8120:	e59f1060 	ldr	r1, [pc, #96]	@ 8188 <level2_table_addr>
+    8124:	e59f2060 	ldr	r2, [pc, #96]	@ 818c <level2_table_entries_addr>
+    8128:	e3a04000 	mov	r4, #0
+    812c:	e7923104 	ldr	r3, [r2, r4, lsl #2]
+    8130:	e7813104 	str	r3, [r1, r4, lsl #2]
+    8134:	e2844001 	add	r4, r4, #1
+    8138:	e354000b 	cmp	r4, #11
+    813c:	9afffffa 	bls	812c <mmu_Init+0x1c>
+    8140:	e3a00000 	mov	r0, #0
+    8144:	ee020f50 	mcr	15, 0, r0, cr2, cr0, {2}
+    8148:	e3a00903 	mov	r0, #49152	@ 0xc000
+    814c:	ee020f10 	mcr	15, 0, r0, cr2, cr0, {0}
+    8150:	e3a00000 	mov	r0, #0
+    8154:	ee080f17 	mcr	15, 0, r0, cr8, cr7, {0}
+    8158:	e3e00000 	mvn	r0, #0
+    815c:	ee030f10 	mcr	15, 0, r0, cr3, cr0, {0}
+    8160:	ee110f10 	mrc	15, 0, r0, cr1, cr0, {0}
+    8164:	e3a00000 	mov	r0, #0
+    8168:	ee070f15 	mcr	15, 0, r0, cr7, cr5, {0}
+    816c:	e3c00a01 	bic	r0, r0, #4096	@ 0x1000
+    8170:	e3c00004 	bic	r0, r0, #4
+    8174:	e3c00201 	bic	r0, r0, #268435456	@ 0x10000000
+    8178:	e3800001 	orr	r0, r0, #1
+    817c:	ee010f10 	mcr	15, 0, r0, cr1, cr0, {0}
+    8180:	e8bd8010 	pop	{r4, pc}
 
-000081ac <_interrupt_prefetch_abort>:
-    81ac:	000055b0 	.word	0x000055b0
+00008184 <level1_table_addr>:
+    8184:	0000c000 	.word	0x0000c000
 
-000081b0 <_interrupt_data_abort>:
-    81b0:	000055d8 	.word	0x000055d8
+00008188 <level2_table_addr>:
+    8188:	00010000 	.word	0x00010000
 
-000081b4 <_interrupt_unused>:
-    81b4:	00005570 	.word	0x00005570
+0000818c <level2_table_entries_addr>:
+    818c:	00008194 	.word	0x00008194
 
-000081b8 <_interrupt_request>:
-    81b8:	000055dc 	.word	0x000055dc
+00008190 <level1_table_entries>:
+    8190:	00010001 	.word	0x00010001
 
-000081bc <_interrupt_fast_request>:
-    81bc:	00005608 	.word	0x00005608
-    81c0:	00008180 	.word	0x00008180
+00008194 <level2_table_entries>:
+    8194:	00011c02 	.word	0x00011c02
+    8198:	00012c02 	.word	0x00012c02
+    819c:	00013c02 	.word	0x00013c02
+    81a0:	00014c02 	.word	0x00014c02
+    81a4:	00015c02 	.word	0x00015c02
+    81a8:	00016c02 	.word	0x00016c02
+    81ac:	00017c02 	.word	0x00017c02
+    81b0:	00007c02 	.word	0x00007c02
+    81b4:	00008c02 	.word	0x00008c02
+    81b8:	2000bc02 	.word	0x2000bc02
+    81bc:	20200c02 	.word	0x20200c02
+    81c0:	20215c02 	.word	0x20215c02
+    81c4:	000080d0 	.word	0x000080d0
 
 Disassembly of section .text:
 
