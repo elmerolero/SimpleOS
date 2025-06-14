@@ -1,4 +1,3 @@
-
 .equ INTERRUPT_DEVICES, 0x00
 .equ MAILBOX_DEVICES,   0x01
 .equ GPIO_DEVICES,      0x02

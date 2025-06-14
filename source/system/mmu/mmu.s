@@ -40,6 +40,9 @@ level1_table_addr:
 level2_table_addr:
     .word _coarse_table_start
 
+level1_table_entries_addr:
+    .word level1_table_entries
+
 level2_table_entries_addr:
     .word level2_table_entries
 
