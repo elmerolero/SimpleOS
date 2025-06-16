@@ -9,5 +9,4 @@
 .include "devices/arm_timer.s"
 .include "devices/clock_manager.s"
 .include "graphics/frame_buffer.s"
-.include "system/mmu/mmu.s"
-.include "system/mmu/constants.s"
+.include "system/mmu.s"

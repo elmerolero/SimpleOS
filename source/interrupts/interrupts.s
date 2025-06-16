@@ -38,9 +38,8 @@ interrupts_Init:
     ldmia   r0!, { r2, r3, r4, r5, r6, r7, r8, r9 }
     stmia   r1!, { r2, r3, r4, r5, r6, r7, r8, r9 }  
 
-    //mov     r0, #INTERRUPT_DEVICES
-    //bl      devices_AddressGet
-    imm32   r0, 0x2000B200
+    mov     r0, #INTERRUPT_DEVICES
+    bl      devices_AddressGet
     mov     r1, #ARM_TIMER_IRQ_PENDING
     str     r1, [r0, #ENABLE_BASIC_IRQS]
 

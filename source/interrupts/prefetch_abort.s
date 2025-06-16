@@ -2,7 +2,7 @@
 
 .section .data
 .align 1
-prefetch_abort_message: .ascii "Ha ocurrido un error\r\n"
+prefetch_abort_message: .ascii "Interrupción de memoria\r\n"
 
 .section .text
 .global interrupt_prefetch_abort
@@ -10,10 +10,31 @@ interrupt_prefetch_abort:
     push { r0-r12, lr }
     mrs r0, spsr
     push { r0 }
+
+    // Show message
     ldr     r0, =prefetch_abort_message
-    mov     r1, #22
+    mov     r1, #25
     bl      uart0_write_bytes
+
+    // Get memory status
+    bl      mmu_ErrorCodeGet
+    mov     r1, #16
+    bl      uart0_u32_write
+    mov     r0, #'\r'
+    bl      uart0_write
+    mov     r0, #'\n'
+    bl      uart0_write
+
+    // Get memory address
+    bl      mmu_ErrorAdressGet
+    mov     r1, #16
+    bl      uart0_u32_write
+    mov     r0, #'\r'
+    bl      uart0_write
+    mov     r0, #'\n'
+    bl      uart0_write
+
     pop { r0 }
     msr spsr_cxsf, r0
     pop { r0-r12, lr }
-    subs pc, lr, #4
+    bx  lr
