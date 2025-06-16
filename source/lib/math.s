@@ -67,8 +67,8 @@ math_u32_module:
     cmp     r1, #0           
     beq     math_u32_module_error   // Handle division by 0
 
-    cmp     r0, r1              // if dividend < divisor then
-    bxlo    lr                  //     return
+    cmp     r0, r1                  // if dividend < divisor then
+    bxlo    lr                      //     return
 
     push { r4 - r6, lr }
 

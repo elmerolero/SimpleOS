@@ -3,7 +3,10 @@
 .section .text
 mmu_Init:
     push { r4, lr }
-    ldr     r0, level1_table_addr           //Page table start
+    ldr     r0, level1_table_addr           // Clear page tables for level 1 table
+    mov     r1, #0
+    mov     r2, #0x4000
+    bl      memset
     ldr     r1, level1_table_entries        // Gets main table data and saves it
     str     r1, [ r0 ]
     ldr     r1, level2_table_addr           //Second table start
