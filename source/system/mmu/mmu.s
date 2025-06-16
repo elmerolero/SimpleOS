@@ -2,21 +2,31 @@
 
 .section .text
 mmu_Init:
-    push { r4, lr }
-    ldr     r0, level1_table_addr           // Clear page tables for level 1 table
+    push { lr }
+    // Clear page tables for system level 1 table
+    ldr     r0, level1_table_addr           
     mov     r1, #0
     mov     r2, #0x4000
     bl      memset
-    ldr     r1, level1_table_entries        // Gets main table data and saves it
+
+    // Copies the entries (that currently is one) for system's level 1 table
+    ldr     r1, level1_table_entries        
     str     r1, [ r0 ]
-    ldr     r1, level2_table_addr           //Second table start
-    ldr     r2, level2_table_entries_addr   //Gets second table data
-    mov     r4, #0
+
+    // Clear page tables for system level 2 table
+    ldr     r0, level2_table_addr           // Second table start
+    mov     r1, #0
+    mov     r2, #0x400
+    bl      memset
+
+    // Gets second table entries and copies its content in in system's level 2 table
+    ldr     r1, level2_table_entries_addr   // Gets second table data
+    mov     r2, #0
 1:
-    ldr     r3, [ r2, r4, lsl #2 ]
-    str     r3, [ r1, r4, lsl #2 ]
-    add     r4, r4, #1
-    cmp     r4, #27
+    ldr     r3, [ r1, r2, lsl #2 ]
+    str     r3, [ r0, r2, lsl #2 ]
+    add     r2, r2, #1
+    cmp     r2, #27
     blt     1b
 
     mov     r0, #0                          // TTBCR = 0 - Use TTBR0 only
@@ -35,7 +45,7 @@ mmu_Init:
     bic     r0, r0, #(1 << 28)              // TEX remap OFF (bit 28 = 0)
     orr     r0, r0, #MMU_C1_MBIT_ENABLE     // habilitar MMU (bit 0)
     mcr     p15, 0, r0, c1, c0, 0           // escribir control register
-    pop { r4, pc }
+    pop { pc }
 
 level1_table_addr:
     .word _page_table_start

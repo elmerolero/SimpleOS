@@ -335,7 +335,7 @@ Disassembly of section .text:
     8444:	e8bd4030 	pop	{r4, r5, lr}
 
 00008448 <system_CoreFreqGet>:
-    8448:	e59f054c 	ldr	r0, [pc, #1356]	@ 899c <level2_table_entries+0x6c>
+    8448:	e59f0558 	ldr	r0, [pc, #1368]	@ 89a8 <level2_table_entries+0x6c>
     844c:	e5900000 	ldr	r0, [r0]
     8450:	e12fff1e 	bx	lr
 
@@ -343,7 +343,7 @@ Disassembly of section .text:
     8454:	0ee6b280 	.word	0x0ee6b280
 
 00008458 <devices_AddressGet>:
-    8458:	e59f1540 	ldr	r1, [pc, #1344]	@ 89a0 <level2_table_entries+0x70>
+    8458:	e59f154c 	ldr	r1, [pc, #1356]	@ 89ac <level2_table_entries+0x70>
     845c:	e7910100 	ldr	r0, [r1, r0, lsl #2]
     8460:	e12fff1e 	bx	lr
 
@@ -451,7 +451,7 @@ Disassembly of section .text:
     85c4:	e92d4070 	push	{r4, r5, r6, lr}
     85c8:	e1a04000 	mov	r4, r0
     85cc:	e1a05001 	mov	r5, r1
-    85d0:	e59f63cc 	ldr	r6, [pc, #972]	@ 89a4 <level2_table_entries+0x74>
+    85d0:	e59f63d8 	ldr	r6, [pc, #984]	@ 89b0 <level2_table_entries+0x74>
     85d4:	e3a00000 	mov	r0, #0
     85d8:	e4c60001 	strb	r0, [r6], #1
     85dc:	e1a00004 	mov	r0, r4
@@ -477,7 +477,7 @@ Disassembly of section .text:
     8624:	e3500000 	cmp	r0, #0
     8628:	b3a0002d 	movlt	r0, #45	@ 0x2d
     862c:	ebffffca 	bl	855c <uart0_write>
-    8630:	e59f636c 	ldr	r6, [pc, #876]	@ 89a4 <level2_table_entries+0x74>
+    8630:	e59f6378 	ldr	r6, [pc, #888]	@ 89b0 <level2_table_entries+0x74>
     8634:	e3a00000 	mov	r0, #0
     8638:	e4c60001 	strb	r0, [r6], #1
     863c:	e1a00004 	mov	r0, r4
@@ -507,7 +507,7 @@ Disassembly of section .text:
     8684:	e92d5fff 	push	{r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, sl, fp, ip, lr}
     8688:	e14f0000 	mrs	r0, SPSR
     868c:	e52d0004 	push	{r0}		@ (str r0, [sp, #-4]!)
-    8690:	e59f0310 	ldr	r0, [pc, #784]	@ 89a8 <level2_table_entries+0x78>
+    8690:	e59f031c 	ldr	r0, [pc, #796]	@ 89b4 <level2_table_entries+0x78>
     8694:	e3a01017 	mov	r1, #23
     8698:	ebffffb8 	bl	8580 <uart0_write_bytes>
     869c:	e49d0004 	pop	{r0}		@ (ldr r0, [sp], #4)
@@ -517,7 +517,7 @@ Disassembly of section .text:
 
 000086ac <interrupt_software>:
     86ac:	e92d5fff 	push	{r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, sl, fp, ip, lr}
-    86b0:	e59f02f4 	ldr	r0, [pc, #756]	@ 89ac <level2_table_entries+0x7c>
+    86b0:	e59f0300 	ldr	r0, [pc, #768]	@ 89b8 <level2_table_entries+0x7c>
     86b4:	e3a01014 	mov	r1, #20
     86b8:	ebffffb0 	bl	8580 <uart0_write_bytes>
     86bc:	e8bd9fff 	pop	{r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, sl, fp, ip, pc}
@@ -526,7 +526,7 @@ Disassembly of section .text:
     86c0:	e92d5fff 	push	{r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, sl, fp, ip, lr}
     86c4:	e14f0000 	mrs	r0, SPSR
     86c8:	e52d0004 	push	{r0}		@ (str r0, [sp, #-4]!)
-    86cc:	e59f02dc 	ldr	r0, [pc, #732]	@ 89b0 <level2_table_entries+0x80>
+    86cc:	e59f02e8 	ldr	r0, [pc, #744]	@ 89bc <level2_table_entries+0x80>
     86d0:	e3a01016 	mov	r1, #22
     86d4:	ebffffa9 	bl	8580 <uart0_write_bytes>
     86d8:	e49d0004 	pop	{r0}		@ (ldr r0, [sp], #4)
@@ -541,7 +541,7 @@ Disassembly of section .text:
     86ec:	e92d5fff 	push	{r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, sl, fp, ip, lr}
     86f0:	e14f0000 	mrs	r0, SPSR
     86f4:	e52d0004 	push	{r0}		@ (str r0, [sp, #-4]!)
-    86f8:	e59f02b4 	ldr	r0, [pc, #692]	@ 89b4 <level2_table_entries+0x84>
+    86f8:	e59f02c0 	ldr	r0, [pc, #704]	@ 89c0 <level2_table_entries+0x84>
     86fc:	e3a0100d 	mov	r1, #13
     8700:	ebffff9e 	bl	8580 <uart0_write_bytes>
     8704:	eb000031 	bl	87d0 <arm_timer_irq_clear>
@@ -555,7 +555,7 @@ Disassembly of section .text:
 
 0000871c <interrupts_Init>:
     871c:	e92d43f0 	push	{r4, r5, r6, r7, r8, r9, lr}
-    8720:	e59f0290 	ldr	r0, [pc, #656]	@ 89b8 <level2_table_entries+0x88>
+    8720:	e59f029c 	ldr	r0, [pc, #668]	@ 89c4 <level2_table_entries+0x88>
     8724:	e3a01000 	mov	r1, #0
     8728:	e8b003fc 	ldm	r0!, {r2, r3, r4, r5, r6, r7, r8, r9}
     872c:	e8a103fc 	stmia	r1!, {r2, r3, r4, r5, r6, r7, r8, r9}
@@ -609,7 +609,7 @@ Disassembly of section .text:
 
 000087a4 <arm_timer_init>:
     87a4:	e52de004 	push	{lr}		@ (str lr, [sp, #-4]!)
-    87a8:	e59f020c 	ldr	r0, [pc, #524]	@ 89bc <level2_table_entries+0x8c>
+    87a8:	e59f0218 	ldr	r0, [pc, #536]	@ 89c8 <level2_table_entries+0x8c>
     87ac:	e3a01b03 	mov	r1, #3072	@ 0xc00
     87b0:	e5801000 	str	r1, [r0]
     87b4:	e3a0108a 	mov	r1, #138	@ 0x8a
@@ -618,13 +618,13 @@ Disassembly of section .text:
 
 000087c0 <arm_timer_value_read>:
     87c0:	e52de004 	push	{lr}		@ (str lr, [sp, #-4]!)
-    87c4:	e59f01f0 	ldr	r0, [pc, #496]	@ 89bc <level2_table_entries+0x8c>
+    87c4:	e59f01fc 	ldr	r0, [pc, #508]	@ 89c8 <level2_table_entries+0x8c>
     87c8:	e5900004 	ldr	r0, [r0, #4]
     87cc:	e49df004 	pop	{pc}		@ (ldr pc, [sp], #4)
 
 000087d0 <arm_timer_irq_clear>:
     87d0:	e52de004 	push	{lr}		@ (str lr, [sp, #-4]!)
-    87d4:	e59f01e0 	ldr	r0, [pc, #480]	@ 89bc <level2_table_entries+0x8c>
+    87d4:	e59f01ec 	ldr	r0, [pc, #492]	@ 89c8 <level2_table_entries+0x8c>
     87d8:	e3a01001 	mov	r1, #1
     87dc:	e580100c 	str	r1, [r0, #12]
     87e0:	e49df004 	pop	{pc}		@ (ldr pc, [sp], #4)
@@ -646,7 +646,7 @@ Disassembly of section .text:
     8810:	83a00000 	movhi	r0, #0
     8814:	81a0f00e 	movhi	pc, lr
     8818:	e52de004 	push	{lr}		@ (str lr, [sp, #-4]!)
-    881c:	e59f319c 	ldr	r3, [pc, #412]	@ 89c0 <level2_table_entries+0x90>
+    881c:	e59f31a8 	ldr	r3, [pc, #424]	@ 89cc <level2_table_entries+0x90>
     8820:	e5830000 	str	r0, [r3]
     8824:	e5831004 	str	r1, [r3, #4]
     8828:	e5830008 	str	r0, [r3, #8]
@@ -662,7 +662,7 @@ Disassembly of section .text:
 
 00008850 <frameBuffer_GetDimmensions>:
     8850:	e52de004 	push	{lr}		@ (str lr, [sp, #-4]!)
-    8854:	e59f0168 	ldr	r0, [pc, #360]	@ 89c4 <level2_table_entries+0x94>
+    8854:	e59f0174 	ldr	r0, [pc, #372]	@ 89d0 <level2_table_entries+0x94>
     8858:	e3a01008 	mov	r1, #8
     885c:	ebfffe38 	bl	8144 <mailbox_write>
     8860:	e3a00008 	mov	r0, #8
@@ -671,97 +671,100 @@ Disassembly of section .text:
     886c:	e3530008 	cmp	r3, #8
     8870:	e3e00000 	mvn	r0, #0
     8874:	1a000003 	bne	8888 <error>
-    8878:	e59f2144 	ldr	r2, [pc, #324]	@ 89c4 <level2_table_entries+0x94>
+    8878:	e59f2150 	ldr	r2, [pc, #336]	@ 89d0 <level2_table_entries+0x94>
     887c:	e5920014 	ldr	r0, [r2, #20]
     8880:	e5921018 	ldr	r1, [r2, #24]
     8884:	e49df004 	pop	{pc}		@ (ldr pc, [sp], #4)
 
 00008888 <error>:
     8888:	e3700001 	cmn	r0, #1
-    888c:	059f0134 	ldreq	r0, [pc, #308]	@ 89c8 <level2_table_entries+0x98>
+    888c:	059f0140 	ldreq	r0, [pc, #320]	@ 89d4 <level2_table_entries+0x98>
     8890:	03a01036 	moveq	r1, #54	@ 0x36
     8894:	0bffff39 	bleq	8580 <uart0_write_bytes>
     8898:	e49df004 	pop	{pc}		@ (ldr pc, [sp], #4)
 
 0000889c <mmu_Init>:
     889c:	e92d4010 	push	{r4, lr}
-    88a0:	e59f0074 	ldr	r0, [pc, #116]	@ 891c <level1_table_addr>
+    88a0:	e59f0080 	ldr	r0, [pc, #128]	@ 8928 <level1_table_addr>
     88a4:	e3a01000 	mov	r1, #0
     88a8:	e3a02901 	mov	r2, #16384	@ 0x4000
     88ac:	ebfffe01 	bl	80b8 <memset>
-    88b0:	e59f1074 	ldr	r1, [pc, #116]	@ 892c <level1_table_entries>
+    88b0:	e59f1080 	ldr	r1, [pc, #128]	@ 8938 <level1_table_entries>
     88b4:	e5801000 	str	r1, [r0]
-    88b8:	e59f1060 	ldr	r1, [pc, #96]	@ 8920 <level2_table_addr>
-    88bc:	e59f2064 	ldr	r2, [pc, #100]	@ 8928 <level2_table_entries_addr>
-    88c0:	e3a04000 	mov	r4, #0
-    88c4:	e7923104 	ldr	r3, [r2, r4, lsl #2]
-    88c8:	e7813104 	str	r3, [r1, r4, lsl #2]
-    88cc:	e2844001 	add	r4, r4, #1
-    88d0:	e354001b 	cmp	r4, #27
-    88d4:	bafffffa 	blt	88c4 <mmu_Init+0x28>
-    88d8:	e3a00000 	mov	r0, #0
-    88dc:	ee020f50 	mcr	15, 0, r0, cr2, cr0, {2}
-    88e0:	e59f0034 	ldr	r0, [pc, #52]	@ 891c <level1_table_addr>
-    88e4:	ee020f10 	mcr	15, 0, r0, cr2, cr0, {0}
-    88e8:	e3a00000 	mov	r0, #0
-    88ec:	ee080f17 	mcr	15, 0, r0, cr8, cr7, {0}
-    88f0:	e3e00000 	mvn	r0, #0
-    88f4:	ee030f10 	mcr	15, 0, r0, cr3, cr0, {0}
-    88f8:	ee110f10 	mrc	15, 0, r0, cr1, cr0, {0}
-    88fc:	e3a00000 	mov	r0, #0
-    8900:	ee070f15 	mcr	15, 0, r0, cr7, cr5, {0}
-    8904:	e3c00a01 	bic	r0, r0, #4096	@ 0x1000
-    8908:	e3c00004 	bic	r0, r0, #4
-    890c:	e3c00201 	bic	r0, r0, #268435456	@ 0x10000000
-    8910:	e3800001 	orr	r0, r0, #1
-    8914:	ee010f10 	mcr	15, 0, r0, cr1, cr0, {0}
-    8918:	e8bd8010 	pop	{r4, pc}
+    88b8:	e59f006c 	ldr	r0, [pc, #108]	@ 892c <level2_table_addr>
+    88bc:	e3a01000 	mov	r1, #0
+    88c0:	e3a02b01 	mov	r2, #1024	@ 0x400
+    88c4:	ebfffdfb 	bl	80b8 <memset>
+    88c8:	e59f1064 	ldr	r1, [pc, #100]	@ 8934 <level2_table_entries_addr>
+    88cc:	e3a02000 	mov	r2, #0
+    88d0:	e7913102 	ldr	r3, [r1, r2, lsl #2]
+    88d4:	e7803102 	str	r3, [r0, r2, lsl #2]
+    88d8:	e2822001 	add	r2, r2, #1
+    88dc:	e352001b 	cmp	r2, #27
+    88e0:	bafffffa 	blt	88d0 <mmu_Init+0x34>
+    88e4:	e3a00000 	mov	r0, #0
+    88e8:	ee020f50 	mcr	15, 0, r0, cr2, cr0, {2}
+    88ec:	e59f0034 	ldr	r0, [pc, #52]	@ 8928 <level1_table_addr>
+    88f0:	ee020f10 	mcr	15, 0, r0, cr2, cr0, {0}
+    88f4:	e3a00000 	mov	r0, #0
+    88f8:	ee080f17 	mcr	15, 0, r0, cr8, cr7, {0}
+    88fc:	e3e00000 	mvn	r0, #0
+    8900:	ee030f10 	mcr	15, 0, r0, cr3, cr0, {0}
+    8904:	ee110f10 	mrc	15, 0, r0, cr1, cr0, {0}
+    8908:	e3a00000 	mov	r0, #0
+    890c:	ee070f15 	mcr	15, 0, r0, cr7, cr5, {0}
+    8910:	e3c00a01 	bic	r0, r0, #4096	@ 0x1000
+    8914:	e3c00004 	bic	r0, r0, #4
+    8918:	e3c00201 	bic	r0, r0, #268435456	@ 0x10000000
+    891c:	e3800001 	orr	r0, r0, #1
+    8920:	ee010f10 	mcr	15, 0, r0, cr1, cr0, {0}
+    8924:	e8bd8010 	pop	{r4, pc}
 
-0000891c <level1_table_addr>:
-    891c:	00010000 	.word	0x00010000
+00008928 <level1_table_addr>:
+    8928:	00010000 	.word	0x00010000
 
-00008920 <level2_table_addr>:
-    8920:	00014000 	.word	0x00014000
+0000892c <level2_table_addr>:
+    892c:	00014000 	.word	0x00014000
 
-00008924 <level1_table_entries_addr>:
-    8924:	0000892c 	.word	0x0000892c
+00008930 <level1_table_entries_addr>:
+    8930:	00008938 	.word	0x00008938
 
-00008928 <level2_table_entries_addr>:
-    8928:	00008930 	.word	0x00008930
+00008934 <level2_table_entries_addr>:
+    8934:	0000893c 	.word	0x0000893c
 
-0000892c <level1_table_entries>:
-    892c:	00014001 	.word	0x00014001
+00008938 <level1_table_entries>:
+    8938:	00014001 	.word	0x00014001
 
-00008930 <level2_table_entries>:
-    8930:	00000000 	.word	0x00000000
-    8934:	00015c02 	.word	0x00015c02
-    8938:	00016c02 	.word	0x00016c02
-    893c:	00017c02 	.word	0x00017c02
-    8940:	00018c02 	.word	0x00018c02
-    8944:	00019c02 	.word	0x00019c02
+0000893c <level2_table_entries>:
+    893c:	00000000 	.word	0x00000000
+    8940:	00015c02 	.word	0x00015c02
+    8944:	00016c02 	.word	0x00016c02
+    8948:	00017c02 	.word	0x00017c02
+    894c:	00018c02 	.word	0x00018c02
+    8950:	00019c02 	.word	0x00019c02
 	...
-    8950:	00008c02 	.word	0x00008c02
-    8954:	00009c02 	.word	0x00009c02
-    8958:	0000ac02 	.word	0x0000ac02
-    895c:	0000bc02 	.word	0x0000bc02
-    8960:	0000cc02 	.word	0x0000cc02
-    8964:	2000dc02 	.word	0x2000dc02
-    8968:	20200c02 	.word	0x20200c02
-    896c:	20215c02 	.word	0x20215c02
+    895c:	00008c02 	.word	0x00008c02
+    8960:	00009c02 	.word	0x00009c02
+    8964:	0000ac02 	.word	0x0000ac02
+    8968:	0000bc02 	.word	0x0000bc02
+    896c:	0000cc02 	.word	0x0000cc02
+    8970:	2000dc02 	.word	0x2000dc02
+    8974:	20200c02 	.word	0x20200c02
+    8978:	20215c02 	.word	0x20215c02
 	...
-    8998:	0001ac02 	.word	0x0001ac02
-    899c:	00008454 	.word	0x00008454
-    89a0:	0000a010 	.word	0x0000a010
-    89a4:	0000a020 	.word	0x0000a020
-    89a8:	0000a040 	.word	0x0000a040
-    89ac:	0000a058 	.word	0x0000a058
-    89b0:	0000a06c 	.word	0x0000a06c
-    89b4:	0000a082 	.word	0x0000a082
-    89b8:	00008764 	.word	0x00008764
-    89bc:	2000b400 	.word	0x2000b400
-    89c0:	0000a090 	.word	0x0000a090
-    89c4:	0000a0c0 	.word	0x0000a0c0
-    89c8:	0000a0e0 	.word	0x0000a0e0
+    89a4:	0001ac02 	.word	0x0001ac02
+    89a8:	00008454 	.word	0x00008454
+    89ac:	0000a010 	.word	0x0000a010
+    89b0:	0000a020 	.word	0x0000a020
+    89b4:	0000a040 	.word	0x0000a040
+    89b8:	0000a058 	.word	0x0000a058
+    89bc:	0000a06c 	.word	0x0000a06c
+    89c0:	0000a082 	.word	0x0000a082
+    89c4:	00008764 	.word	0x00008764
+    89c8:	2000b400 	.word	0x2000b400
+    89cc:	0000a090 	.word	0x0000a090
+    89d0:	0000a0c0 	.word	0x0000a0c0
+    89d4:	0000a0e0 	.word	0x0000a0e0
 
 Disassembly of section .init:
 
