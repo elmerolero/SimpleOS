@@ -6,34 +6,39 @@
 ******************************************************************************/
 
 SECTIONS {
-	/*
-	* First and formost we need the .init section, containing the code to 
-        * be run first. We allow room for the ATAGs and stack and conform to 
-        * the bootloader's expectation by putting this code at 0x8000.
+    /* 
+	* Next we put the rest of the code.
 	*/
-	.init 0x8000 : AT(0x8000) {
-		*(.init)
+	.text 0x8000 : AT(0x8000) {
+		*(.text);
+	}
+	
+	/* 
+	* Next we put the data.
+	*/
+	.data ALIGN(0x2000) : {
+		*(.data);
 	}
 
-    .init_stack 0x7000 : AT(0x7000) {
+    .init_stack ALIGN(0x1000) : {
         _init_stack_start = .;
         . = . + 0x1000;  /* 4 KB for init */
         _init_stack_end = .;
     }
 
-    .main_page_table 0xC000 : {
+    .main_page_table 0x10000 : {
         _page_table_start = .;
         . = . + 0x4000;  /* 16KB for first table */
         _page_table_end = .;
     }
 
-    .secondary_page_table 0x10000 : {
+    .secondary_page_table 0x14000 : {
         _coarse_table_start = .;
         . = . + 0x400;  /* 1KB for secondary table */
         _coarse_table_end = .;
     }
 
-	.undefined_stack 0x0000 : AT(0x11000) {
+	.undefined_stack 0x0000 : AT(0x15000) {
         _undefined_stack_start = .;
         . = . + 0x1000;  /* 4KB for Undefined */
         _undefined_stack_end = .;
@@ -63,18 +68,13 @@ SECTIONS {
         _sys_stack_end = .;
     }
 
-	/* 
-	* Next we put the rest of the code.
+    /*
+	* First and formost we need the .init section, containing the code to 
+        * be run first. We allow room for the ATAGs and stack and conform to 
+        * the bootloader's expectation by putting this code at 0x8000.
 	*/
-	.text ALIGN(0x1000) : {
-		*(.text)
-	}
-	
-	/* 
-	* Next we put the data.
-	*/
-	.data ALIGN(0x1000) : {
-		*(.data)
+	.init 0x1A000 : AT(0x1A000) {
+		*(.init)
 	}
 
 	/*

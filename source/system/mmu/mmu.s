@@ -1,6 +1,6 @@
 .include "system/mmu/constants.s"
 
-.section .init
+.section .text
 mmu_Init:
     push { r4, lr }
     ldr     r0, level1_table_addr           //Page table start
@@ -13,8 +13,8 @@ mmu_Init:
     ldr     r3, [ r2, r4, lsl #2 ]
     str     r3, [ r1, r4, lsl #2 ]
     add     r4, r4, #1
-    cmp     r4, #11
-    bls     1b
+    cmp     r4, #27
+    blt     1b
 
     mov     r0, #0                          // TTBCR = 0 - Use TTBR0 only
     mcr     p15, 0, r0, c2, c0, 2           
@@ -50,15 +50,30 @@ level1_table_entries:
     .word  MMU_SECOND_TABLE_LOCATION | MMU_L1_COARSE_ENTRY
 
 level2_table_entries:
-    .word (0x00011000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ entrada 0 (VA 0x00001000) (und)
-    .word (0x00012000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ entrada 1 (VA 0x00002000) (abt)
-    .word (0x00013000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ entrada 2 (VA 0x00003000) (irq)
-    .word (0x00014000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ entrada 3 (VA 0x00004000) (fiq)
-    .word (0x00015000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ entrada 4 (VA 0x00005000) (sys)
-    .word (0x00016000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ entrada 5 (text)
-    .word (0x00017000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ entrada 6 (data)
-    .word (0x00007000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ entrada 7 (VA 0x00007000) (init_stack)
-    .word (0x00008000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ entrada 8 (VA 0x00008000) (.init)
-    .word (0x2000B000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ entrada 9 (VA FOR DEVICES TEMPORARY) Interrupts & Mailbox
-    .word (0x20200000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ entrada A (VA FOR DEVICES TEMPORARY) GPIO
-    .word (0x20215000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ entrada B (VA FOR DEVICES TEMPORARY) UART
+    .word (0x00015000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ entrada 0 (VA 0x00001000) (und)
+    .word (0x00016000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ entrada 1 (VA 0x00002000) (abt)
+    .word (0x00017000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ entrada 2 (VA 0x00003000) (irq)
+    .word (0x00018000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ entrada 3 (VA 0x00004000) (fiq)
+    .word (0x00019000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ entrada 4 (VA 0x00005000) (sys)
+    .word (0x00000000)
+    .word (0x00000000)
+    .word (0x00000000)
+    .word (0x00008000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ entrada 8 (VA 0x00008000) (.text)
+    .word (0x00009000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ entrada 9 (VA 0x00008000) (.text)
+    .word (0x0000A000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ entrada A (.data)
+    .word (0x0000B000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ entrada B (.data)
+    .word (0x0000C000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ entrada C (VA 0x00007000) (init_stack)
+    .word (0x2000D000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ entrada D (VA FOR DEVICES TEMPORARY) Interrupts & Mailbox
+    .word (0x20200000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ entrada E (VA FOR DEVICES TEMPORARY) GPIO
+    .word (0x20215000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ entrada F (VA FOR DEVICES TEMPORARY) UART
+    .word (0x00000000) // 0x10
+    .word (0x00000000) // 0x11
+    .word (0x00000000) // 0x12
+    .word (0x00000000) // 0x13
+    .word (0x00000000) // 0x14
+    .word (0x00000000) // 0x15
+    .word (0x00000000) // 0x16
+    .word (0x00000000) // 0x17
+    .word (0x00000000) // 0x18
+    .word (0x00000000) // 0x19
+    .word (0x0001A000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE) // Entrada 0x1A000 (.init)

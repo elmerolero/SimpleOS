@@ -1,21 +1,12 @@
 .section .init
 .global _start
 _start:
+    push { lr }
     bl      stack_Init
     bl      mmu_Init
-    
-    ldr     r0, baudrate_speed
-    mov     r1, #3
-    mov     r2, #(MU_TRANSMITER_ENABLE | MU_RECEIVER_ENABLE)
-    mov     r3, #0
-    bl      uart0_Init
-    bl      loop
+    pop { pc }
 
-
-baudrate_speed:
-    .word 9600
-
-.section .init
+.section .text
 stack_Init:
     mov       r0, #0xDB       @ Undefined
     msr       cpsr, r0
@@ -43,25 +34,5 @@ _irq_stack: .word _irq_stack_end
 _fiq_stack: .word _fiq_stack_end
 _sys_stack: .word _sys_stack_end
 _init_stack: .word _init_stack_end
-
-.section .data
-.align 4
-    palabra: .word 24
-
-.section .text
-loop:
-    mov     r0, #1 
-    bl      uart0_read
-    cmp     r0, #13
-    movne   r1, #1 
-    blne    uart0_write
-    bne     loop
-    mov     r0, #'\r'
-    mov     r1, #1 
-    bl      uart0_write
-    mov     r0, #'\n'
-    mov     r1, #1 
-    bl      uart0_write
-    b       loop
 
 .include "kernel/include.s"
