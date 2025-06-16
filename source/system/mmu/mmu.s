@@ -18,7 +18,7 @@ mmu_Init:
 
     mov     r0, #0                          // TTBCR = 0 - Use TTBR0 only
     mcr     p15, 0, r0, c2, c0, 2           
-    mov     r0, #0xC000                     // Page table start
+    ldr     r0, level1_table_addr           // Page table start
     mcr     p15, 0, r0, c2, c0, 0           // tlb base
     mov     r0, #0
     mcr     p15, 0, r0, c8, c7, 0           // invalidate unified TLB
@@ -50,14 +50,14 @@ level1_table_entries:
     .word  MMU_SECOND_TABLE_LOCATION | MMU_L1_COARSE_ENTRY
 
 level2_table_entries:
-    .word (0x00015000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ entrada 0 (VA 0x00001000) (und)
-    .word (0x00016000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ entrada 1 (VA 0x00002000) (abt)
-    .word (0x00017000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ entrada 2 (VA 0x00003000) (irq)
-    .word (0x00018000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ entrada 3 (VA 0x00004000) (fiq)
-    .word (0x00019000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ entrada 4 (VA 0x00005000) (sys)
-    .word (0x00000000)
-    .word (0x00000000)
-    .word (0x00000000)
+    .word (0x00000000) // 0x00
+    .word (0x00015000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ entrada 1 (VA 0x00001000) (und)
+    .word (0x00016000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ entrada 2 (VA 0x00002000) (abt)
+    .word (0x00017000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ entrada 3 (VA 0x00003000) (irq)
+    .word (0x00018000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ entrada 4 (VA 0x00004000) (fiq)
+    .word (0x00019000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ entrada 5 (VA 0x00005000) (sys)
+    .word (0x00000000) // 0x06
+    .word (0x00000000) // 0x07
     .word (0x00008000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ entrada 8 (VA 0x00008000) (.text)
     .word (0x00009000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ entrada 9 (VA 0x00008000) (.text)
     .word (0x0000A000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ entrada A (.data)

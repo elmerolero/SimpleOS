@@ -1,6 +1,6 @@
 .section .text
 main:
-    mov     sp, #0xC000
+    bl      stack_Init
     bl      _start
     ldr     r0, baudrate_speed
     mov     r1, #3

@@ -2,7 +2,6 @@
 .global _start
 _start:
     push { lr }
-    bl      stack_Init
     bl      mmu_Init
     pop { pc }
 

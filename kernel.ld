@@ -20,7 +20,7 @@ SECTIONS {
 		*(.data);
 	}
 
-    .init_stack ALIGN(0x1000) : {
+    .init_stack ALIGN(0x2000) : {
         _init_stack_start = .;
         . = . + 0x1000;  /* 4 KB for init */
         _init_stack_end = .;

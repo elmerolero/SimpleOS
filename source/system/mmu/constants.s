@@ -25,4 +25,4 @@
 .equ MMU_INSTRUCTION_CACHE_IBIT_DISABLE,    0x0000  // Disable instruction cache
 
 // Default direction
-.equ MMU_SECOND_TABLE_LOCATION, 0x10000
+.equ MMU_SECOND_TABLE_LOCATION, 0x14000
