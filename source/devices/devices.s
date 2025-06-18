@@ -10,15 +10,14 @@ devices_AddressGet:
     bx      lr
 
 .section .data
-
 devices:
     .word 0x2000B200 // Interrupts
     .word 0x2000B880 // Mailbox
     .word 0x20200000 // GPIO
-    .word 0x20215000 // Auxiliary*/
+    .word 0x20215000 // Auxiliary
 
 devices_mmu:
-    .word 0xD200 // Interrupts
-    .word 0xD880 // Mailbox
-    .word 0xE000 // GPIO
-    .word 0xF000 // Auxiliary
+    .word 0x0000D200 // Interrupts
+    .word 0x0000D880 // Mailbox
+    .word 0x0000E000 // GPIO
+    .word 0x0000F000 // Auxiliary

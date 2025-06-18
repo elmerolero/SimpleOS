@@ -4,7 +4,7 @@
 .include "lib/math.s"
 .include "lib/utils.s"
 .include "devices/gpio.s"
-.include "devices/uart0.s"
+.include "devices/auxiliary/uart0.s"
 .include "interrupts/interrupts.s"
 .include "devices/arm_timer.s"
 .include "devices/clock_manager.s"

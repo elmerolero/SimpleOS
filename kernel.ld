@@ -26,16 +26,22 @@ SECTIONS {
         _init_stack_end = .;
     }
 
-    .main_page_table 0x10000 : {
-        _page_table_start = .;
-        . = . + 0x4000;  /* 16KB for first table */
-        _page_table_end = .;
+    .system_level1_table 0x10000 : {
+        _system_level1_table_start = .;
+        . = . + 0x4000;
+        _system_level1_table_end = .;
     }
 
-    .secondary_page_table 0x14000 : {
-        _coarse_table_start = .;
-        . = . + 0x400;  /* 1KB for secondary table */
-        _coarse_table_end = .;
+    .system_level2_table 0x14000 : {
+        _system_level2_table_start = .;
+        . = . + 0x400;
+        _system_level2_table_end = .;
+    }
+
+    .system_level2_table2 0x14400 : {
+        _system_level2_table2_start = .;
+        . = . + 0x400;
+        _system_level2_table2_end = .;
     }
 
 	.undefined_stack 0x0000 : AT(0x15000) {

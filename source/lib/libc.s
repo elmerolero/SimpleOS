@@ -62,7 +62,21 @@ memset:
 .section .text
 memset_safe:
     and     r1, r1, #0xFF
-    subs    r2, #-1
+    subs    r2, r2, #1
     bxlt    lr   
     strb    r1, [ r0, r2 ]
     b       memset_safe
+
+@ ------------------------------------------------------------------------------
+@ Copies a group of bytes from one destination to another
+@ r0: Pointer to destination address
+@ r1: Pointer to source address
+@ r2: Length (number of bytes)
+@ ------------------------------------------------------------------------------
+.section .text
+memcpy_safe:
+    subs    r2, r2, #1
+    bxlt    lr
+    ldrb    r3, [ r1, r2 ]
+    strb    r3, [ r0, r2 ]
+    b       memcpy_safe

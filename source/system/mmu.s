@@ -19,16 +19,11 @@
 .equ MMU_SP_AP_RW_USER_RO,      (0x02 << 4)  // RW privileged, RO user
 .equ MMU_SP_AP_RW_RW,           (0x03 << 4)  // RW for all
 
-
-
 .equ MMU_DATA_CACHE_CBIT_ENABLE,            0x04 // Enable data cache (2 bit)
 .equ MMU_DATA_CACHE_CBIT_DISABLE,           0x00 // Disable data cache
 
 .equ MMU_INSTRUCTION_CACHE_IBIT_ENABLE,     0x1000  // Enable instruction cache (12 bit)
 .equ MMU_INSTRUCTION_CACHE_IBIT_DISABLE,    0x0000  // Disable instruction cache
-
-// Default direction
-.equ MMU_SECOND_TABLE_LOCATION, 0x14000
 
 @ ------------------------------------------------------------------------------
 @ Initializes MMU (no parameters yet)
@@ -36,36 +31,11 @@
 .section .text
 mmu_Init:
     push { lr }
-    
-    // Clear page tables for system level 1 table
-    ldr     r0, =_page_table_start           
-    mov     r1, #0
-    mov     r2, #0x4000
-    bl      memset
-
-    // Copies the entries (that currently is one) for system's level 1 table
-    ldr     r1, level1_table_entries        
-    str     r1, [ r0 ]
-
-    // Clear page tables for system level 2 table
-    ldr     r0, =_coarse_table_start           // Second table start
-    mov     r1, #0
-    mov     r2, #0x400
-    bl      memset
-
-    // Gets second table entries and copies its content in in system's level 2 table
-    ldr     r1, level2_table_entries_addr   // Gets second table data
-    mov     r2, #0
-1:
-    ldr     r3, [ r1, r2, lsl #2 ]
-    str     r3, [ r0, r2, lsl #2 ]
-    add     r2, r2, #1
-    cmp     r2, #27
-    blt     1b
+    bl      systemMemory_Init
 
     mov     r0, #0                          // TTBCR = 0 - Use TTBR0 only
     mcr     p15, 0, r0, c2, c0, 2           
-    ldr     r0, =_page_table_start          // Page table start
+    ldr     r0, =_system_level1_table_start          // Page table start
     bl      mmu_SetTTBR0
     mov     r0, #0
     mcr     p15, 0, r0, c8, c7, 0           // invalidate unified TLB
@@ -93,6 +63,31 @@ mmu_ErrorAdressGet:
     mrc p15, 0, r0, c6, c0, 0
     bx      lr
 
+systemMemory_Init:
+    push { lr }
+    // Clear page tables for system level 1 table
+    ldr     r0, =_system_level1_table_start      
+    mov     r1, #0
+    mov     r2, #0x4000
+    bl      memset
+
+    // Copies the entries for system's level 1 table
+    ldr     r1, level1_table_entries_addr
+    mov     r2, #4
+    bl      memcpy_safe
+
+    // Clear page tables for system level 2 table
+    ldr     r0, =_system_level2_table_start           // Second table start
+    mov     r1, #0
+    mov     r2, #0x400
+    bl      memset
+
+    // Gets second table entries and copies its content in in system's level 2 table
+    ldr     r1, level2_table_entries_addr   // Gets second table data
+    mov     r2, #108
+    bl      memcpy_safe
+    pop { pc }
+
 level1_table_entries_addr:
     .word level1_table_entries
 
@@ -100,7 +95,8 @@ level2_table_entries_addr:
     .word level2_table_entries
 
 level1_table_entries: 
-    .word  MMU_SECOND_TABLE_LOCATION | MMU_L1_COARSE_ENTRY
+    .word  (0x14000 | MMU_L1_COARSE_ENTRY)
+    .word  (0x14400 | MMU_L1_COARSE_ENTRY)
 
 level2_table_entries:
     .word (0x00000000 & 0xFFFFF000) | (MMU_SP_AP_RW_RW | MMU_L2_SMALL_PAGE)  @ Points to 0x00000000
@@ -116,9 +112,12 @@ level2_table_entries:
     .word (0x0000A000 & 0xFFFFF000) | (MMU_SP_AP_RW_PRIV_ONLY| MMU_L2_SMALL_PAGE)  @ entrada A (.data)
     .word (0x0000B000 & 0xFFFFF000) | (MMU_SP_AP_RW_PRIV_ONLY | MMU_L2_SMALL_PAGE)  @ entrada B (.data)
     .word (0x0000C000 & 0xFFFFF000) | (MMU_SP_AP_RW_PRIV_ONLY | MMU_L2_SMALL_PAGE)  @ entrada C (VA 0x00007000) (init_stack)
-    .word (0x2000D000 & 0xFFFFF000) | (MMU_SP_AP_RW_PRIV_ONLY | MMU_L2_SMALL_PAGE)  @ entrada D (VA FOR DEVICES TEMPORARY) Interrupts & Mailbox
-    .word (0x20200000 & 0xFFFFF000) | (MMU_SP_AP_RW_PRIV_ONLY | MMU_L2_SMALL_PAGE)  @ entrada E (VA FOR DEVICES TEMPORARY) GPIO
-    .word (0x20215000 & 0xFFFFF000) | (MMU_SP_AP_RW_PRIV_ONLY | MMU_L2_SMALL_PAGE)  @ entrada F (VA FOR DEVICES TEMPORARY) UART
+    /*.word (0x00000000) // 0x0D
+    .word (0x00000000) // 0x0E
+    .word (0x00000000) // 0x0F*/
+    .word (0x2000D000 & 0xFFFFF000) | (MMU_SP_AP_RW_PRIV_ONLY | MMU_L2_SMALL_PAGE)  @ 0x00 Interrupts & Mailbox
+    .word (0x20200000 & 0xFFFFF000) | (MMU_SP_AP_RW_PRIV_ONLY | MMU_L2_SMALL_PAGE)  @ 0x01 GPIO
+    .word (0x20215000 & 0xFFFFF000) | (MMU_SP_AP_RW_PRIV_ONLY | MMU_L2_SMALL_PAGE)  @ 0x02 UART
     .word (0x00000000) // 0x10
     .word (0x00000000) // 0x11
     .word (0x00000000) // 0x12
@@ -130,3 +129,8 @@ level2_table_entries:
     .word (0x00000000) // 0x18
     .word (0x00000000) // 0x19
     .word (0x0001A000 & 0xFFFFF000) | (MMU_SP_APX | MMU_SP_AP_RW_PRIV_ONLY | MMU_L2_SMALL_PAGE) // Entrada 0x1A000 (.init)
+
+level2_table2_entries:
+    .word (0x2000D000 & 0xFFFFF000) | (MMU_SP_AP_RW_PRIV_ONLY | MMU_L2_SMALL_PAGE)  @ 0x00 Interrupts & Mailbox
+    .word (0x20200000 & 0xFFFFF000) | (MMU_SP_AP_RW_PRIV_ONLY | MMU_L2_SMALL_PAGE)  @ 0x01 GPIO
+    .word (0x20215000 & 0xFFFFF000) | (MMU_SP_AP_RW_PRIV_ONLY | MMU_L2_SMALL_PAGE)  @ 0x02 UART
