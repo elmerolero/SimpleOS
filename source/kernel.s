@@ -7,7 +7,6 @@ main:
     mov     r2, #(MU_TRANSMITER_ENABLE | MU_RECEIVER_ENABLE)
     mov     r3, #0
     bl      uart0_Init
-    //mov     r0, #0x6000
     //bx      r0 
     
 loop:

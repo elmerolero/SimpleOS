@@ -17,7 +17,7 @@ devices:
     .word 0x20215000 // Auxiliary
 
 devices_mmu:
-    .word 0x0000D200 // Interrupts
-    .word 0x0000D880 // Mailbox
-    .word 0x0000E000 // GPIO
-    .word 0x0000F000 // Auxiliary
+    .word 0x00100200 // Interrupts
+    .word 0x00100880 // Mailbox
+    .word 0x00101000 // GPIO
+    .word 0x00102000 // Auxiliary
