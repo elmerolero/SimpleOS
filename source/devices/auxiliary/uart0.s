@@ -1,5 +1,9 @@
-.include "devices/system.s"
 .include "devices/auxiliary/auxiliary.s"
+
+.section .data
+.init_ptr:  .word uart0_Init
+.read_ptr:  .word uart0_Read
+.write_ptr: .word uart0_Write
 
 // Mini UART
 .equ AUX_MU_IO_REG,         0x40
@@ -121,7 +125,7 @@ mu_MaxBaudRate: .word 31250000
 @   r0: Byte read from receiver
 @ ------------------------------------------------------------------------------
 .section .text
-uart0_read:
+uart0_Read:
     push { lr }
     mov     r0, #AUX_DEVICES
     bl      devices_AddressGet       
@@ -137,7 +141,7 @@ uart0_read:
 @ R0: Letter to send through UART
 @ ------------------------------------------------------------------------------
 .section .text
-uart0_write:
+uart0_Write:
     push { lr }
     and     r2, r0, #0xFF
     mov     r0, #AUX_DEVICES

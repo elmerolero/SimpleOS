@@ -21,3 +21,7 @@ devices_mmu:
     .word 0x00100880 // Mailbox
     .word 0x00101000 // GPIO
     .word 0x00102000 // Auxiliary
+
+.section .data
+devicess_AddressStart: .word 0x1000000
+devicess_AddressEnd:   .word 0x1FFFFFF
