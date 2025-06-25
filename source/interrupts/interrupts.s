@@ -26,6 +26,8 @@
 .equ ILLEGAL_ACCESS_TYPE0_IRQ_PENDING,  0x40
 .equ ILLEGAL_ACCESS_TYPE1_IRQ_PENDING,  0x80
 
+.equ AUXILIARY_IRQ_INTERRUPT_ENABLE, (1 << 29)
+
 .section .text
 .global interrupts_Init
 interrupts_Init:
@@ -42,6 +44,9 @@ interrupts_Init:
     bl      devices_AddressGet
     mov     r1, #ARM_TIMER_IRQ_PENDING
     str     r1, [r0, #ENABLE_BASIC_IRQS]
+    //ldr     r1, [r0, #ENABLE_IRQS_1]
+    //orr     r1, #AUXILIARY_IRQ_INTERRUPT_ENABLE
+    //str     r1, [r0, #ENABLE_IRQS_1]
 
     mrs     r0, cpsr
     bic     r0, r0, #0x80

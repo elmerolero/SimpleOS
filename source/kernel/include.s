@@ -10,3 +10,4 @@
 .include "devices/clock_manager.s"
 .include "graphics/frame_buffer.s"
 .include "system/mmu.s"
+.include "devices/system.s"
