@@ -94,7 +94,7 @@ uart0_Init:
     str     r2, [r0, #AUX_MU_LCR_REG]
 
     // Interrupts
-    and     r2, r7, #(MU_RECEIVE_INTERRUPT_ENABLE | MU_TRANSMIT_INTERRUPT_ENABLE)
+    and     r2, r7, #(MU_RECEIVE_INTERRUPT_ENABLE | MU_TRANSMIT_INTERRUPT_ENABLE | 0x0C)
     str     r2, [r0, #AUX_MU_IER_REG]
 
     // Disables pull up/down resistors for pins 14 and 15
@@ -107,7 +107,7 @@ uart0_Init:
     bl      gpio_pud_mode_write
 
     // Enabling UART options
-    mov     r0, #AUX_DEVICES
+    mov     r0, #AUXILIARY_DEVICES
     bl      devices_AddressGet
     and     r2, r6, #(MU_RECEIVER_ENABLE | MU_TRANSMITER_ENABLE)
     str     r2, [ r0, #AUX_MU_CNTL_REG ]
@@ -128,7 +128,7 @@ mu_MaxBaudRate: .word 31250000
 .section .text
 uart0_Read:
     push { lr }
-    mov     r0, #AUX_DEVICES
+    mov     r0, #AUXILIARY_DEVICES
     bl      devices_AddressGet       
 1:
     ldr     r1, [ r0, #AUX_MU_LSR_REG ]
@@ -145,7 +145,7 @@ uart0_Read:
 uart0_Write:
     push { lr }
     and     r2, r0, #0xFF
-    mov     r0, #AUX_DEVICES
+    mov     r0, #AUXILIARY_DEVICES
     bl      devices_AddressGet
 1:
     ldr     r1, [r0, #AUX_MU_LSR_REG]

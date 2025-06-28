@@ -3,13 +3,13 @@ main:
     bl      stack_Init
     bl      _start
     ldr     r0, baudrate_speed
-    mov     r1, #MU_DATA_SIZE_8
+    mov     r1, #3
     mov     r2, #(MU_TRANSMITER_ENABLE | MU_RECEIVER_ENABLE)
-    mov     r3, #0
+    mov     r3, #(MU_RECEIVE_INTERRUPT_ENABLE | 0x04)
     bl      uart0_Init
     
 loop:
-    mov     r0, #1 
+    /*mov     r0, #1 
     bl      uart0_Read
     cmp     r0, #13
     movne   r1, #1 
@@ -20,7 +20,7 @@ loop:
     bl      uart0_Write
     mov     r0, #'\n'
     mov     r1, #1 
-    bl      uart0_Write
+    bl      uart0_Write*/
     b       loop
 
 baudrate_speed:

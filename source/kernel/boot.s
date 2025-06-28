@@ -3,7 +3,7 @@
 _start:
     push { lr }
     bl      mmu_Init
-    //bl      interrupts_Init
+    
     pop { pc }
 
 .section .text

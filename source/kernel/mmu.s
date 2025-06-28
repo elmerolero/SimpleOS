@@ -95,7 +95,7 @@ systemMemory_Init:
 
     // Gets second level 2 table entries and copies its content in system's level 2 table
     ldr     r1, level2_table2_entries_addr
-    mov     r2, #12
+    mov     r2, #16
     bl      memcpy_safe
 
     pop { pc }
@@ -143,6 +143,7 @@ level2_table_entries:
     .word (0x0001A000 & 0xFFFFF000) | (MMU_SP_APX | MMU_SP_AP_RW_PRIV_ONLY | MMU_L2_SMALL_PAGE) // Entrada 0x1A000 (.init)
 
 level2_table2_entries:
-    .word (0x2000D000 & 0xFFFFF000) | (MMU_SP_AP_RW_PRIV_ONLY | MMU_L2_SMALL_PAGE)  @ 0x00 Interrupts & Mailbox
+    .word (0x2000B000 & 0xFFFFF000) | (MMU_SP_AP_RW_PRIV_ONLY | MMU_L2_SMALL_PAGE)  @ 0x00 Interrupts & Mailbox
+    .word (0x20101000 & 0xFFFFF000) | (MMU_SP_AP_RW_PRIV_ONLY | MMU_L2_SMALL_PAGE)  @ 0x01 GPIO
     .word (0x20200000 & 0xFFFFF000) | (MMU_SP_AP_RW_PRIV_ONLY | MMU_L2_SMALL_PAGE)  @ 0x01 GPIO
     .word (0x20215000 & 0xFFFFF000) | (MMU_SP_AP_RW_PRIV_ONLY | MMU_L2_SMALL_PAGE)  @ 0x02 UART
