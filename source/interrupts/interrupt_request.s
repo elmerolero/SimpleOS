@@ -14,7 +14,7 @@ interrupt_request:
     ldr     r0, =irq_message
     mov     r1, #13
     bl      uart0_write_bytes
-    bl      arm_timer_irq_clear
+    //bl      arm_timer_irq_clear
     pop { r0 }
     msr spsr_cxsf, r0
     pop { r0-r12, lr }

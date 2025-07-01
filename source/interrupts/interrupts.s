@@ -42,12 +42,12 @@ interrupts_Init:
 
     mov     r0, #INTERRUPT_DEVICES
     bl      devices_AddressGet
-    //mov     r1, #ARM_TIMER_IRQ_PENDING
-    //str     r1, [r0, #ENABLE_BASIC_IRQS]
-    mov     r1, #AUXILIARY_IRQ_INTERRUPT
-    str     r1, [r0, #DISABLE_IRQS_1]
-    mov     r1, #AUXILIARY_IRQ_INTERRUPT
-    str     r1, [r0, #ENABLE_IRQS_1]
+    mov     r1, #ARM_TIMER_IRQ_PENDING
+    str     r1, [r0, #ENABLE_BASIC_IRQS]
+    //mov     r1, #AUXILIARY_IRQ_INTERRUPT
+    //str     r1, [r0, #DISABLE_IRQS_1]
+    //mov     r1, #AUXILIARY_IRQ_INTERRUPT
+    //str     r1, [r0, #ENABLE_IRQS_1]
 
     mrs     r0, cpsr
     bic     r0, r0, #0x80

@@ -9,7 +9,7 @@ main:
     bl      uart0_Init
     
 loop:
-    /*mov     r0, #1 
+    mov     r0, #1 
     bl      uart0_Read
     cmp     r0, #13
     movne   r1, #1 
@@ -20,7 +20,7 @@ loop:
     bl      uart0_Write
     mov     r0, #'\n'
     mov     r1, #1 
-    bl      uart0_Write*/
+    bl      uart0_Write
     b       loop
 
 baudrate_speed:

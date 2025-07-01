@@ -1,6 +1,4 @@
 // Time base
-.equ ARM_TIMER_BASE,    0x2000B400
-
 .equ ARM_TIMER_LOAD,        0x00
 .equ ARM_TIMER_VALUE,       0x04
 .equ ARM_TIMER_CONTROL,     0x08
@@ -28,7 +26,8 @@
 .global arm_timer_init
 arm_timer_init:
     push { lr }
-    ldr     r0, =ARM_TIMER_BASE
+    mov     r0, #ARM_TIMER_DEVICES
+    bl      devices_AddressGet
     mov     r1, #0xC00
     str     r1, [ r0, #ARM_TIMER_LOAD ]
     mov     r1, #(ARM_TIMER_CTRL_32BIT | ARM_TIMER_CTRL_ENABLE | ARM_TIMER_CTRL_INT_DISABLE | ARM_TIMER_CTRL_PRESCALE_256)
@@ -39,7 +38,8 @@ arm_timer_init:
 .global arm_timer_value_read
 arm_timer_value_read:
     push { lr }
-    ldr     r0, =ARM_TIMER_BASE
+    mov     r0, #ARM_TIMER_DEVICES
+    bl      devices_AddressGet
     ldr     r0, [ r0, #ARM_TIMER_VALUE ]
     pop  { pc }
 
@@ -47,7 +47,8 @@ arm_timer_value_read:
 .global arm_timer_irq_clear
 arm_timer_irq_clear:
     push { lr }
-    ldr     r0, =ARM_TIMER_BASE
+    mov     r0, #ARM_TIMER_DEVICES
+    bl      devices_AddressGet
     mov     r1, #1
     str     r1, [ r0, #ARM_TIMER_IRQ_CLEAR ]
     pop { pc }

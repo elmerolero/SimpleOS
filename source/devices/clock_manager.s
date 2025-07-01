@@ -9,7 +9,7 @@
 .equ CLOCK_MANAGER_ENABLE,          0x10
 
 .section .text
-clock_manager_init:
+clock_manager_init: 
     push { lr }
     mov     r0, #CLOCK_MANAGER_DEVICES
     bl      devices_AddressGet
