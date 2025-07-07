@@ -33,7 +33,7 @@
 interrupts_Init:
     push    { r4, r5, r6, r7, r8, r9, lr }
     ldr     r0, =interrupt_vector_table
-    mov     r1, #0x00
+    ldr     r1, =0x00
     
     ldmia   r0!, { r2, r3, r4, r5, r6, r7, r8, r9 }
     stmia   r1!, { r2, r3, r4, r5, r6, r7, r8, r9 }   
