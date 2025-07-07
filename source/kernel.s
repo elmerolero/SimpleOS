@@ -11,17 +11,17 @@ main:
     
 loop:
     mov     r0, #1 
-    bl      uart0_read
+    bl      uart0_Read
     cmp     r0, #13
     movne   r1, #1 
-    blne    uart0_write
+    blne    uart0_Write
     bne     loop
     mov     r0, #'\r'
     mov     r1, #1 
-    bl      uart0_write
+    bl      uart0_Write
     mov     r0, #'\n'
     mov     r1, #1 
-    bl      uart0_write
+    bl      uart0_Write
     b       loop
 
 baudrate_speed:
