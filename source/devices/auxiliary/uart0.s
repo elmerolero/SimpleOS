@@ -33,7 +33,6 @@
 .equ GPIO_PUD_MODE_DISABLE,     0
 
 .section .data
-.align 1
 uart0_Buffer: .skip 128
 
 @ ------------------------------------------------------------------------------
