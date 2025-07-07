@@ -28,7 +28,7 @@ arm_timer_init:
     push { lr }
     mov     r0, #ARM_TIMER_DEVICES
     bl      devices_AddressGet
-    mov     r1, #0xC00
+    mov     r1, #0x400
     str     r1, [ r0, #ARM_TIMER_LOAD ]
     mov     r1, #(ARM_TIMER_CTRL_32BIT | ARM_TIMER_CTRL_ENABLE | ARM_TIMER_CTRL_INT_DISABLE | ARM_TIMER_CTRL_PRESCALE_256)
     str     r1, [ r0, #ARM_TIMER_CONTROL ]
