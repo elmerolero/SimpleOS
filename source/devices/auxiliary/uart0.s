@@ -94,7 +94,7 @@ uart0_Init:
     str     r2, [r0, #AUX_MU_LCR_REG]
 
     // Interrupts
-    and     r2, r7, #(MU_RECEIVE_INTERRUPT_ENABLE | MU_TRANSMIT_INTERRUPT_ENABLE | 0x0C)
+    and     r2, r7, #(MU_RECEIVE_INTERRUPT_ENABLE | MU_TRANSMIT_INTERRUPT_ENABLE)
     str     r2, [r0, #AUX_MU_IER_REG]
 
     // Disables pull up/down resistors for pins 14 and 15
