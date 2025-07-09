@@ -44,12 +44,11 @@ uart0_Buffer: .skip 128
 @ ------------------------------------------------------------------------------
 .section .text
 uart0_Init:
-    ldr     r3, mu_MaxBaudRate
-    cmp     r0, r3
-    cmpls   r1, #MU_DATA_SIZE_8
-    bxhi    lr
-
     push { r4, r5, r6, r7, lr }
+    ldr     r4, mu_MaxBaudRate
+    cmp     r0, r4
+    cmpls   r1, #MU_DATA_SIZE_8
+    pophi { r4, r5, r6, r7, lr }
     
     # Back up baud-rate and data size parameter
     mov     r4, r0
@@ -65,6 +64,15 @@ uart0_Init:
     mov     r0, #15
     mov     r1, #GPIO_MODE_ALTF5
     bl      gpio_ModeSet
+
+    // Disables pull up/down resistors for pins 14 and 15
+    mov     r0, #14
+    mov     r1, #GPIO_PUD_MODE_DISABLE
+    bl      gpio_pud_mode_write
+
+    mov     r0, #15
+    mov     r1, #GPIO_PUD_MODE_DISABLE
+    bl      gpio_pud_mode_write
 
     // Calculates baud-rate register value
     bl      system_CoreFreqGet
@@ -93,21 +101,10 @@ uart0_Init:
     str     r2, [r0, #AUX_MU_LCR_REG]
 
     // Interrupts
-    and     r2, r7, #(MU_RECEIVE_INTERRUPT_ENABLE | MU_TRANSMIT_INTERRUPT_ENABLE)
+    and     r2, r7, #(MU_RECEIVE_INTERRUPT_ENABLE | MU_TRANSMIT_INTERRUPT_ENABLE | 0x0C)
     str     r2, [r0, #AUX_MU_IER_REG]
 
-    // Disables pull up/down resistors for pins 14 and 15
-    mov     r0, #14
-    mov     r1, #GPIO_PUD_MODE_DISABLE
-    bl      gpio_pud_mode_write
-
-    mov     r0, #15
-    mov     r1, #GPIO_PUD_MODE_DISABLE
-    bl      gpio_pud_mode_write
-
     // Enabling UART options
-    mov     r0, #AUXILIARY_DEVICES
-    bl      devices_AddressGet
     and     r2, r6, #(MU_RECEIVER_ENABLE | MU_TRANSMITER_ENABLE)
     str     r2, [ r0, #AUX_MU_CNTL_REG ]
     mov     r0, #0
@@ -152,6 +149,24 @@ uart0_Write:
     beq     1b
     str     r2, [r0, #AUX_MU_IO_REG]
     pop { pc }
+
+.equ AUX_MU_NO_INTERRUPT_PENDING,   0x01
+.equ AUX_MU_RECEIVER_BYTE_PENDING,  0x04
+uart0_InterruptHandler:
+    push    { lr }
+1:
+    mov     r0, #AUXILIARY_DEVICES
+    bl      devices_AddressGet
+    ldr     r1, [r0, #AUX_MU_IIR_REG]
+    tst     r1, #AUX_MU_NO_INTERRUPT_PENDING
+    bne     2f
+    tst     r1, #AUX_MU_RECEIVER_BYTE_PENDING
+    blne    uart0_Read
+    bl      uart0_Write
+    b       1b
+2:
+    pop     { pc }
+    
 
 @ ------------------------------------------------------------------------------
 @ Send the ascii string through UART

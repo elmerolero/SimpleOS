@@ -30,7 +30,7 @@ arm_timer_init:
     bl      devices_AddressGet
     mov     r1, #0x400
     str     r1, [ r0, #ARM_TIMER_LOAD ]
-    mov     r1, #(ARM_TIMER_CTRL_32BIT | ARM_TIMER_CTRL_ENABLE | ARM_TIMER_CTRL_INT_DISABLE | ARM_TIMER_CTRL_PRESCALE_256)
+    mov     r1, #(ARM_TIMER_CTRL_32BIT | ARM_TIMER_CTRL_ENABLE | ARM_TIMER_CTRL_INT_ENABLE | ARM_TIMER_CTRL_PRESCALE_256)
     str     r1, [ r0, #ARM_TIMER_CONTROL ]
     pop { pc }
 

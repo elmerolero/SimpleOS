@@ -4,7 +4,6 @@ _start:
     push { lr }
     bl      mmu_Init
     bl      interrupts_Init
-    bl      arm_timer_init
     pop { pc }
 
 .section .text

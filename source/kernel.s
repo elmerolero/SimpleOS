@@ -5,10 +5,11 @@ main:
     ldr     r0, baudrate_speed
     mov     r1, #3
     mov     r2, #(MU_TRANSMITER_ENABLE | MU_RECEIVER_ENABLE)
-    mov     r3, #0
+    mov     r3, #(MU_RECEIVE_INTERRUPT_ENABLE | 0x04)
     bl      uart0_Init
     
 loop:
+    b       loop
     mov     r0, #1 
     bl      uart0_Read
     cmp     r0, #13
