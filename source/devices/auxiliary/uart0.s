@@ -32,8 +32,16 @@
 .equ GPIO_MODE_ALTF5,           2
 .equ GPIO_PUD_MODE_DISABLE,     0
 
+.equ AUX_MU_BUFFER_SIZE, 1024
+
 .section .data
-uart0_Buffer: .skip 128
+.align 4
+uart0_ReceiveBufferHead:    .word 0
+uart0_ReceiveBufferTail:    .word 0
+uart0_TransmitBufferHead:   .word 0
+uart0_TransmitBufferTail:   .word 0
+uart0_ReceiveBuffer:        .skip 1024
+uart0_TransmitBuffer:       .skip 1024
 
 @ ------------------------------------------------------------------------------
 @ Initializes UART 0
@@ -149,6 +157,62 @@ uart0_Write:
     beq     1b
     str     r2, [r0, #AUX_MU_IO_REG]
     pop { pc }
+
+@ ------------------------------------------------------------------------------
+@ Read received bytes from UART and saved them in a buffer
+@ Inputs
+@   None
+@ Outputs
+@   None
+@ ------------------------------------------------------------------------------
+uart0_ReadAll:
+    push { r4, r5, r6, r7, lr }
+    // R1 will be an auxiliary variable to get head -> next
+    // R2 is the head and saves it's reference in r6 to save it at last
+    ldr     r2, =uart0_ReceiveBufferHead
+    mov     r6, r2
+    ldr     r2, [ r2 ]
+
+    // R3 is the tail (we don't save it's reference)
+    ldr     r3, =uart0_ReceiveBufferTail
+    ldr     r3, [ r3 ]
+
+    // R4 is the reference to the circular buffer
+    ldr     r4, =uart0_ReceiveBuffer
+    
+    // R5 is the device (r0 is the datum)
+    mov     r0, #AUXILIARY_DEVICES
+    bl      devices_AddressGet
+    mov     r5, r0
+
+    // R7 is the constant that will contain the value 1023 (size - 1)
+    mov     r7, #AUX_MU_BUFFER_SIZE
+    sub     r7, r7, #1
+   
+1:
+    @ Checks for any value in FIFOs
+    ldr     r0, [ r5, #AUX_MU_LSR_REG ]
+    tst     r0, #1
+    beq     2f
+    
+    @ Makes sure that buffer is not full
+    add     r1, r2, #1
+    ands    r1, r1, r7
+    cmp     r1, r3
+    beq     2f
+
+    @ Gets value from FIFOs and saves byte in buffer
+    ldr     r0, [ r5, #AUX_MU_IO_REG ]
+    strb    r0, [ r4, r2 ]
+
+    @ Updates head and continue
+    mov     r2, r1
+    b       1b
+2:
+    str     r2, [ r6 ]
+    pop { r4, r5, r6, r7, pc }
+
+
 
 .equ AUX_MU_NO_INTERRUPT_PENDING,   0x01
 .equ AUX_MU_RECEIVER_BYTE_PENDING,  0x04
