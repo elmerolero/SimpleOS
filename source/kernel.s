@@ -4,8 +4,8 @@ main:
     bl      _start
     ldr     r0, baudrate_speed
     mov     r1, #3
-    mov     r2, #(MU_TRANSMITER_ENABLE | MU_RECEIVER_ENABLE)
-    mov     r3, #(MU_RECEIVE_INTERRUPT_ENABLE | 0x04)
+    mov     r2, #(MU_TRANSMITER | MU_RECEIVER)
+    mov     r3, #(MU_RECEIVE_INTERRUPT)
     bl      uart0_Init
     
 loop:

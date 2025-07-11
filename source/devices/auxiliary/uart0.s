@@ -21,16 +21,16 @@
 .equ MU_DATA_SIZE_7,        0x01
 .equ MU_DATA_SIZE_8,        0x03
 
-.equ MU_DISABLE,                    0x00
-.equ MU_RECEIVER_ENABLE,            0x01
-.equ MU_TRANSMITER_ENABLE,          0x02
+.equ MU_DISABLE,            0x00
+.equ MU_RECEIVER,    0x01
+.equ MU_TRANSMITER,  0x02
 
-.equ MU_INTERRUPTS_DISABLE,         0x00
-.equ MU_RECEIVE_INTERRUPT_ENABLE,   0x01
-.equ MU_TRANSMIT_INTERRUPT_ENABLE,  0x02
+.equ MU_INTERRUPTS_DISABLE, 0x00
+.equ MU_RECEIVE_INTERRUPT,  0x01
+.equ MU_TRANSMIT_INTERRUPT, 0x02
 
-.equ GPIO_MODE_ALTF5,           2
-.equ GPIO_PUD_MODE_DISABLE,     0
+.equ GPIO_MODE_ALTF5,       2
+.equ GPIO_PUD_MODE_DISABLE, 0
 
 .equ AUX_MU_BUFFER_SIZE, 1024
 
@@ -109,18 +109,18 @@ uart0_Init:
     str     r2, [r0, #AUX_MU_LCR_REG]
 
     // Interrupts
-    and     r2, r7, #(MU_RECEIVE_INTERRUPT_ENABLE | MU_TRANSMIT_INTERRUPT_ENABLE | 0x0C)
+    and     r2, r7, #(MU_RECEIVE_INTERRUPT | MU_TRANSMIT_INTERRUPT | 0x0C)
+    orr     r2, r2, #0x0C
     str     r2, [r0, #AUX_MU_IER_REG]
 
     // Enabling UART options
-    and     r2, r6, #(MU_RECEIVER_ENABLE | MU_TRANSMITER_ENABLE)
+    and     r2, r6, #(MU_RECEIVER | MU_TRANSMITER)
     str     r2, [ r0, #AUX_MU_CNTL_REG ]
     mov     r0, #0
 
     pop     { r4, r5, r6, r7, pc }
 
 mu_MaxBaudRate: .word 31250000
-
 
 @ ------------------------------------------------------------------------------
 @ Read a byte from UART
@@ -159,16 +159,50 @@ uart0_Write:
     pop { pc }
 
 @ ------------------------------------------------------------------------------
-@ Read received bytes from UART and saved them in a buffer
+@ Enable interrupts
+@ IMPORTANT: Make sure that UART is enabled or this won't work
+@ R0: Interrupt parameters
+@ ------------------------------------------------------------------------------
+.section .text
+uart0_InterruptsEnable:
+    push { lr }
+    and     r2, r0, #(MU_RECEIVE_INTERRUPT | MU_TRANSMIT_INTERRUPT | 0x0C)
+    mov     r0, #AUXILIARY_DEVICES
+    bl      devices_AddressGet
+    ldr     r1, [ r0, #AUX_MU_IER_REG ]
+    orr     r1, r2
+    str     r1, [ r0, #AUX_MU_IER_REG ]
+    pop { pc }
+
+@ ------------------------------------------------------------------------------
+@ Disable interrupts for UART
+@ IMPORTANT: Make sure that UART is enabled or this won't work
+@ R0: Interrupt parameters
+@ ------------------------------------------------------------------------------
+.section .text
+uart0_InterruptsDisable:
+    push { lr }
+    and     r2, r0, #(MU_RECEIVE_INTERRUPT | MU_TRANSMIT_INTERRUPT | 0x0C)
+    mov     r0, #AUXILIARY_DEVICES
+    bl      devices_AddressGet
+    ldr     r1, [ r0, #AUX_MU_IER_REG ]
+    bic     r1, r2
+    str     r1, [ r0, #AUX_MU_IER_REG ]
+    pop { pc }
+
+
+@ ------------------------------------------------------------------------------
+@ Read received bytes from UART and saves them in a circular buffer.
+@ IMPORTANT: Buffer must be a power of two to work without problems.
 @ Inputs
 @   None
 @ Outputs
 @   None
 @ ------------------------------------------------------------------------------
-uart0_ReadAll:
+uart0_Input:
     push { r4, r5, r6, r7, lr }
     // R1 will be an auxiliary variable to get head -> next
-    // R2 is the head and saves it's reference in r6 to save it at last
+    // R2 is the head and saves its reference in r6 to save it at last
     ldr     r2, =uart0_ReceiveBufferHead
     mov     r6, r2
     ldr     r2, [ r2 ]
@@ -209,25 +243,90 @@ uart0_ReadAll:
     mov     r2, r1
     b       1b
 2:
+    @ Enables interrupt for TX
+    ldr     r0, [ r5, #AUX_MU_IER_REG ]
+    orr     r0, #(MU_TRANSMIT_INTERRUPT)
+    str     r0, [ r5, #AUX_MU_IER_REG ]
+    str     r2, [ r6 ]
+    pop { r4, r5, r6, r7, pc }
+
+@ ------------------------------------------------------------------------------
+@ Checks for received bytes in circular buffer and echoes them through UART
+@ IMPORTANT: Buffer must be a power of two to work without problems.
+@ Inputs
+@   None
+@ Outputs
+@   None
+@ ------------------------------------------------------------------------------
+uart0_Output:
+    push { r4, r5, r6, r7, lr }
+    // R1 will be an auxiliary variable to get tail -> next
+    // R2 is the tail and saves its reference in r6 to save last value it at last
+    ldr     r2, =uart0_ReceiveBufferTail
+    mov     r6, r2
+    ldr     r2, [ r2 ]
+
+    // R3 is the head (we don't save it's reference)
+    ldr     r3, =uart0_ReceiveBufferHead
+    ldr     r3, [ r3 ]
+
+    // R4 is the reference to the circular buffer
+    ldr     r4, =uart0_ReceiveBuffer
+    
+    // R5 is the device (r0 is the datum)
+    mov     r0, #AUXILIARY_DEVICES
+    bl      devices_AddressGet
+    mov     r5, r0
+
+    // R7 is the constant that will contain the value 1023 (size - 1)
+    mov     r7, #AUX_MU_BUFFER_SIZE
+    sub     r7, r7, #1
+
+    @ Checks for UART availability
+    ldr     r0, [ r5, #AUX_MU_LSR_REG ]
+    tst     r0, #0x20
+    beq     2f
+    
+    @ Makes sure that buffer is not empty (tail == head)
+    cmp     r2, r3
+    beq     1f
+
+    @ Gets value from buffer and sends it throught UART
+    ldrb    r0, [ r4, r2 ]
+    str     r0, [ r5, #AUX_MU_IO_REG ]
+
+    @ Updates tail and exit
+    add     r2, r2, #1
+    and     r2, r2, r7
+    b       2f
+1:
+    @Disables interrupt for TX
+    ldr     r0, [ r5, #AUX_MU_IER_REG ]
+    bic     r0, #(MU_TRANSMIT_INTERRUPT)
+    str     r0, [ r5, #AUX_MU_IER_REG ]
+2:
     str     r2, [ r6 ]
     pop { r4, r5, r6, r7, pc }
 
 
-
 .equ AUX_MU_NO_INTERRUPT_PENDING,   0x01
-.equ AUX_MU_RECEIVER_BYTE_PENDING,  0x04
+.equ AUX_MU_TRANSMITER_AVAILABLE,   0x02
+.equ AUX_MU_RECEIVER_PENDING,       0x04
 uart0_InterruptHandler:
     push    { lr }
-1:
+
     mov     r0, #AUXILIARY_DEVICES
     bl      devices_AddressGet
+
     ldr     r1, [r0, #AUX_MU_IIR_REG]
     tst     r1, #AUX_MU_NO_INTERRUPT_PENDING
     bne     2f
-    tst     r1, #AUX_MU_RECEIVER_BYTE_PENDING
-    blne    uart0_Read
-    bl      uart0_Write
-    b       1b
+
+    tst     r1, #AUX_MU_RECEIVER_PENDING
+    blne    uart0_Input
+
+    tst     r1, #AUX_MU_TRANSMITER_AVAILABLE
+    blne    uart0_Output
 2:
     pop     { pc }
     
