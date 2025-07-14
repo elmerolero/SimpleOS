@@ -246,60 +246,60 @@ uart0_OutputWrite:
 @ Inputs
 @   None
 @ Outputs
-@   R0 -> Number of bytes read
+@   None
 @ ------------------------------------------------------------------------------
 uart0_Input:
-    push { r4, r5, r6, r7, lr }
-    // r1 <- datum
-    // r2 <- aux that always will be head -> next
-    @ Get RX Buffer
-    ldr     r5, =uart0_RXBuffer
-    @ r3 <- head
-    ldr     r3, [ r5, #BUFFER_HEAD ]
-    @ r4 <- tail
-    ldr     r4, [ r5, #BUFFER_TAIL ]
-    @ r5 <- buffer
-    add     r5, r5, #BUFFER_REFF
-    @ r6 <- device
+    push { r4, r5, r6, lr }
+    @ Get device to be used (aux mini UART)
     mov     r0, #AUXILIARY_DEVICES
     bl      devices_AddressGet
-    mov     r6, r0
-    @ r7 <- buffer's size (1024)
-    mov     r7, #AUX_MU_BUFFER_SIZE
-    sub     r7, r7, #1
+    @ Get RX Buffer
+    ldr     r4, =uart0_RXBuffer
+    @ r1 <- datum and aux variable that always will be head -> next
+    @ r2 <- head
+    ldr     r2, [ r4, #BUFFER_HEAD ]
+    @ r3 <- tail
+    ldr     r3, [ r4, #BUFFER_TAIL ]
+    @ r4 <- buffer
+    add     r4, r4, #BUFFER_REFF
+    @ r5 <- device
+    mov     r5, r0
+    @ r5 <- buffer's size (1024)
+    mov     r6, #AUX_MU_BUFFER_SIZE
+    sub     r6, r6, #1
     @ r0 <- counter
     mov     r0, #0
 1:
     @ Checks for any value in FIFOs
-    ldr     r1, [ r6, #AUX_MU_LSR_REG ]
+    ldr     r1, [ r5, #AUX_MU_LSR_REG ]
     tst     r1, #1
     beq     2f
     @ Makes sure that buffer is not full (next_head != tail)
-    add     r2, r3, #1
-    ands    r2, r2, r7
-    cmp     r2, r4
+    add     r1, r2, #1
+    and     r1, r1, r6
+    cmp     r1, r3
     beq     2f
     @ Gets value from FIFOs and saves byte in buffer
-    ldr     r1, [ r6, #AUX_MU_IO_REG ]
-    strb    r1, [ r5, r3 ]
+    ldrb    r1, [ r5, #AUX_MU_IO_REG ]
+    strb    r1, [ r4, r2 ]
     @ Increments counter, updates head and continue
     add     r0, r0, #1
-    mov     r3, r2
+    add     r2, r2, #1
+    ands    r2, r2, r6
     b       1b
 2:
     @ Saves the new value of head
-    sub     r5, r5, #BUFFER_REFF
-    str     r3, [ r5, #BUFFER_HEAD ]
-    @ If counter is zero, exit without enabling TX interruptions
+    sub     r4, r4, #BUFFER_REFF
+    str     r2, [ r4, #BUFFER_HEAD ]
+    @ If counter is zero, exit without enabling TX interrupts
     cmp     r0, #0
     beq     3f
     @ Enables interrupt for TX
-    mov     r4, r0
     mov     r0, #(MU_TRANSMIT_INTERRUPT)
     bl      uart0_InterruptsEnable
-    mov     r0, r4
 3:
-    pop { r4, r5, r6, r7, pc }
+    mov     r0, #0
+    pop { r4, r5, r6, pc }
 
 @ ------------------------------------------------------------------------------
 @ Checks for received bytes in circular buffer and echoes them through UART
@@ -312,6 +312,8 @@ uart0_Input:
 uart0_Output:
     push { r4, r5, lr }
     @ r0 <- datum
+    mov     r0, #AUXILIARY_DEVICES
+    bl      devices_AddressGet
     @ Get RX Buffer
     ldr     r3, =uart0_RXBuffer
     @ r1 <- tail
@@ -321,8 +323,6 @@ uart0_Output:
     @ r3 <- buffer
     add     r3, r3, #BUFFER_REFF
     @ r4 <- device
-    mov     r0, #AUXILIARY_DEVICES
-    bl      devices_AddressGet
     mov     r4, r0
     @ r5 <- buffer's size (1024)
     mov     r5, #AUX_MU_BUFFER_SIZE
@@ -339,7 +339,7 @@ uart0_Output:
 
     @ Gets value from buffer and sends it throught UART
     ldrb    r0, [ r3, r1 ]
-    str     r0, [ r4, #AUX_MU_IO_REG ]
+    strb    r0, [ r4, #AUX_MU_IO_REG ]
 
     @ Updates tail and exit
     add     r1, r1, #1
