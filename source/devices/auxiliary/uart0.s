@@ -137,7 +137,7 @@ mu_MaxBaudRate: .word 31250000
 @   r0: Byte read from receiver
 @ ------------------------------------------------------------------------------
 .section .text
-uart0_Read:
+uart0_BlockingRead:
     push { lr }
     mov     r0, #AUXILIARY_DEVICES
     bl      devices_AddressGet       
@@ -153,7 +153,7 @@ uart0_Read:
 @ R0: Letter to send through UART
 @ ------------------------------------------------------------------------------
 .section .text
-uart0_Write:
+uart0_BlockingWrite:
     push { lr }
     and     r2, r0, #0xFF
     mov     r0, #AUXILIARY_DEVICES
@@ -200,44 +200,40 @@ uart0_InterruptsDisable:
     pop { pc }
 
 @ ------------------------------------------------------------------------------
+@ Interface function u32 write(const u8 buff[count], count)
 @ Copy the bytes of an specified buffer into UART's output buffer
-@ IMPORTANT: Buffer must be a power of two to work without problems.
+@ IMPORTANT: UART's buffer must be a power of two to work without problems.
 @ Inputs
 @   R0, Source
 @   R1, Size
 @ Outputs
-@   None
+@   R0, Count of bytes written in buffer
 @ ------------------------------------------------------------------------------
-uart0_OutputWrite:
-    push { r4, r5, r6, r7, r8, r9, lr }
-    @ r0 datum
-    @ r1 size
-    @ r2 counter
-    @ r3 pointer
-    mov     r0, r3
-    @ r4 head
-    ldr     r5, =uart0_TransmitBufferTail
-    ldr     r5, [ r5 ]
-    @ r5 tail
-    ldr     r6, =uart0_TransmitBufferHead
-    mov     r8, r6 
-    ldr     r6, [ r6 ]
-
-    @ r7 Reference to buffer
-    ldr     r7, =uart0_TransmitBuffer
-
-    @ r9 Buffer's size - 1
-    mov     r6, #AUX_MU_BUFFER_SIZE
-    sub     r6, r6, #1
-
+uart0_Write:
+    push { r4, r5, r6, r7, lr }
+    @ r0 <- Source
+    @ r1 <- Size
+    @ r2 <- Counter
+    @ r3 <- Datum
+    @ Gets buffer structure
+    ldr     r6, =uart0_TXBuffer
+    @ r4 <- Head
+    ldr     r4, [ r6, #BUFFER_HEAD ]
+    @ r5 <- Tail
+    ldr     r5, [ r6, #BUFFER_TAIL ]
+    @ r6 <- Reference to circular buffer
+    add     r6, r6, #BUFFER_REFF
+    @ r7 <- Buffer's size - 1
+    mov     r7, #AUX_MU_BUFFER_SIZE
+    sub     r7, r7, #1
 1:
-    add     r1, r2, #1
-    and     r1, r1, r6
-    cmp     r1, r3
+    add     r3, r3, #1
+    and     r3, r3, r7
+    cmp     r3, r5
     beq     2f
 
 2:
-    pop { r4, r5, r6, r7, r8, r9, pc }
+    pop { r4, r5, r6, r7, pc }
 
 
 @ ------------------------------------------------------------------------------
@@ -399,7 +395,7 @@ uart0_write_bytes:
     ldrb    r0, [r3, r5]
     cmp     r0, #0
     beq     2f
-    bl      uart0_Write
+    bl      uart0_BlockingWrite
     add     r5, #1
     b       1b
 2:

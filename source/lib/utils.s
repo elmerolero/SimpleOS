@@ -61,7 +61,7 @@ utils_u32_write:
 2:
     pop     { r0 }
     cmp     r0, #0x00
-    blne    uart0_Write
+    blne    uart0_BlockingWrite
     bne     2b
     pop  { r4, r5, r6, pc }
 
@@ -76,7 +76,7 @@ utils_s32_write:
     mov     r4, r0
     cmp     r0, #0
     movlt   r0, #'-'
-    bl      uart0_Write
+    bl      uart0_BlockingWrite
     
     ldr     r6, =utils_Buffer
     mov     r0, #0
@@ -96,6 +96,6 @@ utils_s32_write:
 2:
     ldrb    r0, [r6, #-1]!
     cmp     r0, #0
-    blne    uart0_Write
+    blne    uart0_BlockingWrite
     bne     2b
     pop  { r4, r5, r6, pc }
