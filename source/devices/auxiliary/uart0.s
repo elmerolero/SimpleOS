@@ -11,6 +11,7 @@ uart0_ReceiveBufferHead:    .word 0
 uart0_ReceiveBufferTail:    .word 0
 uart0_ReceiveBuffer:        .skip 1024
 
+.align 4
 uart0_TXBuffer:
 uart0_TransmitBufferHead:   .word 0
 uart0_TransmitBufferTail:   .word 0
