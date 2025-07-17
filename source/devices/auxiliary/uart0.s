@@ -2,7 +2,7 @@
 
 .section .data
 .init_ptr:  .word uart0_Init
-.read_ptr:  .word uart0_Read
+//.read_ptr:  .word uart0_Read
 .write_ptr: .word uart0_Write
 
 .align 4
@@ -200,7 +200,42 @@ uart0_InterruptsDisable:
     pop { pc }
 
 @ ------------------------------------------------------------------------------
-@ Interface function u32 write(const u8 buff[count], count)
+@ Puts a byte into buffer
+@ Inputs
+@   R0 - Byte to send
+@ Outputs
+@   None
+@ ------------------------------------------------------------------------------
+uart0_PutByte:
+    push { r4, r5, lr }
+    @ Gets buffer structure
+    ldr     r4, =uart0_TXBuffer
+    @ r2 <- Head
+    ldr     r2, [ r4, #BUFFER_HEAD ]
+    @ r3 <- Tail
+    ldr     r3, [ r4, #BUFFER_TAIL ]
+    @ r4 <- Buffer
+    add     r4, r4, #BUFFER_REFF
+    @ r5 <- Buffer's size
+    mov     r5, #AUX_MU_BUFFER_SIZE
+    sub     r5, #1
+    @ Checks for buffer availability (head -> next != tail)
+    add     r1, r2, #1
+    and     r1, r1, r5
+    cmp     r1, r3
+    beq     1f
+    @ Stores the byte, updates head and enables TX Interrupts
+    strb    r0, [ r4, r2 ]
+    sub     r4, r4, #BUFFER_REFF
+    str     r1, [ r4, #BUFFER_HEAD ]
+    mov     r0, #MU_TRANSMIT_INTERRUPT
+    bl      uart0_InterruptsEnable
+1:
+    mov     r0, #0
+    pop { r4, r5, pc }
+
+@ ------------------------------------------------------------------------------
+@ Interface function u32 write(const u8 buff[count], u32 count)
 @ Copy the bytes of an specified buffer into UART's output buffer
 @ IMPORTANT: UART's buffer must be a power of two to work without problems.
 @ Inputs
@@ -211,10 +246,14 @@ uart0_InterruptsDisable:
 @ ------------------------------------------------------------------------------
 uart0_Write:
     push { r4, r5, r6, r7, lr }
-    @ r0 <- Source
+    cmp     r0, #0
+    cmphi   r1, #0
+    blo     2f
+    @ r0 <- Counter
     @ r1 <- Size
-    @ r2 <- Counter
-    @ r3 <- Datum
+    @ r2 <- Datum
+    @ r3 <- Source
+    mov     r3, r0
     @ Gets buffer structure
     ldr     r6, =uart0_TXBuffer
     @ r4 <- Head
@@ -226,12 +265,39 @@ uart0_Write:
     @ r7 <- Buffer's size - 1
     mov     r7, #AUX_MU_BUFFER_SIZE
     sub     r7, r7, #1
+    @ r0 <- Counter
+    mov     r0, #0
 1:
-    add     r3, r3, #1
-    and     r3, r3, r7
-    cmp     r3, r5
+    @ Checks for buffer availability (head -> next != tail)
+    add     r2, r4, #1
+    and     r2, r2, r7
+    cmp     r2, r5
     beq     2f
 
+    @ Copy the item from source to buffer
+    ldrb    r2, [ r3, r0 ]
+    strb    r2, [ r6, r4 ]
+
+    @ Increments counter, updates head and decrements size
+    add     r0, r0, #1
+    add     r4, r4, #1
+    and     r4, r4, r7
+    subs    r1, r1, #1
+    bne     1b
+
+    @ Saves head
+    sub     r6, r6, #BUFFER_REFF
+    str     r4, [ r6, #BUFFER_HEAD ]
+
+    @ Checks if enable interruptions for TX (count > 0)
+    cmp     r0, #0
+    beq     2f
+
+    @ Enable transmit interrupts
+    mov     r3, r0
+    mov     r0, #MU_TRANSMIT_INTERRUPT
+    bl      uart0_InterruptsEnable
+    mov     r3, r0
 2:
     pop { r4, r5, r6, r7, pc }
 
@@ -291,7 +357,7 @@ uart0_Input:
     cmp     r0, #0
     beq     3f
     @ Enables interrupt for TX
-    mov     r0, #(MU_TRANSMIT_INTERRUPT)
+    mov     r0, #MU_TRANSMIT_INTERRUPT
     bl      uart0_InterruptsEnable
 3:
     mov     r0, #0
@@ -305,13 +371,13 @@ uart0_Input:
 @ Outputs
 @   None
 @ ------------------------------------------------------------------------------
-uart0_Output:
+uart0_TXHandler:
     push { r4, r5, lr }
     @ r0 <- datum
     mov     r0, #AUXILIARY_DEVICES
     bl      devices_AddressGet
     @ Get RX Buffer
-    ldr     r3, =uart0_RXBuffer
+    ldr     r3, =uart0_TXBuffer
     @ r1 <- tail
     ldr     r1, [ r3, #BUFFER_TAIL ]
     @ r2 <- head
@@ -370,7 +436,7 @@ uart0_InterruptHandler:
     blne    uart0_Input
 
     tst     r1, #AUX_MU_TRANSMITER_AVAILABLE
-    blne    uart0_Output
+    blne    uart0_TXHandler
 2:
     pop     { pc }
     

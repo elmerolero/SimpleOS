@@ -1,3 +1,7 @@
+.section .data
+.align 4
+welcome_message: .asciz "Bienvenido a Simple OS\n\r"
+
 .section .text
 main:
     bl      stack_Init
@@ -7,6 +11,10 @@ main:
     mov     r2, #(MU_TRANSMITER | MU_RECEIVER)
     mov     r3, #(MU_RECEIVE_INTERRUPT)
     bl      uart0_Init
+
+    ldr     r0, =welcome_message
+    mov     r1, #24
+    bl      uart0_Write
     
 loop:
     b       loop
