@@ -55,8 +55,7 @@ framebuffer_init:
     str     r0, [ r3, #FRAMEBUFFER_VIRTUAL_WIDTH ]
     str     r1, [ r3, #FRAMEBUFFER_VIRTUAL_HEIGHT ]
     str     r2, [ r3, #FRAMEBUFFER_DEPTH ]
-
-    add     r0, r3, #0x40000000
+    
     mov     r1, #1
     bl      mailbox_write
 

@@ -12,6 +12,10 @@ main:
     mov     r3, #(MU_RECEIVE_INTERRUPT)
     bl      uart0_Init
     
+    bl      frameBuffer_GetDimmensions
+    mov     r2, #32
+    bl      framebuffer_init
+
 loop:
     b       loop
 
