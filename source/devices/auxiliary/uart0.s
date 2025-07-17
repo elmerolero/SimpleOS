@@ -289,7 +289,7 @@ uart0_Write:
     sub     r6, r6, #BUFFER_REFF
     str     r4, [ r6, #BUFFER_HEAD ]
 
-    @ Checks if enable interruptions for TX (count > 0)
+    @ Checks if enabling interruptions for TX (count > 0)
     cmp     r0, #0
     beq     2f
 
@@ -310,13 +310,13 @@ uart0_Write:
 @ Outputs
 @   None
 @ ------------------------------------------------------------------------------
-uart0_Input:
+uart0_RXHandler:
     push { r4, r5, r6, lr }
     @ Get device to be used (aux mini UART)
     mov     r0, #AUXILIARY_DEVICES
     bl      devices_AddressGet
     @ Get RX Buffer
-    ldr     r4, =uart0_RXBuffer
+    ldr     r4, =uart0_TXBuffer
     @ r1 <- datum and aux variable that always will be head -> next
     @ r2 <- head
     ldr     r2, [ r4, #BUFFER_HEAD ]
@@ -433,7 +433,7 @@ uart0_InterruptHandler:
     bne     2f
 
     tst     r1, #AUX_MU_RECEIVER_PENDING
-    blne    uart0_Input
+    blne    uart0_RXHandler
 
     tst     r1, #AUX_MU_TRANSMITER_AVAILABLE
     blne    uart0_TXHandler
