@@ -127,25 +127,6 @@ uart0_Init:
 mu_MaxBaudRate: .word 31250000
 
 @ ------------------------------------------------------------------------------
-@ Read a byte from UART
-@ Inputs
-@   None
-@ Outputs
-@   r0: Byte read from receiver
-@ ------------------------------------------------------------------------------
-.section .text
-uart0_Read:
-    push { lr }
-    mov     r0, #AUXILIARY_DEVICES
-    bl      devices_AddressGet       
-1:
-    ldr     r1, [ r0, #AUX_MU_LSR_REG ]
-    tst     r1, #1
-    beq     1b
-    ldr     r0, [ r0, #AUX_MU_IO_REG ]
-    pop { pc }
-
-@ ------------------------------------------------------------------------------
 @ Enable interrupts
 @ IMPORTANT: Make sure that UART is enabled or this won't work
 @ R0: Interrupt parameters
@@ -177,6 +158,10 @@ uart0_InterruptsDisable:
     ldr     r1, [ r0, #AUX_MU_IER_REG ]
     bic     r1, r2
     str     r1, [ r0, #AUX_MU_IER_REG ]
+    pop { pc }
+
+uart0_Echo
+    push { lr }
     pop { pc }
 
 @ ------------------------------------------------------------------------------
@@ -213,6 +198,61 @@ uart0_PutByte:
 1:
     mov     r0, #0
     pop { r4, r5, pc }
+
+@ ------------------------------------------------------------------------------
+@ Interface function u32 read(const u8 buff[count], u32 count)
+@ Copy the bytes of an specified buffer into UART's output buffer
+@ IMPORTANT: UART's buffer must be a power of two to work without problems.
+@ Inputs
+@   R0, Destination
+@   R1, Size
+@ Outputs
+@   R0, Count of bytes read from buffer
+@ ------------------------------------------------------------------------------
+uart0_Read:
+    push { r4, r5, r6, r7, lr }
+    cmp     r0, #0
+    cmphi   r1, #0
+    blo     2f
+    @ r0 <- Counter
+    @ r1 <- Size
+    @ r2 <- Datum
+    @ r3 <- Destination
+    mov     r3, r0
+    @ Gets buffer structure
+    ldr     r6, =uart0_RXBuffer
+    @ r4 <- Tail
+    ldr     r4, [ r6, #BUFFER_TAIL ]
+    @ r5 <- Head
+    ldr     r5, [ r6, #BUFFER_HEAD ]
+    @ r6 <- Reference to circular buffer
+    add     r6, r6, #BUFFER_REFF
+    @ r7 <- Buffer's size - 1
+    mov     r7, #AUX_MU_BUFFER_SIZE
+    sub     r7, r7, #1
+    @ r0 <- Counter
+    mov     r0, #0
+1:
+    @ Checks if buffer is empty (tail == head)
+    cmp     r4, r5
+    beq     2f
+
+    @ Copy the item from buffer to destination
+    ldrb    r2, [ r6, r4 ]
+    strb    r2, [ r3, r0 ]
+
+    @ Updates tail, decrements size and increments counter
+    add     r4, r4, #1
+    and     r4, r4, r7
+    subs    r1, r1, #1
+    add     r0, r0, #1
+    bne     1b
+
+    @ Saves tail
+    sub     r6, r6, #BUFFER_REFF
+    str     r4, [ r6, #BUFFER_TAIL ]
+2:
+    pop { r4, r5, r6, r7, pc }
 
 @ ------------------------------------------------------------------------------
 @ Interface function u32 write(const u8 buff[count], u32 count)
@@ -290,12 +330,12 @@ uart0_Write:
 @   None
 @ ------------------------------------------------------------------------------
 uart0_RXHandler:
-    push { r4, r5, r6, lr }
+    push { r4, r5, r6, r7, lr }
     @ Get device to be used (aux mini UART)
     mov     r0, #AUXILIARY_DEVICES
     bl      devices_AddressGet
     @ Get RX Buffer
-    ldr     r4, =uart0_TXBuffer
+    ldr     r4, =uart0_RXBuffer
     @ r1 <- datum and aux variable that always will be head -> next
     @ r2 <- head
     ldr     r2, [ r4, #BUFFER_HEAD ]
@@ -340,7 +380,7 @@ uart0_RXHandler:
     bl      uart0_InterruptsEnable
 3:
     mov     r0, #0
-    pop { r4, r5, r6, pc }
+    pop { r4, r5, r6, r7, pc }
 
 @ ------------------------------------------------------------------------------
 @ Checks for received bytes in circular buffer and echoes them through UART
