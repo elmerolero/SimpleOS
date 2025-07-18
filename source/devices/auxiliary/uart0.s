@@ -1,10 +1,6 @@
 .include "devices/auxiliary/auxiliary.s"
 
 .section .data
-.init_ptr:  .word uart0_Init
-//.read_ptr:  .word uart0_Read
-.write_ptr: .word uart0_Write
-
 .align 4
 uart0_RXBuffer:
 uart0_ReceiveBufferHead:    .word 0
@@ -138,7 +134,7 @@ mu_MaxBaudRate: .word 31250000
 @   r0: Byte read from receiver
 @ ------------------------------------------------------------------------------
 .section .text
-uart0_BlockingRead:
+uart0_Read:
     push { lr }
     mov     r0, #AUXILIARY_DEVICES
     bl      devices_AddressGet       
@@ -147,23 +143,6 @@ uart0_BlockingRead:
     tst     r1, #1
     beq     1b
     ldr     r0, [ r0, #AUX_MU_IO_REG ]
-    pop { pc }
-
-@ ------------------------------------------------------------------------------
-@ Send the letter ascii code specified in R0 trough UART
-@ R0: Letter to send through UART
-@ ------------------------------------------------------------------------------
-.section .text
-uart0_BlockingWrite:
-    push { lr }
-    and     r2, r0, #0xFF
-    mov     r0, #AUXILIARY_DEVICES
-    bl      devices_AddressGet
-1:
-    ldr     r1, [r0, #AUX_MU_LSR_REG]
-    tst     r1, #0x20
-    beq     1b
-    str     r2, [r0, #AUX_MU_IO_REG]
     pop { pc }
 
 @ ------------------------------------------------------------------------------
@@ -279,11 +258,11 @@ uart0_Write:
     ldrb    r2, [ r3, r0 ]
     strb    r2, [ r6, r4 ]
 
-    @ Increments counter, updates head and decrements size
-    add     r0, r0, #1
+    @ Updates head, increments counter and decrements size
     add     r4, r4, #1
     and     r4, r4, r7
     subs    r1, r1, #1
+    add     r0, r0, #1
     bne     1b
 
     @ Saves head
@@ -301,7 +280,6 @@ uart0_Write:
     mov     r3, r0
 2:
     pop { r4, r5, r6, r7, pc }
-
 
 @ ------------------------------------------------------------------------------
 @ Read received bytes from UART and saves them in a circular buffer.
@@ -440,30 +418,3 @@ uart0_InterruptHandler:
     blne    uart0_TXHandler
 2:
     pop     { pc }
-    
-
-@ ------------------------------------------------------------------------------
-@ Send the ascii string through UART
-@ R0: Address of text to be sent through UART
-@ R1: String size
-@ ------------------------------------------------------------------------------
-.section .text
-uart0_write_bytes:
-    push { r4, r5, lr }
-
-    mov     r3, r0
-    mov     r4, r1
-    mov     r5, #0
-    cmp     r3, r5
-    beq     2f
-1:
-    cmp     r5, r4
-    bhs     2f
-    ldrb    r0, [r3, r5]
-    cmp     r0, #0
-    beq     2f
-    bl      uart0_BlockingWrite
-    add     r5, #1
-    b       1b
-2:
-    pop { r4, r5, pc }

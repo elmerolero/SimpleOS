@@ -1,4 +1,4 @@
-.extern uart0_write_bytes
+.extern uart0_Write
 
 .section .data
 .align 1
@@ -14,7 +14,7 @@ interrupt_prefetch_abort:
     // Show message
     ldr     r0, =prefetch_abort_message
     mov     r1, #25
-    bl      uart0_write_bytes
+    bl      uart0_Write
 
     pop { r0 }
     msr spsr_cxsf, r0

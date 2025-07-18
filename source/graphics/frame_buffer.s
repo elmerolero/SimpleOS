@@ -1,4 +1,4 @@
-.extern uart0_write_bytes
+.extern uart0_Write
 
 .equ FRAMEBUFFER_PHYSICAL_WIDTH,    0x00
 .equ FRAMEBUFFER_PHYSICAL_HEIGHT,   0x04
@@ -95,5 +95,5 @@ error:
     cmp     r0, #-1
     ldreq   r0, =buffer_size_error
     moveq   r1, #54
-    bleq    uart0_write_bytes
+    bleq    uart0_Write
     pop     { pc }
