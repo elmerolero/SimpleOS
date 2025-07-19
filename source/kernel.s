@@ -1,5 +1,5 @@
 .section .data
-welcome_message: .asciz "Bienvenido a Simple OS\r\n"
+welcome_message: .asciz "Bienvenido a Simple OS\r"
 
 .section .text
 main:
@@ -12,7 +12,7 @@ main:
     bl      uart0_Init
 
     ldr     r0, =welcome_message
-    mov     r1, #24
+    mov     r1, #23
     bl      uart0_Write
 
 loop:

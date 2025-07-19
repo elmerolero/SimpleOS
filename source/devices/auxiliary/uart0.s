@@ -13,12 +13,12 @@ uart0_TransmitBufferHead:   .word 0
 uart0_TransmitBufferTail:   .word 0
 uart0_TransmitBuffer:       .skip 1024
 
-// To structure buffer
+@ Buffers structure
 .equ BUFFER_HEAD, 0x00
 .equ BUFFER_TAIL, 0x04
 .equ BUFFER_REFF, 0x08
 
-// Mini UART
+@ Mini UART
 .equ AUX_MU_IO_REG,         0x40
 .equ AUX_MU_IER_REG,        0x44
 .equ AUX_MU_IIR_REG,        0x48
@@ -35,12 +35,17 @@ uart0_TransmitBuffer:       .skip 1024
 .equ MU_DATA_SIZE_8,        0x03
 
 .equ MU_DISABLE,            0x00
-.equ MU_RECEIVER,    0x01
-.equ MU_TRANSMITER,  0x02
+.equ MU_RECEIVER,           0x01
+.equ MU_TRANSMITER,         0x02
 
 .equ MU_INTERRUPTS_DISABLE, 0x00
 .equ MU_RECEIVE_INTERRUPT,  0x01
 .equ MU_TRANSMIT_INTERRUPT, 0x02
+
+@ Interrupt status
+.equ AUX_MU_NO_INTERRUPT_PENDING,   0x01
+.equ AUX_MU_TRANSMITER_AVAILABLE,   0x02
+.equ AUX_MU_RECEIVER_PENDING,       0x04
 
 .equ GPIO_MODE_ALTF5,       2
 .equ GPIO_PUD_MODE_DISABLE, 0
@@ -127,42 +132,37 @@ uart0_Init:
 mu_MaxBaudRate: .word 31250000
 
 @ ------------------------------------------------------------------------------
-@ Enable interrupts
-@ IMPORTANT: Make sure that UART is enabled or this won't work
-@ R0: Interrupt parameters
+@ Gets a byte from buffer
+@ Inputs
+@   None
+@ Outputs
+@   R0 - Byte to receive
 @ ------------------------------------------------------------------------------
-.section .text
-uart0_InterruptsEnable:
-    push { lr }
-    @ Backs up r0
-    and     r2, r0, #(MU_RECEIVE_INTERRUPT | MU_TRANSMIT_INTERRUPT | 0x0C)
-
-    mov     r0, #AUXILIARY_DEVICES
-    bl      devices_AddressGet
-    ldr     r1, [ r0, #AUX_MU_IER_REG ]
-    orr     r1, r2
-    str     r1, [ r0, #AUX_MU_IER_REG ]
-    pop { pc }
-
-@ ------------------------------------------------------------------------------
-@ Disable interrupts for UART
-@ IMPORTANT: Make sure that UART is enabled or this won't work
-@ R0: Interrupt parameters
-@ ------------------------------------------------------------------------------
-.section .text
-uart0_InterruptsDisable:
-    push { lr }
-    and     r2, r0, #(MU_RECEIVE_INTERRUPT | MU_TRANSMIT_INTERRUPT | 0x0C)
-    mov     r0, #AUXILIARY_DEVICES
-    bl      devices_AddressGet
-    ldr     r1, [ r0, #AUX_MU_IER_REG ]
-    bic     r1, r2
-    str     r1, [ r0, #AUX_MU_IER_REG ]
-    pop { pc }
-
-uart0_Echo
-    push { lr }
-    pop { pc }
+uart0_GetByte:
+    push { r4, r5, lr }
+    @ Gets buffer structure
+    ldr     r4, =uart0_TXBuffer
+    @ r2 <- Tail
+    ldr     r2, [ r4, #BUFFER_TAIL ]
+    @ r3 <- Head
+    ldr     r3, [ r4, #BUFFER_HEAD ]
+    @ r4 <- Buffer
+    add     r4, r4, #BUFFER_REFF
+    @ r4 <- Buffer's size
+    mov     r5, #AUX_MU_BUFFER_SIZE
+    sub     r5, #1
+    @ Checks for buffer availability (tail != head)
+    cmp     r2, r3
+    beq     1f
+    @ Reads byte and updates tail
+    ldrb    r0, [ r4, r2 ]
+    add     r2, r2, #1
+    and     r2, r2, r5
+    sub     r4, r4, #BUFFER_REFF
+    str     r2, [ r4, #BUFFER_TAIL ]
+1:
+    mov     r0, #0
+    pop { r4, r5, pc }
 
 @ ------------------------------------------------------------------------------
 @ Puts a byte into buffer
@@ -330,14 +330,14 @@ uart0_Write:
 @   None
 @ ------------------------------------------------------------------------------
 uart0_RXHandler:
-    push { r4, r5, r6, r7, lr }
+    push { r4, r5, r6, lr }
     @ Get device to be used (aux mini UART)
     mov     r0, #AUXILIARY_DEVICES
     bl      devices_AddressGet
-    @ Get RX Buffer
-    ldr     r4, =uart0_RXBuffer
+    @ Get RX Buffer and TX Buffer
+    ldr     r4, =uart0_TXBuffer
     @ r1 <- datum and aux variable that always will be head -> next
-    @ r2 <- head
+    @ r2 <- Head
     ldr     r2, [ r4, #BUFFER_HEAD ]
     @ r3 <- tail
     ldr     r3, [ r4, #BUFFER_TAIL ]
@@ -380,7 +380,7 @@ uart0_RXHandler:
     bl      uart0_InterruptsEnable
 3:
     mov     r0, #0
-    pop { r4, r5, r6, r7, pc }
+    pop { r4, r5, r6, pc }
 
 @ ------------------------------------------------------------------------------
 @ Checks for received bytes in circular buffer and echoes them through UART
@@ -437,10 +437,6 @@ uart0_TXHandler:
     str     r1, [ r3, #BUFFER_TAIL ]
     pop { r4, r5, pc }
 
-
-.equ AUX_MU_NO_INTERRUPT_PENDING,   0x01
-.equ AUX_MU_TRANSMITER_AVAILABLE,   0x02
-.equ AUX_MU_RECEIVER_PENDING,       0x04
 uart0_InterruptHandler:
     push    { lr }
 
@@ -458,3 +454,37 @@ uart0_InterruptHandler:
     blne    uart0_TXHandler
 2:
     pop     { pc }
+
+@ ------------------------------------------------------------------------------
+@ Enable interrupts
+@ IMPORTANT: Make sure that UART is enabled or this won't work
+@ R0: Interrupt parameters
+@ ------------------------------------------------------------------------------
+.section .text
+uart0_InterruptsEnable:
+    push { lr }
+    @ Backs up r0
+    and     r2, r0, #(MU_RECEIVE_INTERRUPT | MU_TRANSMIT_INTERRUPT | 0x0C)
+
+    mov     r0, #AUXILIARY_DEVICES
+    bl      devices_AddressGet
+    ldr     r1, [ r0, #AUX_MU_IER_REG ]
+    orr     r1, r2
+    str     r1, [ r0, #AUX_MU_IER_REG ]
+    pop { pc }
+
+@ ------------------------------------------------------------------------------
+@ Disable interrupts for UART
+@ IMPORTANT: Make sure that UART is enabled or this won't work
+@ R0: Interrupt parameters
+@ ------------------------------------------------------------------------------
+.section .text
+uart0_InterruptsDisable:
+    push { lr }
+    and     r2, r0, #(MU_RECEIVE_INTERRUPT | MU_TRANSMIT_INTERRUPT | 0x0C)
+    mov     r0, #AUXILIARY_DEVICES
+    bl      devices_AddressGet
+    ldr     r1, [ r0, #AUX_MU_IER_REG ]
+    bic     r1, r2
+    str     r1, [ r0, #AUX_MU_IER_REG ]
+    pop { pc }

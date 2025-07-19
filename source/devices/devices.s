@@ -19,6 +19,7 @@ devices:
     .word 0x20101000 // Clock Manager
     .word 0x20200000 // GPIO
     .word 0x20215000 // Auxiliary
+    .word 0x20300000 // EMMC
 
 devices_mmu:
     .word 0x00100200 // Interrupts
