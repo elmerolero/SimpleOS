@@ -28,6 +28,8 @@ devices_mmu:
     .word 0x00101000 // Clock Manager
     .word 0x00102000 // GPIO
     .word 0x00103000 // Auxiliary
+    .word 0x00104000 // EMMC
+    
 
 .section .data
 devicess_AddressStart: .word 0x1000000
