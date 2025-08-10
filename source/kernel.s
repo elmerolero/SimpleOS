@@ -1,5 +1,5 @@
 .section .data
-welcome_message: .asciz "Bienvenido a Simple OS\r"
+welcome_message: .asciz "Bienvenido a Simple OS\r\n"
 
 .section .text
 main:
@@ -12,8 +12,21 @@ main:
     bl      uart0_Init
 
     ldr     r0, =welcome_message
-    mov     r1, #23
+    mov     r1, #24
     bl      uart0_Write
+
+    bl      emmc_Init
+
+    mov     r4, r0
+    mov     r5, r1
+    mov     r1, #16
+    bl      utils_u32_write
+    mov     r0, #'\r'
+    bl      uart0_PutByte
+    mov     r0, #'\n'
+    bl      uart0_PutByte
+    mov     r0, r4
+    mov     r1, r5
 
 loop:
     b       loop

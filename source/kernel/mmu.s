@@ -95,7 +95,7 @@ systemMemory_Init:
 
     // Gets second level 2 table entries and copies its content in system's level 2 table
     ldr     r1, level2_table2_entries_addr
-    mov     r2, #16
+    mov     r2, #20
     bl      memcpy_safe
 
     pop { pc }
@@ -146,5 +146,5 @@ level2_table2_entries:
     .word (0x2000B000 & 0xFFFFF000) | (MMU_SP_AP_RW_PRIV_ONLY | MMU_L2_SMALL_PAGE)  @ 0x00 Interrupts, Mailbox, ARM_TIMER
     .word (0x20101000 & 0xFFFFF000) | (MMU_SP_AP_RW_PRIV_ONLY | MMU_L2_SMALL_PAGE)  @ 0x01 Clock manager
     .word (0x20200000 & 0xFFFFF000) | (MMU_SP_AP_RW_PRIV_ONLY | MMU_L2_SMALL_PAGE)  @ 0x02 GPIO
-    .word (0x20215000 & 0xFFFFF000) | (MMU_SP_AP_RW_PRIV_ONLY | MMU_L2_SMALL_PAGE)  @ 0x02 Auxiliaries
-    .word (0x20300000 & 0xFFFFF000) | (MMU_SP_AP_RW_PRIV_ONLY | MMU_L2_SMALL_PAGE)  @ 0x02 EMMC
+    .word (0x20215000 & 0xFFFFF000) | (MMU_SP_AP_RW_PRIV_ONLY | MMU_L2_SMALL_PAGE)  @ 0x03 Auxiliaries
+    .word (0x20300000 & 0xFFFFF000) | (MMU_SP_AP_RW_PRIV_ONLY | MMU_L2_SMALL_PAGE)  @ 0x04 EMMC

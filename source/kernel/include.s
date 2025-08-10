@@ -11,3 +11,4 @@
 .include "graphics/frame_buffer.s"
 .include "kernel/mmu.s"
 .include "devices/system.s"
+.include "devices/emmc.s"

@@ -42,7 +42,7 @@ utils_u32_write:
 
     mov     r4, r0
     mov     r5, r1
-
+    mov     r6, #0
 1:
     mov     r0, r4
     mov     r1, r5
@@ -53,13 +53,14 @@ utils_u32_write:
     addhi   r0, r0, #7
     add     r0, r0, #48
     push    { r0 }
+    add     r6, r6, #1
     teq     r4, #0
     bne     1b
 2:
     pop     { r0 }
-    cmp     r0, #0x00
-    blne    uart0_PutByte
-    bne     2b
+    bl      uart0_PutByte
+    subs    r6, r6, #1
+    bhi     2b
     pop  { r4, r5, r6, pc }
 
 @ ------------------------------------------------------------------------------

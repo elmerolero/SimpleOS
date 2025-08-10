@@ -4,6 +4,7 @@
 .equ CLOCK_MANAGER_DEVICES, 0x03
 .equ GPIO_DEVICES,          0x04
 .equ AUXILIARY_DEVICES,     0x05
+.equ EMMC_DEVICES,          0x06
 
 .section .text
 devices_AddressGet:
@@ -27,7 +28,7 @@ devices_mmu:
     .word 0x00100880 // Mailbox
     .word 0x00101000 // Clock Manager
     .word 0x00102000 // GPIO
-    .word 0x00103000 // Auxiliary
+    .word 0x00103000 // Auxiliaries
     .word 0x00104000 // EMMC
     
 
