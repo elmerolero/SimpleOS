@@ -17,16 +17,12 @@ main:
 
     bl      emmc_Init
 
-    mov     r4, r0
-    mov     r5, r1
-    mov     r1, #16
-    bl      utils_u32_write
-    mov     r0, #'\r'
+    @ Send CMD0
+    mov     r0, #0
+    mov     r1, #0
+    bl      emmc_CmdSend
+
     bl      uart0_PutByte
-    mov     r0, #'\n'
-    bl      uart0_PutByte
-    mov     r0, r4
-    mov     r1, r5
 
 loop:
     b       loop

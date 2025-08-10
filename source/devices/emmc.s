@@ -45,8 +45,10 @@
 .equ EMMC_CMDTYPE_ABORT,    0x02
 
 @ Command status
-.equ EMMC_INTERRUPT_CMD_DONE, 0x01
-.equ EMMC_INTERRUPT_ERROR,    0x0F     
+.equ EMMC_INTERRUPT_CBAD_ERR, (0x01 << 20)
+.equ EMMC_INTERRUPT_CBAD_ERR, (0x01 << 19)
+.equ EMMC_INTERRUPT_CEND_ERR, (0x01 << 18)
+.equ EMMC_INTERRUPT_CMD_DONE, (0x01 << 0)
 
 @ ------------------------------------------------------------------------------
 @ Initializes eMMC Host Controller.
@@ -81,6 +83,11 @@ emmc_Init:
     str     r0, [ r1, #EMMC_IRPT_MASK_REG ]
     str     r0, [ r1, #EMMC_IRPT_EN_REG ]
 
+    @ Enables interrupts mask
+    mov     r0, #(EMMC_INTERRUPT_CEND_ERR | EMMC_INTERRUPT_CBAD_ERR)
+    orr     r0, #EMMC_INTERRUPT_CMD_DONE
+    str     r0, [ r1, #EMMC_IRPT_MASK_REG ]
+
     @ Set settings and enables
     ldr     r0, [ r1, #EMMC_CONTROL1_REG ]
     str     r0, [ r1, #EMMC_CONTROL1_REG ]
@@ -91,7 +98,7 @@ emmc_Init:
     orr     r0, r0, #EMMC_CONTROL1_CLK_INTLEN
     str     r0, [ r1, #EMMC_CONTROL1_REG ]
 
-    @Waits for stable
+    @ Waits for stable
 2:
     ldr     r0, [ r1, #EMMC_CONTROL1_REG ]
     tst     r0, #EMMC_CONTROL1_CLK_STABLE
@@ -115,28 +122,31 @@ emmc_CmdSend:
     mov     r4, r1
     mov     r0, #EMMC_DEVICES
     bl      devices_AddressGet
+    
     @ Writes argument into ARG1 register
     str     r4, [ r0, #EMMC_ARG1_REG ]
     @ Writes the command into CMDTM register
     str     r3, [ r0, #EMMC_CMDTM_REG ]
-
+    @
+    mov     r1, #0
+    str     r1, [ r0, #EMMC_INTERRUPT_REG ]
 1:
     @ Waits for CMD_DONE_STATUS
     ldr     r1, [ r0, #EMMC_INTERRUPT_REG ]
     tst     r1, #EMMC_INTERRUPT_CMD_DONE
     bne     2f
-    tst     r1, #EMMC_INTERRUPT_ERROR
-    beq     3f
+    tst     r1, #(EMMC_INTERRUPT_CEND_ERR | EMMC_INTERRUPT_CBAD_ERR)
+    bne     3f
     b       1b
 2:
     mov     r1, #EMMC_INTERRUPT_CMD_DONE
     str     r1, [ r0, #EMMC_INTERRUPT_REG ]
-    mov     r0, #0
+    mov     r0, #'S'
     b       4f
 3:
     mov     r1, #1
     str     r1, [ r0, #EMMC_INTERRUPT_REG ]
-    mov     r0, r1
+    mov     r0, #'E'
 4:
     pop { r4, pc }
     
