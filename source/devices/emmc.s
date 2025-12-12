@@ -1,4 +1,5 @@
 .include "./devices/sd.s"
+.include "./devices/emmc.inc"
 
 @ EMMC Controller Registers
 .equ EMMC_ARG2_REG,         0x00
@@ -29,7 +30,6 @@
 .equ EMMC_SLOTISR_VER,      0xFC
 
 @ eMMC Control 1 Options
-
 .equ EMMC_CONTROL1_SRST_DATA,    (0x01 << 26)
 .equ EMMC_CONTROL1_SRST_CMD,     (0x01 << 25)
 .equ EMMC_CONTROL1_SRST_HC,      (0x01 << 24)
@@ -38,17 +38,25 @@
 .equ EMMC_CONTROL1_CLK_STABLE,   (0x01 << 1)
 .equ EMMC_CONTROL1_CLK_INTLEN,   (0x01 << 0)
 
-@ Command types
-.equ EMMC_CMDTYPE_NORMAL,   0x00
-.equ EMMC_CMDTYPE_SUSPEND,  0x01
-.equ EMMC_CMDTYPE_RESUME,   0x02
-.equ EMMC_CMDTYPE_ABORT,    0x02
-
 @ Command status
-.equ EMMC_INTERRUPT_CBAD_ERR, (0x01 << 20)
+.equ EMMC_INTERRUPT_DTO_ERR, (0x01 << 20)
 .equ EMMC_INTERRUPT_CBAD_ERR, (0x01 << 19)
 .equ EMMC_INTERRUPT_CEND_ERR, (0x01 << 18)
 .equ EMMC_INTERRUPT_CMD_DONE, (0x01 << 0)
+
+.section .data
+.align 4
+emmc_Commands:
+    .word EMMC_CMD0 | EMMC_CMD_INDEX_CHECK
+    .word EMMC_CMD1 | EMMC_CMD_CRC_CHECK | EMMC_CMD_INDEX_CHECK
+    .word EMMC_CMD2 | EMMC_CMD_CRC_CHECK | EMMC_CMD_RSPNS_TYPE_136
+    .word EMMC_CMD3 | EMMC_CMD_CRC_CHECK | EMMC_CMD_RSPNS_TYPE_48
+    .word CMD6
+    .word CMD7
+    .word EMMC_CMD8 | EMMC_CMD_INDEX_CHECK | EMMC_CMD_CRC_CHECK | EMMC_CMD_RSPNS_TYPE_48
+    .word EMMC_CMD41 | EMMC_CMD_RSPNS_TYPE_48BUSY
+    .word EMMC_CMD55 | EMMC_CMD_INDEX_CHECK | EMMC_CMD_CRC_CHECK | EMMC_CMD_RSPNS_TYPE_48
+    .word EMMC_CMD58 
 
 @ ------------------------------------------------------------------------------
 @ Initializes eMMC Host Controller.
@@ -84,13 +92,11 @@ emmc_Init:
     str     r0, [ r1, #EMMC_IRPT_EN_REG ]
 
     @ Enables interrupts mask
-    mov     r0, #(EMMC_INTERRUPT_CEND_ERR | EMMC_INTERRUPT_CBAD_ERR)
+    mov     r0, #(EMMC_INTERRUPT_CEND_ERR | EMMC_INTERRUPT_CBAD_ERR | EMMC_INTERRUPT_DTO_ERR)
     orr     r0, #EMMC_INTERRUPT_CMD_DONE
     str     r0, [ r1, #EMMC_IRPT_MASK_REG ]
 
     @ Set settings and enables
-    ldr     r0, [ r1, #EMMC_CONTROL1_REG ]
-    str     r0, [ r1, #EMMC_CONTROL1_REG ]
     ldr     r0, [ r1, #EMMC_CONTROL1_REG ]
     orr     r0, r0, #EMMC_CONTROL1_DATA_TOUNIT
     orr     r0, r0, #EMMC_CONTROL1_CLK_EN
@@ -107,9 +113,9 @@ emmc_Init:
     pop { r4, r5, pc }
 
 @ ------------------------------------------------------------------------------
-@ Send a command.
+@ Sends a command.
 @ Inputs
-@   r0 - Command
+@   r0 - Command index
 @   r1 - Arguments
 @ Outputs
 @   None
@@ -117,36 +123,87 @@ emmc_Init:
 .section .text
 emmc_CmdSend:
     push { r4, lr }
-    @ Backs up r0 and r1
-    lsl     r3, r0, #24
+
+    @ Backs up the argument (r1)
     mov     r4, r1
+
+    @ Gets the command and saves it in r3
+    bl      emmc_CmdRead
+    mov     r3, r0
+
+    mov     r0, #512
+    bl      utils_delay
+
+    @ Gets the device
     mov     r0, #EMMC_DEVICES
     bl      devices_AddressGet
-    
+
+    @
+    mov     r1, #1
+    str     r1, [ r0, #EMMC_INTERRUPT_REG ]
+
     @ Writes argument into ARG1 register
     str     r4, [ r0, #EMMC_ARG1_REG ]
+
     @ Writes the command into CMDTM register
     str     r3, [ r0, #EMMC_CMDTM_REG ]
-    @
-    mov     r1, #0
-    str     r1, [ r0, #EMMC_INTERRUPT_REG ]
+
 1:
     @ Waits for CMD_DONE_STATUS
     ldr     r1, [ r0, #EMMC_INTERRUPT_REG ]
+    /*push    {r0, r1}
+    mov     r0, #'W'
+    bl      uart0_PutByte
+    pop     {r0, r1}*/
     tst     r1, #EMMC_INTERRUPT_CMD_DONE
     bne     2f
-    tst     r1, #(EMMC_INTERRUPT_CEND_ERR | EMMC_INTERRUPT_CBAD_ERR)
+    tst     r1, #(EMMC_INTERRUPT_CEND_ERR | EMMC_INTERRUPT_CBAD_ERR | EMMC_INTERRUPT_DTO_ERR)
     bne     3f
     b       1b
 2:
-    mov     r1, #EMMC_INTERRUPT_CMD_DONE
-    str     r1, [ r0, #EMMC_INTERRUPT_REG ]
     mov     r0, #'S'
     b       4f
 3:
-    mov     r1, #1
-    str     r1, [ r0, #EMMC_INTERRUPT_REG ]
     mov     r0, #'E'
 4:
+    mov     r1, #0xFFFFFFFF
+    str     r1, [ r0, #EMMC_INTERRUPT_REG ]
     pop { r4, pc }
-    
+
+@ ------------------------------------------------------------------------------
+@ Reads a response.
+@ Inputs
+@   r0 - Response index
+@ Outputs
+@   r0 - Response from eMMC
+@ ------------------------------------------------------------------------------
+.section .text
+emmc_ResponseRead:
+    push { r4, lr }
+    mov     r0, #EMMC_DEVICES
+    bl      devices_AddressGet
+    mov     r4, r0
+    ldr     r0, [ r4, #EMMC_RESP0_REG ]
+    ldr     r1, [ r4, #EMMC_RESP1_REG ]
+    ldr     r2, [ r4, #EMMC_RESP2_REG ]
+    ldr     r3, [ r4, #EMMC_RESP3_REG ]
+    pop { r4, pc }
+
+.section .text
+emmc_ResponseClear:
+    push { lr }
+    mov     r0, #EMMC_DEVICES
+    bl      devices_AddressGet
+    mov     r1, #0
+    str     r1, [ r0, #EMMC_RESP0_REG ]
+    str     r1, [ r0, #EMMC_RESP1_REG ]
+    str     r1, [ r0, #EMMC_RESP2_REG ]
+    str     r1, [ r0, #EMMC_RESP3_REG ]
+    pop { pc }
+
+.section .text
+emmc_CmdRead:
+    push { lr }
+    ldr     r1, =emmc_Commands
+    ldr     r0, [ r1, r0, lsl #2 ]
+    pop { pc }

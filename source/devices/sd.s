@@ -1,5 +1,5 @@
 .equ CMD0,   0    @ GO_IDLE_STATE         Goes to idle state
-.equ CMD1,   2    @ SEND_OP_COND          Initializes eMMC and returns OCR
+.equ CMD1,   1    @ SEND_OP_COND          Initializes eMMC and returns OCR
 .equ CMD2,   2    @ ALL_SEND_CID          Retuns CID
 .equ CMD3,   3    @ SET_RELATIVE_ADDR     Assigns or queries the RCA
 .equ CMD6,   6    @ SWITCH                Changes operation mode or set registers

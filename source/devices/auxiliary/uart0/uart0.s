@@ -1,0 +1,460 @@
+.include "source/devices/auxiliary/uart0/uart0.inc"
+.include "source/lib/structures/circular_buffer.inc"
+
+.section .module_header
+.align 1
+module_Entry:           .ascii "simple_driver"
+
+.align 4
+module_MappingStart:        .word 0x20215040
+module_MappingSize:         .word 0x2C
+module_InterruptId:         .word 0x1D
+module_InterruptHandler:    .word uart0_InterruptHandler
+module_Read:                .word uart0_Read
+module_Write:               .word uart0_Write
+module_End:                 .word 0x0C
+
+
+.section .data
+.align 4
+uart0_RXBuffer:
+uart0_ReceiveBufferHead:    .word 0
+uart0_ReceiveBufferTail:    .word 0
+uart0_ReceiveBuffer:        .skip 1024
+
+.align 4
+uart0_TXBuffer:
+uart0_TransmitBufferHead:   .word 0
+uart0_TransmitBufferTail:   .word 0
+uart0_TransmitBuffer:       .skip 1024
+
+@ ------------------------------------------------------------------------------
+@ Initializes UART 0
+@ r0: Baudrate
+@ r1: Data size
+@ r2: Enabling options
+@ r3: Enabling interrupt options
+@ ------------------------------------------------------------------------------
+.section .text
+uart0_Init:
+    push { r4, r5, r6, r7, lr }
+    ldr     r4, mu_MaxBaudRate
+    cmp     r0, r4
+    cmpls   r1, #MU_DATA_SIZE_8
+    pophi { r4, r5, r6, r7, lr }
+    
+    # Back up baud-rate and data size parameter
+    mov     r4, r0
+    mov     r5, r1
+    mov     r6, r2
+    mov     r7, r3
+
+    // Set ALT FUNC 5 on pins 14 and 15 (for AUX MINI UART)
+    mov     r0, #14
+    mov     r1, #GPIO_MODE_ALTF5
+    bl      gpio_ModeSet
+
+    mov     r0, #15
+    mov     r1, #GPIO_MODE_ALTF5
+    bl      gpio_ModeSet
+
+    // Disables pull up/down resistors for pins 14 and 15
+    mov     r0, #14
+    mov     r1, #GPIO_PUD_MODE_DISABLE
+    bl      gpio_pud_mode_write
+
+    mov     r0, #15
+    mov     r1, #GPIO_PUD_MODE_DISABLE
+    bl      gpio_pud_mode_write
+
+    // Calculates baud-rate register value
+    bl      system_CoreFreqGet
+    lsl     r1, r4, #3
+    bl      math_u32_divide
+    sub     r0, r0, #1
+    mov     r3, r0
+
+    // Enables mini UART
+    mov     r0, #AUX_UART_ENABLE
+    bl      auxiliary_Enable
+
+    // Clean registers
+    mov     r2, #0
+    str     r2, [r0, #AUX_MU_IER_REG]
+    str     r2, [r0, #AUX_MU_CNTL_REG]
+    str     r2, [r0, #AUX_MU_LCR_REG]
+    str     r2, [r0, #AUX_MU_MCR_REG]
+
+    // Sets baud rate
+    mov     r2, r3
+    str     r2, [r0, #AUX_MU_BAUD_REG]
+
+    // Set data size
+    mov     r2, r5
+    str     r2, [r0, #AUX_MU_LCR_REG]
+
+    // Interrupts
+    and     r2, r7, #(MU_RECEIVE_INTERRUPT | MU_TRANSMIT_INTERRUPT | 0x0C)
+    orr     r2, r2, #0x0C
+    str     r2, [r0, #AUX_MU_IER_REG]
+
+    // Enabling UART options
+    and     r2, r6, #(MU_RECEIVER | MU_TRANSMITER)
+    str     r2, [ r0, #AUX_MU_CNTL_REG ]
+    mov     r0, #0
+
+    pop     { r4, r5, r6, r7, pc }
+
+mu_MaxBaudRate: .word 31250000
+
+@ ------------------------------------------------------------------------------
+@ Gets a byte from buffer
+@ Inputs
+@   None
+@ Outputs
+@   R0 - Byte to receive
+@ ------------------------------------------------------------------------------
+uart0_GetByte:
+    push { r4, r5, lr }
+    @ Gets buffer structure
+    ldr     r4, =uart0_TXBuffer
+    @ r2 <- Tail
+    ldr     r2, [ r4, #BUFFER_TAIL ]
+    @ r3 <- Head
+    ldr     r3, [ r4, #BUFFER_HEAD ]
+    @ r4 <- Buffer
+    add     r4, r4, #BUFFER_REFF
+    @ r4 <- Buffer's size
+    mov     r5, #AUX_MU_BUFFER_SIZE
+    sub     r5, #1
+    @ Checks for buffer availability (tail != head)
+    cmp     r2, r3
+    beq     1f
+    @ Reads byte and updates tail
+    ldrb    r0, [ r4, r2 ]
+    add     r2, r2, #1
+    and     r2, r2, r5
+    sub     r4, r4, #BUFFER_REFF
+    str     r2, [ r4, #BUFFER_TAIL ]
+1:
+    mov     r0, #0
+    pop { r4, r5, pc }
+
+@ ------------------------------------------------------------------------------
+@ Puts a byte into buffer
+@ Inputs
+@   R0 - Byte to send
+@ Outputs
+@   None
+@ ------------------------------------------------------------------------------
+uart0_PutByte:
+    push { r4, r5, lr }
+    @ Gets buffer structure
+    ldr     r4, =uart0_TXBuffer
+    @ r2 <- Head
+    ldr     r2, [ r4, #BUFFER_HEAD ]
+    @ r3 <- Tail
+    ldr     r3, [ r4, #BUFFER_TAIL ]
+    @ r4 <- Buffer
+    add     r4, r4, #BUFFER_REFF
+    @ r5 <- Buffer's size
+    mov     r5, #AUX_MU_BUFFER_SIZE
+    sub     r5, #1
+    @ Checks for buffer availability (head -> next != tail)
+    add     r1, r2, #1
+    and     r1, r1, r5
+    cmp     r1, r3
+    bleq    kernel_wait
+    @ Stores the byte, updates head and enables TX Interrupts
+    strb    r0, [ r4, r2 ]
+    sub     r4, r4, #BUFFER_REFF
+    str     r1, [ r4, #BUFFER_HEAD ]
+    mov     r0, #MU_TRANSMIT_INTERRUPT
+    bl      uart0_InterruptsEnable
+1:
+    mov     r0, #0
+    pop { r4, r5, pc }
+
+@ ------------------------------------------------------------------------------
+@ Interface function u32 read(const u8 buff[count], u32 count)
+@ Copy the bytes of an specified buffer into UART's output buffer
+@ IMPORTANT: UART's buffer must be a power of two to work without problems.
+@ Inputs
+@   R0, Destination
+@   R1, Size
+@ Outputs
+@   R0, Count of bytes read from buffer
+@ ------------------------------------------------------------------------------
+uart0_Read:
+    push { r4, r5, r6, r7, lr }
+    cmp     r0, #0
+    cmphi   r1, #0
+    blo     2f
+    @ r0 <- Counter
+    @ r1 <- Size
+    @ r2 <- Datum
+    @ r3 <- Destination
+    mov     r3, r0
+    @ Gets buffer structure
+    ldr     r6, =uart0_RXBuffer
+    @ r4 <- Tail
+    ldr     r4, [ r6, #BUFFER_TAIL ]
+    @ r5 <- Head
+    ldr     r5, [ r6, #BUFFER_HEAD ]
+    @ r6 <- Reference to circular buffer
+    add     r6, r6, #BUFFER_REFF
+    @ r7 <- Buffer's size - 1
+    mov     r7, #AUX_MU_BUFFER_SIZE
+    sub     r7, r7, #1
+    @ r0 <- Counter
+    mov     r0, #0
+1:
+    @ Checks if buffer is empty (tail == head)
+    cmp     r4, r5
+    beq     2f
+
+    @ Copy the item from buffer to destination
+    ldrb    r2, [ r6, r4 ]
+    strb    r2, [ r3, r0 ]
+
+    @ Updates tail, decrements size and increments counter
+    add     r4, r4, #1
+    and     r4, r4, r7
+    subs    r1, r1, #1
+    add     r0, r0, #1
+    bne     1b
+
+    @ Saves tail
+    sub     r6, r6, #BUFFER_REFF
+    str     r4, [ r6, #BUFFER_TAIL ]
+2:
+    pop { r4, r5, r6, r7, pc }
+
+@ ------------------------------------------------------------------------------
+@ Interface function u32 write(const u8 buff[count], u32 count)
+@ Copy the bytes of an specified buffer into UART's output buffer
+@ IMPORTANT: UART's buffer must be a power of two to work without problems.
+@ Inputs
+@   R0, Source
+@   R1, Size
+@ Outputs
+@   R0, Count of bytes written in buffer
+@ ------------------------------------------------------------------------------
+uart0_Write:
+    push { r4, r5, r6, r7, lr }
+    cmp     r0, #0
+    cmphi   r1, #0
+    blo     2f
+    @ r0 <- Counter
+    @ r1 <- Size
+    @ r2 <- Datum
+    @ r3 <- Source
+    mov     r3, r0
+    @ Gets buffer structure
+    ldr     r6, =uart0_TXBuffer
+    @ r4 <- Head
+    ldr     r4, [ r6, #BUFFER_HEAD ]
+    @ r5 <- Tail
+    ldr     r5, [ r6, #BUFFER_TAIL ]
+    @ r6 <- Reference to circular buffer
+    add     r6, r6, #BUFFER_REFF
+    @ r7 <- Buffer's size - 1
+    mov     r7, #AUX_MU_BUFFER_SIZE
+    sub     r7, r7, #1
+    @ r0 <- Counter
+    mov     r0, #0
+1:
+    @ Checks for buffer availability (head -> next != tail)
+    add     r2, r4, #1
+    and     r2, r2, r7
+    cmp     r2, r5
+    beq     2f
+
+    @ Copy the item from source to buffer
+    ldrb    r2, [ r3, r0 ]
+    strb    r2, [ r6, r4 ]
+
+    @ Updates head, increments counter and decrements size
+    add     r4, r4, #1
+    and     r4, r4, r7
+    subs    r1, r1, #1
+    add     r0, r0, #1
+    bne     1b
+
+    @ Saves head
+    sub     r6, r6, #BUFFER_REFF
+    str     r4, [ r6, #BUFFER_HEAD ]
+
+    @ Checks if enabling interruptions for TX (count > 0)
+    cmp     r0, #0
+    beq     2f
+
+    @ Enable transmit interrupts
+    mov     r3, r0
+    mov     r0, #MU_TRANSMIT_INTERRUPT
+    bl      uart0_InterruptsEnable
+    mov     r3, r0
+2:
+    pop { r4, r5, r6, r7, pc }
+
+@ ------------------------------------------------------------------------------
+@ Read received bytes from UART and saves them in a circular buffer.
+@ IMPORTANT: Buffer must be a power of two to work without problems.
+@ Inputs
+@   None
+@ Outputs
+@   None
+@ ------------------------------------------------------------------------------
+uart0_RXHandler:
+    push { r4, r5, r6, lr }
+    @ Get device to be used (aux mini UART)
+    mov     r0, #AUXILIARY_DEVICES
+    bl      devices_AddressGet
+    @ Get RX Buffer and TX Buffer
+    ldr     r4, =uart0_RXBuffer
+    @ r1 <- datum and aux variable that always will be head -> next
+    @ r2 <- Head
+    ldr     r2, [ r4, #BUFFER_HEAD ]
+    @ r3 <- tail
+    ldr     r3, [ r4, #BUFFER_TAIL ]
+    @ r4 <- buffer
+    add     r4, r4, #BUFFER_REFF
+    @ r5 <- device
+    mov     r5, r0
+    @ r5 <- buffer's size (1024)
+    mov     r6, #AUX_MU_BUFFER_SIZE
+    sub     r6, r6, #1
+    @ r0 <- counter
+    mov     r0, #0
+1:
+    @ Checks for any value in FIFOs
+    ldr     r1, [ r5, #AUX_MU_LSR_REG ]
+    tst     r1, #1
+    beq     2f
+    @ Makes sure that buffer is not full (next_head != tail)
+    add     r1, r2, #1
+    and     r1, r1, r6
+    cmp     r1, r3
+    beq     2f
+    @ Gets value from FIFOs and saves byte in buffer
+    ldrb    r1, [ r5, #AUX_MU_IO_REG ]
+    strb    r1, [ r4, r2 ]
+    @ Increments counter, updates head and continue
+    add     r0, r0, #1
+    add     r2, r2, #1
+    ands    r2, r2, r6
+    b       1b
+2:
+    @ Saves the new value of head
+    sub     r4, r4, #BUFFER_REFF
+    str     r2, [ r4, #BUFFER_HEAD ]
+3:
+    mov     r0, #0
+    pop { r4, r5, r6, pc }
+
+@ ------------------------------------------------------------------------------
+@ Checks for received bytes in circular buffer and echoes them through UART
+@ IMPORTANT: Buffer must be a power of two to work without problems.
+@ Inputs
+@   None
+@ Outputs
+@   None
+@ ------------------------------------------------------------------------------
+uart0_TXHandler:
+    push { r4, r5, lr }
+    @ r0 <- datum
+    mov     r0, #AUXILIARY_DEVICES
+    bl      devices_AddressGet
+    @ Get RX Buffer
+    ldr     r3, =uart0_TXBuffer
+    @ r1 <- tail
+    ldr     r1, [ r3, #BUFFER_TAIL ]
+    @ r2 <- head
+    ldr     r2, [ r3, #BUFFER_HEAD ]
+    @ r3 <- buffer
+    add     r3, r3, #BUFFER_REFF
+    @ r4 <- device
+    mov     r4, r0
+    @ r5 <- buffer's size (1024)
+    mov     r5, #AUX_MU_BUFFER_SIZE
+    sub     r5, r5, #1
+
+    @ Checks for UART availability
+    ldr     r0, [ r4, #AUX_MU_LSR_REG ]
+    tst     r0, #0x20
+    beq     2f
+    
+    @ Makes sure that buffer is not empty (tail == head)
+    cmp     r1, r2
+    beq     1f
+
+    @ Gets value from buffer and sends it throught UART
+    ldrb    r0, [ r3, r1 ]
+    strb    r0, [ r4, #AUX_MU_IO_REG ]
+
+    @ Updates tail and exit
+    add     r1, r1, #1
+    and     r1, r1, r5
+    b       2f
+1:
+    @ Disables interrupt for TX
+    mov     r5, r1
+    mov     r0, #MU_TRANSMIT_INTERRUPT
+    bl      uart0_InterruptsDisable
+    mov     r1, r5
+2:
+    sub     r3, r3, #BUFFER_REFF
+    str     r1, [ r3, #BUFFER_TAIL ]
+    pop { r4, r5, pc }
+
+uart0_InterruptHandler:
+    push    { lr }
+
+    mov     r0, #AUXILIARY_DEVICES
+    bl      devices_AddressGet
+
+    ldr     r1, [r0, #AUX_MU_IIR_REG]
+    tst     r1, #AUX_MU_NO_INTERRUPT_PENDING
+    bne     2f
+
+    tst     r1, #AUX_MU_RECEIVER_PENDING
+    blne    uart0_RXHandler
+
+    tst     r1, #AUX_MU_TRANSMITER_AVAILABLE
+    blne    uart0_TXHandler
+2:
+    pop     { pc }
+
+@ ------------------------------------------------------------------------------
+@ Enable interrupts
+@ IMPORTANT: Make sure that UART is enabled or this won't work
+@ R0: Interrupt parameters
+@ ------------------------------------------------------------------------------
+.section .text
+uart0_InterruptsEnable:
+    push { lr }
+    @ Backs up r0
+    and     r2, r0, #(MU_RECEIVE_INTERRUPT | MU_TRANSMIT_INTERRUPT | 0x0C)
+
+    mov     r0, #AUXILIARY_DEVICES
+    bl      devices_AddressGet
+    ldr     r1, [ r0, #AUX_MU_IER_REG ]
+    orr     r1, r2
+    str     r1, [ r0, #AUX_MU_IER_REG ]
+    pop { pc }
+
+@ ------------------------------------------------------------------------------
+@ Disable interrupts for UART
+@ IMPORTANT: Make sure that UART is enabled or this won't work
+@ R0: Interrupt parameters
+@ ------------------------------------------------------------------------------
+.section .text
+uart0_InterruptsDisable:
+    push { lr }
+    and     r2, r0, #(MU_RECEIVE_INTERRUPT | MU_TRANSMIT_INTERRUPT | 0x0C)
+    mov     r0, #AUXILIARY_DEVICES
+    bl      devices_AddressGet
+    ldr     r1, [ r0, #AUX_MU_IER_REG ]
+    bic     r1, r2
+    str     r1, [ r0, #AUX_MU_IER_REG ]
+    pop { pc }
