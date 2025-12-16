@@ -3,7 +3,12 @@
 .equ EMMC_CMD1,     (1 << 24)
 .equ EMMC_CMD2,     (2 << 24)
 .equ EMMC_CMD3,     (3 << 24)
+.equ EMMC_CMD7,     (7 << 24)
 .equ EMMC_CMD8,     (8 << 24)
+.equ EMMC_CMD9,     (9 << 24)
+.equ EMMC_CMD16,    (16 << 24)
+.equ EMMC_CMD17,    (17 << 24)
+.equ EMMC_CMD13,    (13 << 24)
 .equ EMMC_CMD41,    (41 << 24)
 .equ EMMC_CMD55,    (55 << 24)
 .equ EMMC_CMD58,    (58 << 24)
@@ -32,7 +37,5 @@
 @ Command is a multi-block transfer? (TM_MULTI_BLOCK flag)
 .equ EMMC_CMD_TRANSFER_MULTIBLOCK,  (0x01 << 5)
 
-@ Data comes from sd card (1) or from host (0)? (TM_DAT_DIR)
-.equ EMMC_CMD_DATA_FROM_CARD,       (0x01 << 4)
-
-@ 
+@ Data comes from sd card (1) or from host (0)? (TM_DAT_DIR flag)
+.equ EMMC_CMD_IS_DATA_FROM_CARD,    (0x01 << 4)

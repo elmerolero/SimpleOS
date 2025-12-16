@@ -50,13 +50,16 @@ emmc_Commands:
     .word EMMC_CMD0 | EMMC_CMD_INDEX_CHECK
     .word EMMC_CMD1 | EMMC_CMD_CRC_CHECK | EMMC_CMD_INDEX_CHECK
     .word EMMC_CMD2 | EMMC_CMD_CRC_CHECK | EMMC_CMD_RSPNS_TYPE_136
-    .word EMMC_CMD3 | EMMC_CMD_CRC_CHECK | EMMC_CMD_RSPNS_TYPE_48
+    .word EMMC_CMD3 | EMMC_CMD_CRC_CHECK | EMMC_CMD_INDEX_CHECK | EMMC_CMD_RSPNS_TYPE_48
     .word CMD6
-    .word CMD7
+    .word EMMC_CMD7 | EMMC_CMD_CRC_CHECK | EMMC_CMD_INDEX_CHECK | EMMC_CMD_RSPNS_TYPE_48
     .word EMMC_CMD8 | EMMC_CMD_INDEX_CHECK | EMMC_CMD_CRC_CHECK | EMMC_CMD_RSPNS_TYPE_48
+    .word EMMC_CMD9 | EMMC_CMD_RSPNS_TYPE_136
+    .word EMMC_CMD13 | EMMC_CMD_INDEX_CHECK | EMMC_CMD_CRC_CHECK | EMMC_CMD_RSPNS_TYPE_48
+    .word EMMC_CMD16
+    .word EMMC_CMD17
     .word EMMC_CMD41 | EMMC_CMD_RSPNS_TYPE_48BUSY
     .word EMMC_CMD55 | EMMC_CMD_INDEX_CHECK | EMMC_CMD_CRC_CHECK | EMMC_CMD_RSPNS_TYPE_48
-    .word EMMC_CMD58 
 
 @ ------------------------------------------------------------------------------
 @ Initializes eMMC Host Controller.
@@ -131,7 +134,7 @@ emmc_CmdSend:
     bl      emmc_CmdRead
     mov     r3, r0
 
-    mov     r0, #512
+    mov     r0, #256
     bl      utils_delay
 
     @ Gets the device
@@ -139,7 +142,7 @@ emmc_CmdSend:
     bl      devices_AddressGet
 
     @
-    mov     r1, #1
+    mov     r1, #0xFFFFFFFF
     str     r1, [ r0, #EMMC_INTERRUPT_REG ]
 
     @ Writes argument into ARG1 register
@@ -161,13 +164,15 @@ emmc_CmdSend:
     bne     3f
     b       1b
 2:
+    mov     r4, r0
     mov     r0, #'S'
     b       4f
 3:
+    mov     r4, r0
     mov     r0, #'E'
 4:
     mov     r1, #0xFFFFFFFF
-    str     r1, [ r0, #EMMC_INTERRUPT_REG ]
+    str     r1, [ r4, #EMMC_INTERRUPT_REG ]
     pop { r4, pc }
 
 @ ------------------------------------------------------------------------------
