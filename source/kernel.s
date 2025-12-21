@@ -1,6 +1,3 @@
-.section .data
-welcome_message: .asciz "Bienvenido a Simple OS\r\n"
-
 .section .text
 main:
     bl      stack_Init
@@ -10,10 +7,6 @@ main:
     mov     r2, #(MU_TRANSMITER | MU_RECEIVER)
     mov     r3, #MU_RECEIVE_INTERRUPT
     bl      uart0_Init
-
-    ldr     r0, =welcome_message
-    mov     r1, #24
-    bl      uart0_Write
 
     bl      emmc_Init
  
@@ -58,7 +51,6 @@ main:
     mov     r0, #2
     mov     r1, #0
     bl      emmc_CmdSend
-    mov     r0, #0
     bl      emmc_ResponseRead
     mov     r4, r1
     mov     r5, r2
@@ -99,19 +91,19 @@ main:
     mov     r6, r1
     mov     r7, r2
     mov     r8, r3
-    mov     r1, #16
+    mov     r1, #2
     bl      utils_u32_write
     bl      next_line
     mov     r0, r6
-    mov     r1, #16
+    mov     r1, #2
     bl      utils_u32_write
     bl      next_line
     mov     r0, r7
-    mov     r1, #16
+    mov     r1, #2
     bl      utils_u32_write
     bl      next_line
     mov     r0, r8
-    mov     r1, #16
+    mov     r1, #2
     bl      utils_u32_write
     bl      next_line
 
@@ -142,8 +134,57 @@ main:
     mov     r2, r7
     mov     r3, r8
     bl      sd_calculateSizeCsdV1
+    mov     r4, r0
     mov     r1, #16
     bl      utils_u32_write
+    bl      next_line
+
+    mov     r0, r4
+    mov     r1, #2048
+    bl      math_u32_divide
+    mov     r4, r0
+    mov     r1, #16
+    bl      utils_u32_write
+    bl      next_line
+
+    push { r0, r1, r2, r3 }
+    mov     r0, #9
+    mov     r1, #512
+    bl      emmc_CmdSend
+    bl      emmc_ResponseRead
+    mov     r1, #16
+    bl      utils_u32_write
+    bl      next_line
+
+    
+    mov     r0, #512
+    bl      emmc_BlockSizeWrite
+    pop { r0, r1, r2, r3 }
+
+    mov     r4, #0x800
+    // Sends CMD17
+3:
+    mov     r0, #10
+    mov     r1, r4
+    bl      emmc_CmdSend
+    bl      emmc_ResponseRead
+    tst     r0, #0x40000000
+    subne   r5, r5, #1
+    bne     3b
+
+    mov     r1, #16
+    bl      utils_u32_write
+    bl      next_line
+
+    mov     r0, r4
+    mov     r1, #16
+    bl      utils_u32_write
+    bl      next_line
+
+    bl      emmc_DataRead
+    
+    mov     r0, #'A'
+    bl      uart0_PutByte
     bl      next_line
 loop:
     b       loop

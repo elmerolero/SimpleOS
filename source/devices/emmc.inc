@@ -11,7 +11,6 @@
 .equ EMMC_CMD13,    (13 << 24)
 .equ EMMC_CMD41,    (41 << 24)
 .equ EMMC_CMD55,    (55 << 24)
-.equ EMMC_CMD58,    (58 << 24)
 
 @ Command types (CMD_TYPE flag)
 .equ EMMC_CMD_TYPE_NORMAL,           (0x00 << 22)
