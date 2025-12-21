@@ -5,13 +5,13 @@
 uart0_RXBuffer:
 uart0_ReceiveBufferHead:    .word 0
 uart0_ReceiveBufferTail:    .word 0
-uart0_ReceiveBuffer:        .skip 1024
+uart0_ReceiveBuffer:        .skip 2048
 
 .align 4
 uart0_TXBuffer:
 uart0_TransmitBufferHead:   .word 0
 uart0_TransmitBufferTail:   .word 0
-uart0_TransmitBuffer:       .skip 1024
+uart0_TransmitBuffer:       .skip 2048
 
 @ Buffers structure
 .equ BUFFER_HEAD, 0x00
@@ -50,7 +50,7 @@ uart0_TransmitBuffer:       .skip 1024
 .equ GPIO_MODE_ALTF5,       2
 .equ GPIO_PUD_MODE_DISABLE, 0
 
-.equ AUX_MU_BUFFER_SIZE, 1024
+.equ AUX_MU_BUFFER_SIZE, 2048
 
 @ ------------------------------------------------------------------------------
 @ Initializes UART 0

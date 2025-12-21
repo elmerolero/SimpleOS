@@ -203,19 +203,6 @@ emmc_BlockSizeWrite:
     pop { pc }
 
 .section .text
-emmc_DataReadWithoutWait:
-    push { lr }
-    mov     r0, #EMMC_DEVICES
-    bl      devices_AddressGet
-
-    ldr     r1, [ r0, #EMMC_DATA_REG ]
-
-    mov     r2, #0xFFFFFFFF
-    str     r2, [ r0, #EMMC_INTERRUPT_REG ]
-    mov     r0, r1
-    pop { pc }
-
-.section .text
 emmc_DataRead:
     push { r4, r5, lr }
     mov     r0, #EMMC_DEVICES
@@ -223,16 +210,21 @@ emmc_DataRead:
     mov     r4, r0
 
 1:
-    ldr     r5, [ r4, #EMMC_STATUS_REG ]
+    ldr     r5, [ r4, #EMMC_INTERRUPT_REG ]
+    tst     r5, #(1 << 5)
+    beq     1b
+
+2:
     ldr     r0, [ r4, #EMMC_DATA_REG ]
     mov     r1, #16
     bl      utils_u32_write
     bl      next_line
-    tst     r5, #(1 << 9)
-    bne     1b
+    ldr     r5, [ r4, #EMMC_INTERRUPT_REG ]
+    tst     r5, #(1 << 1)
+    beq     1b
 
     mov     r1, #0xFFFFFFFF
-    str     r1, [ r0, #EMMC_INTERRUPT_REG ]
+    str     r1, [ r4, #EMMC_INTERRUPT_REG ]
     
     pop { r4, r5, pc }
 
