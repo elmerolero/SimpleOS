@@ -38,3 +38,6 @@
 
 @ Data comes from sd card (1) or from host (0)? (TM_DAT_DIR flag)
 .equ EMMC_CMD_IS_DATA_FROM_CARD,    (0x01 << 4)
+
+@ Enabling block count
+.equ EMMC_CMD_COUNT_ENABLE, (0x01 << 1)

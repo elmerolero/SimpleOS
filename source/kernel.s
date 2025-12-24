@@ -76,15 +76,16 @@ main:
     mov     r1, #0
     bl      emmc_CmdSend
     bl      emmc_ResponseRead
-    lsr     r4, r0, #16 
     lsr     r0, r0, #16
+    lsl     r0, r0, #16
+    mov     r4, r0
     mov     r1, #16
     bl      utils_u32_write
     bl      next_line
 
     // Sends CMD9
     mov     r0, #7
-    lsl     r1, r4, #16
+    mov     r1, r4
     bl      emmc_CmdSend
     bl      emmc_ResponseRead
     mov     r5, r0
@@ -109,7 +110,7 @@ main:
 
     // Sends CMD7
     mov     r0, #5
-    lsl     r1, r4, #16
+    mov     r1, r4
     bl      emmc_CmdSend 
     bl      emmc_ResponseRead
     mov     r1, #16
@@ -119,7 +120,7 @@ main:
     // Sends CMD13
 2:
     mov     r0, #8
-    lsl     r1, r4, #16
+    mov     r1, r4
     bl      emmc_CmdSend
     bl      emmc_ResponseRead
     tst     r0, #0x800
@@ -158,34 +159,25 @@ main:
 
     
     mov     r0, #512
+    mov     r1, #1
     bl      emmc_BlockSizeWrite
     pop { r0, r1, r2, r3 }
 
-    mov     r4, #0x800
     // Sends CMD17
 3:
     mov     r0, #10
-    mov     r1, r4
+    mov     r1, #0
     bl      emmc_CmdSend
     bl      emmc_ResponseRead
     tst     r0, #0x40000000
-    subne   r5, r5, #1
     bne     3b
-
-    mov     r1, #16
-    bl      utils_u32_write
-    bl      next_line
-
-    mov     r0, r4
-    mov     r1, #16
-    bl      utils_u32_write
-    bl      next_line
 
     bl      emmc_DataRead
     
     mov     r0, #'A'
     bl      uart0_PutByte
     bl      next_line
+
 loop:
     b       loop
 

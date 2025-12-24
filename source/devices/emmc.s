@@ -57,7 +57,7 @@ emmc_Commands:
     .word EMMC_CMD9 | EMMC_CMD_RSPNS_TYPE_136
     .word EMMC_CMD13 | EMMC_CMD_INDEX_CHECK | EMMC_CMD_CRC_CHECK | EMMC_CMD_RSPNS_TYPE_48
     .word EMMC_CMD16 | EMMC_CMD_INDEX_CHECK | EMMC_CMD_CRC_CHECK | EMMC_CMD_RSPNS_TYPE_48
-    .word EMMC_CMD17 | EMMC_CMD_INDEX_CHECK | EMMC_CMD_CRC_CHECK | EMMC_CMD_ISDATA | EMMC_CMD_IS_DATA_FROM_CARD | EMMC_CMD_RSPNS_TYPE_48
+    .word EMMC_CMD17 | EMMC_CMD_INDEX_CHECK | EMMC_CMD_CRC_CHECK | EMMC_CMD_ISDATA | EMMC_CMD_IS_DATA_FROM_CARD | EMMC_CMD_RSPNS_TYPE_48 | EMMC_CMD_COUNT_ENABLE
     .word EMMC_CMD41 | EMMC_CMD_RSPNS_TYPE_48BUSY
     .word EMMC_CMD55 | EMMC_CMD_INDEX_CHECK | EMMC_CMD_CRC_CHECK | EMMC_CMD_RSPNS_TYPE_48
 
@@ -153,10 +153,6 @@ emmc_CmdSend:
 1:
     @ Waits for CMD_DONE_STATUS
     ldr     r1, [ r0, #EMMC_INTERRUPT_REG ]
-    /*push    {r0, r1}
-    mov     r0, #'W'
-    bl      uart0_PutByte
-    pop     {r0, r1}*/
     tst     r1, #EMMC_INTERRUPT_CMD_DONE
     bne     2f
     tst     r1, #(EMMC_INTERRUPT_CEND_ERR | EMMC_INTERRUPT_CBAD_ERR | EMMC_INTERRUPT_DTO_ERR)
@@ -170,8 +166,6 @@ emmc_CmdSend:
     mov     r4, r0
     mov     r0, #'E'
 4:
-    /*mov     r1, #0xFFFFFFFF
-    str     r1, [ r4, #EMMC_INTERRUPT_REG ]*/
     pop { r4, pc }
 
 @ ------------------------------------------------------------------------------
@@ -197,6 +191,7 @@ emmc_ResponseRead:
 emmc_BlockSizeWrite:
     push { lr }
         mov     r2, r0
+        orr     r2, r2, r1, lsl #16
         mov     r0, #EMMC_DEVICES
         bl      devices_AddressGet
         str     r2, [ r0, #EMMC_BLKSIZECNT_REG ]
@@ -209,23 +204,21 @@ emmc_DataRead:
     bl      devices_AddressGet
     mov     r4, r0
 
+    mov     r1, #0xFFFFFFFF
+    str     r1, [ r4, #EMMC_INTERRUPT_REG ]
+
 1:
     ldr     r5, [ r4, #EMMC_INTERRUPT_REG ]
     tst     r5, #(1 << 5)
     beq     1b
 
-2:
     ldr     r0, [ r4, #EMMC_DATA_REG ]
     mov     r1, #16
     bl      utils_u32_write
     bl      next_line
-    ldr     r5, [ r4, #EMMC_INTERRUPT_REG ]
     tst     r5, #(1 << 1)
     beq     1b
 
-    mov     r1, #0xFFFFFFFF
-    str     r1, [ r4, #EMMC_INTERRUPT_REG ]
-    
     pop { r4, r5, pc }
 
 .section .text

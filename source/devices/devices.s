@@ -1,10 +1,11 @@
-.equ INTERRUPT_DEVICES,     0x00
-.equ ARM_TIMER_DEVICES,     0x01
-.equ MAILBOX_DEVICES,       0x02
-.equ CLOCK_MANAGER_DEVICES, 0x03
-.equ GPIO_DEVICES,          0x04
-.equ AUXILIARY_DEVICES,     0x05
-.equ EMMC_DEVICES,          0x06
+.equ DMA_DEVICES,           0x00
+.equ INTERRUPT_DEVICES,     0x01
+.equ ARM_TIMER_DEVICES,     0x02
+.equ MAILBOX_DEVICES,       0x03
+.equ CLOCK_MANAGER_DEVICES, 0x04
+.equ GPIO_DEVICES,          0x05
+.equ AUXILIARY_DEVICES,     0x06
+.equ EMMC_DEVICES,          0x07
 
 .section .text
 devices_AddressGet:
@@ -14,6 +15,7 @@ devices_AddressGet:
 
 .section .data
 devices:
+    .word 0x20007000 // DMA
     .word 0x2000B200 // Interrupts
     .word 0x2000B400 // ARM Timer
     .word 0x2000B880 // Mailbox
@@ -23,13 +25,14 @@ devices:
     .word 0x20300000 // EMMC
 
 devices_mmu:
-    .word 0x00100200 // Interrupts
-    .word 0x00100400 // ARM Timer
-    .word 0x00100880 // Mailbox
-    .word 0x00101000 // Clock Manager
-    .word 0x00102000 // GPIO
-    .word 0x00103000 // Auxiliaries
-    .word 0x00104000 // EMMC
+    .word 0x00100000 // DMA
+    .word 0x00101200 // Interrupts
+    .word 0x00101400 // ARM Timer
+    .word 0x00101880 // Mailbox
+    .word 0x00102000 // Clock Manager
+    .word 0x00103000 // GPIO
+    .word 0x00104000 // Auxiliaries
+    .word 0x00105000 // EMMC
     
 
 .section .data
