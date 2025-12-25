@@ -188,9 +188,25 @@ emmc_StatusRead:
 @ Inputs
 @   None
 @ Outputs
-@   r0 - Status from eMMC
+@   r0 - Status
 @-------------------------------------------------------------------------------
+.section .text
+emmc_DoneErrorWait:
+    push { lr }
+    mov     r0, #EMMC_DEVICES
+    bl      devices_AddressGet
 
+1:
+    ldr     r1, [ r0, #EMMC_INTERRUPT_REG ]
+    @ Checks for CMD_DONE_STATUS
+    tst     r1, #EMMC_INTERRUPT_CMD_DONE
+    bne     2f
+
+    @ Checks for CMD_ERR
+    tst     r1, #(1 << 15)
+    beq     1b
+2:
+    pop { pc }
 @ ------------------------------------------------------------------------------
 @ Reads a response.
 @ Inputs
