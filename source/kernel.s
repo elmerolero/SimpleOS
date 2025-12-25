@@ -8,6 +8,8 @@ main:
     mov     r3, #MU_RECEIVE_INTERRUPT
     bl      uart0_Init
 
+    bl      dma_Disable
+
     bl      emmc_Init
  
     @ Send CMD0
@@ -194,3 +196,4 @@ baudrate_speed:
 
 .include "kernel/boot.s"
 .include "devices/sd_format.s"
+.include "devices/dma.s"

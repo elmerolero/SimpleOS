@@ -168,6 +168,29 @@ emmc_CmdSend:
 4:
     pop { r4, pc }
 
+@-------------------------------------------------------------------------------
+@ Gets status
+@ Inputs
+@   None
+@ Outputs
+@   r0 - Status from eMMC
+@-------------------------------------------------------------------------------
+.section .text
+emmc_StatusRead:
+    push { lr }
+    mov     r0, #EMMC_DEVICES
+    bl      devices_AddressGet
+    ldr     r0, [ r0, #EMMC_INTERRUPT_REG ]
+    pop  { pc }
+
+@-------------------------------------------------------------------------------
+@ Waits for a completed sending or error
+@ Inputs
+@   None
+@ Outputs
+@   r0 - Status from eMMC
+@-------------------------------------------------------------------------------
+
 @ ------------------------------------------------------------------------------
 @ Reads a response.
 @ Inputs
