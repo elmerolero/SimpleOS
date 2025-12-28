@@ -33,7 +33,7 @@
 .equ EMMC_CONTROL1_SRST_DATA,    (0x01 << 26)
 .equ EMMC_CONTROL1_SRST_CMD,     (0x01 << 25)
 .equ EMMC_CONTROL1_SRST_HC,      (0x01 << 24)
-.equ EMMC_CONTROL1_DATA_TOUNIT,  (0x0F << 16)
+.equ EMMC_CONTROL1_DATA_TOUNIT,  (0x08 << 16)
 .equ EMMC_CONTROL1_CLK_EN,       (0x01 << 2)
 .equ EMMC_CONTROL1_CLK_STABLE,   (0x01 << 1)
 .equ EMMC_CONTROL1_CLK_INTLEN,   (0x01 << 0)
@@ -54,7 +54,7 @@ emmc_Commands:
     .word EMMC_CMD2 | EMMC_CMD_CRC_CHECK | EMMC_CMD_RSPNS_TYPE_136
     .word EMMC_CMD3 | EMMC_CMD_CRC_CHECK | EMMC_CMD_INDEX_CHECK | EMMC_CMD_RSPNS_TYPE_48
     .word CMD6
-    .word EMMC_CMD7 | EMMC_CMD_CRC_CHECK | EMMC_CMD_INDEX_CHECK | EMMC_CMD_RSPNS_TYPE_48
+    .word EMMC_CMD7 | EMMC_CMD_CRC_CHECK | EMMC_CMD_INDEX_CHECK | EMMC_CMD_RSPNS_TYPE_48BUSY
     .word EMMC_CMD8 | EMMC_CMD_INDEX_CHECK | EMMC_CMD_CRC_CHECK | EMMC_CMD_RSPNS_TYPE_48
     .word EMMC_CMD9 | EMMC_CMD_RSPNS_TYPE_136
     .word EMMC_CMD13 | EMMC_CMD_INDEX_CHECK | EMMC_CMD_CRC_CHECK | EMMC_CMD_RSPNS_TYPE_48
@@ -236,12 +236,17 @@ emmc_GetData:
     tst     r5, #(1 << 5)
     beq     1b
 
+2:
+    mov     r0, #0xFF
+    lsl     r0, r0, #10
+    bl      utils_delay
     ldr     r0, [ r4, #EMMC_DATA_REG ]
     mov     r1, #16
     bl      utils_u32_write
     bl      next_line
+    ldr     r5, [ r4, #EMMC_INTERRUPT_REG ]
     tst     r5, #(1 << 1)
-    beq     1b
+    beq     2b
 
     pop { r4, r5, pc }
 
@@ -271,7 +276,7 @@ emmc_IncreaseClock:
     // Sets the new clock
     ldr     r1, [ r0, #EMMC_CONTROL1_REG ]
     bic     r1, #(15 << 8)
-    orr     r1, #(0 << 8)
+    orr     r1, #(2 << 8)
     orr     r1, #EMMC_CONTROL1_CLK_EN
     orr     r1, #EMMC_CONTROL1_CLK_INTLEN
     str     r1, [ r0, #EMMC_CONTROL1_REG ]

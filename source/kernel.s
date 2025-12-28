@@ -92,19 +92,19 @@ main:
     mov     r6, r1
     mov     r7, r2
     mov     r8, r3
-    mov     r1, #2
+    mov     r1, #16
     bl      utils_u32_write
     bl      next_line
     mov     r0, r6
-    mov     r1, #2
+    mov     r1, #16
     bl      utils_u32_write
     bl      next_line
     mov     r0, r7
-    mov     r1, #2
+    mov     r1, #16
     bl      utils_u32_write
     bl      next_line
     mov     r0, r8
-    mov     r1, #2
+    mov     r1, #16
     bl      utils_u32_write
     bl      next_line
 
@@ -156,32 +156,33 @@ main:
     mov     r1, #16
     bl      utils_u32_write
     bl      next_line
-    
-    mov     r0, #512
-    mov     r1, #1
-    bl      emmc_SetBlockSize
     pop { r0, r1, r2, r3 }
 
     // Increases clock frequency
     bl      emmc_IncreaseClock
 
-    mov     r0, #(15 << 5)
-    bl      utils_delay
-
     mov     r0, #'A'
     bl      uart0_PutByte
 
+    mov     r4, #0
     // Sends CMD17
 3:
+    mov     r0, #512
+    mov     r1, #1
+    bl      emmc_SetBlockSize
+    
     mov     r0, #10
-    mov     r1, #0
+    mov     r1, r4
     bl      emmc_SendCommand
     bl      emmc_GetResponse
     tst     r0, #0x40000000
-    bne     3b
+    bne     4f
 
     bl      emmc_GetData
+    add     r4, r4, #512
+    b       3b
     
+4:
     mov     r0, #'B'
     bl      uart0_PutByte
     bl      next_line

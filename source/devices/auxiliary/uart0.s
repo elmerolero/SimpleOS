@@ -184,6 +184,7 @@ uart0_PutByte:
     @ r5 <- Buffer's size
     mov     r5, #AUX_MU_BUFFER_SIZE
     sub     r5, #1
+
     @ Checks for buffer availability (head -> next != tail)
     add     r1, r2, #1
     and     r1, r1, r5
