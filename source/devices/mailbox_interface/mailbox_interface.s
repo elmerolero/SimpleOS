@@ -40,7 +40,7 @@ mailbox_write:
     add     r2, r0, #0x40000000  // Backs up the address in r2 but adds that amount to align with gpu
     mov     r3, r1               // Backs up the channel in r3
     mov     r0, #MAILBOX_DEVICES
-    bl      devices_AddressGet
+    bl      devices_GetAddress
 1:
     ldr     r1, [ r0, #MAILBOX_STATUS ]
     tst     r1, #MAILBOX_STATUS_FULL
@@ -61,7 +61,7 @@ mailbox_read:
     push { lr }
     mov     r2, r0
     mov     r0, #MAILBOX_DEVICES
-    bl      devices_AddressGet
+    bl      devices_GetAddress
 1:
     ldr     r1, [ r0, #MAILBOX_STATUS ]
     tst     r1, #MAILBOX_STATUS_EMPTY

@@ -9,39 +9,37 @@ main:
     bl      uart0_Init
 
     bl      dma_Disable
-
     bl      emmc_Init
  
     @ Send CMD0
     mov     r0, #0
     mov     r1, #0
-    bl      emmc_CmdSend
+    bl      emmc_SendCommand
 
     @ Sends CMD8
     mov     r0, #6
     mov     r2, #0x100
     mov     r1, #0x0AA
     orr     r1, r1, r2
-    bl      emmc_CmdSend
-    bl      emmc_ResponseRead
+    bl      emmc_SendCommand
+    bl      emmc_GetResponse
     mov     r1, #16
     bl      utils_u32_write
     bl      next_line
-    bl      emmc_ResponseClear
 
     @ Sends ACMD55
 1:
     mov     r0, #12
     mov     r1, #0
-    bl      emmc_CmdSend
+    bl      emmc_SendCommand
 
     @ Send an ACMD41
     mov     r0, #11
     mov     r1, #0x40000000
     orr     r1, #0xFF0000
     orr     r1, #0x8000
-    bl      emmc_CmdSend
-    bl      emmc_ResponseRead
+    bl      emmc_SendCommand
+    bl      emmc_GetResponse
     tst     r0, #0x80000000
     beq     1b
 
@@ -52,8 +50,8 @@ main:
     @ Send CMD2
     mov     r0, #2
     mov     r1, #0
-    bl      emmc_CmdSend
-    bl      emmc_ResponseRead
+    bl      emmc_SendCommand
+    bl      emmc_GetResponse
     mov     r4, r1
     mov     r5, r2
     mov     r6, r3
@@ -76,8 +74,8 @@ main:
     // Sends CMD3
     mov     r0, #3
     mov     r1, #0
-    bl      emmc_CmdSend
-    bl      emmc_ResponseRead
+    bl      emmc_SendCommand
+    bl      emmc_GetResponse
     lsr     r0, r0, #16
     lsl     r0, r0, #16
     mov     r4, r0
@@ -88,8 +86,8 @@ main:
     // Sends CMD9
     mov     r0, #7
     mov     r1, r4
-    bl      emmc_CmdSend
-    bl      emmc_ResponseRead
+    bl      emmc_SendCommand
+    bl      emmc_GetResponse
     mov     r5, r0
     mov     r6, r1
     mov     r7, r2
@@ -113,8 +111,8 @@ main:
     // Sends CMD7
     mov     r0, #5
     mov     r1, r4
-    bl      emmc_CmdSend 
-    bl      emmc_ResponseRead
+    bl      emmc_SendCommand
+    bl      emmc_GetResponse
     mov     r1, #16
     bl      utils_u32_write
     bl      next_line
@@ -123,8 +121,8 @@ main:
 2:
     mov     r0, #8
     mov     r1, r4
-    bl      emmc_CmdSend
-    bl      emmc_ResponseRead
+    bl      emmc_SendCommand
+    bl      emmc_GetResponse
     tst     r0, #0x800
     beq     2b
 
@@ -153,30 +151,38 @@ main:
     push { r0, r1, r2, r3 }
     mov     r0, #9
     mov     r1, #512
-    bl      emmc_CmdSend
-    bl      emmc_ResponseRead
+    bl      emmc_SendCommand
+    bl      emmc_GetResponse
     mov     r1, #16
     bl      utils_u32_write
     bl      next_line
-
     
     mov     r0, #512
     mov     r1, #1
-    bl      emmc_BlockSizeWrite
+    bl      emmc_SetBlockSize
     pop { r0, r1, r2, r3 }
+
+    // Increases clock frequency
+    bl      emmc_IncreaseClock
+
+    mov     r0, #(15 << 5)
+    bl      utils_delay
+
+    mov     r0, #'A'
+    bl      uart0_PutByte
 
     // Sends CMD17
 3:
     mov     r0, #10
     mov     r1, #0
-    bl      emmc_CmdSend
-    bl      emmc_ResponseRead
+    bl      emmc_SendCommand
+    bl      emmc_GetResponse
     tst     r0, #0x40000000
     bne     3b
 
-    bl      emmc_DataRead
+    bl      emmc_GetData
     
-    mov     r0, #'A'
+    mov     r0, #'B'
     bl      uart0_PutByte
     bl      next_line
 

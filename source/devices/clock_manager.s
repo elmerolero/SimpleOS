@@ -12,7 +12,7 @@
 clock_manager_init: 
     push { lr }
     mov     r0, #CLOCK_MANAGER_DEVICES
-    bl      devices_AddressGet
+    bl      devices_GetAddress
     mov     r1, #0
     str     r1, [ r0, #CLOCK_MANAGER_PWMCTL_REG ]
     /*imm32   r1, (CLOCK_MANAGER_PASSWORD | (0x4000))

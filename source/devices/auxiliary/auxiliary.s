@@ -14,7 +14,7 @@ auxiliary_Enable:
     push    { lr }
     and     r2, r0, #(AUX_UART_ENABLE | AUX_SPI1_ENABLE | AUX_SPI2_ENABLE)
     mov     r0, #AUXILIARY_DEVICES
-    bl      devices_AddressGet  
+    bl      devices_GetAddress  
     ldr     r1, [r0, #AUX_ENABLE_REG]
     orr     r1, r1, r2
     str     r1, [r0, #AUX_ENABLE_REG]

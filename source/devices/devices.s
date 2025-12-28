@@ -8,7 +8,7 @@
 .equ EMMC_DEVICES,          0x07
 
 .section .text
-devices_AddressGet:
+devices_GetAddress:
     ldr     r1, =devices_mmu
     ldr     r0, [ r1, r0, lsl #2 ]
     bx      lr

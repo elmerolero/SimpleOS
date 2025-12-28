@@ -27,7 +27,7 @@
 arm_timer_init:
     push { lr }
     mov     r0, #ARM_TIMER_DEVICES
-    bl      devices_AddressGet
+    bl      devices_GetAddress
     mov     r1, #0x400
     str     r1, [ r0, #ARM_TIMER_LOAD ]
     mov     r1, #(ARM_TIMER_CTRL_32BIT | ARM_TIMER_CTRL_ENABLE | ARM_TIMER_CTRL_INT_ENABLE | ARM_TIMER_CTRL_PRESCALE_256)
@@ -39,7 +39,7 @@ arm_timer_init:
 arm_timer_value_read:
     push { lr }
     mov     r0, #ARM_TIMER_DEVICES
-    bl      devices_AddressGet
+    bl      devices_GetAddress
     ldr     r0, [ r0, #ARM_TIMER_VALUE ]
     pop  { pc }
 
@@ -48,7 +48,7 @@ arm_timer_value_read:
 arm_timer_irq_clear:
     push { lr }
     mov     r0, #ARM_TIMER_DEVICES
-    bl      devices_AddressGet
+    bl      devices_GetAddress
     mov     r1, #1
     str     r1, [ r0, #ARM_TIMER_IRQ_CLEAR ]
     pop { pc }

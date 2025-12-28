@@ -39,10 +39,12 @@
 .equ EMMC_CONTROL1_CLK_INTLEN,   (0x01 << 0)
 
 @ Command status
-.equ EMMC_INTERRUPT_DTO_ERR, (0x01 << 20)
-.equ EMMC_INTERRUPT_CBAD_ERR, (0x01 << 19)
-.equ EMMC_INTERRUPT_CEND_ERR, (0x01 << 18)
-.equ EMMC_INTERRUPT_CMD_DONE, (0x01 << 0)
+.equ EMMC_STATUS_COMMAND_DONE,      1 << 0
+.equ EMMC_STATUS_COMMAND_ERROR,     1 << 15
+.equ EMMC_INTERRUPT_DTO_ERR,        1 << 20
+.equ EMMC_INTERRUPT_CBAD_ERR,       1 << 19
+.equ EMMC_INTERRUPT_CEND_ERR,       1 << 18
+.equ EMMC_INTERRUPT_CMD_DONE,       1 << 0
 
 .section .data
 .align 4
@@ -61,6 +63,13 @@ emmc_Commands:
     .word EMMC_CMD41 | EMMC_CMD_RSPNS_TYPE_48BUSY
     .word EMMC_CMD55 | EMMC_CMD_INDEX_CHECK | EMMC_CMD_CRC_CHECK | EMMC_CMD_RSPNS_TYPE_48
 
+.section .text
+emmc_GetCommandFromIndex:
+    push { lr }
+    ldr     r1, =emmc_Commands
+    ldr     r0, [ r1, r0, lsl #2 ]
+    pop { pc }
+
 @ ------------------------------------------------------------------------------
 @ Initializes eMMC Host Controller.
 @ Inputs
@@ -72,7 +81,7 @@ emmc_Commands:
 emmc_Init:
     push { r4, r5, lr }
     mov     r0, #EMMC_DEVICES
-    bl      devices_AddressGet
+    bl      devices_GetAddress
     mov     r1, r0
 
     @ Resets the controller
@@ -100,6 +109,11 @@ emmc_Init:
 
     @ Set settings and enables
     ldr     r0, [ r1, #EMMC_CONTROL1_REG ]
+    push    { r0-r3 }
+    mov     r1, #16
+    bl      utils_u32_write
+    bl      next_line
+    pop     { r0-r3 }
     orr     r0, r0, #EMMC_CONTROL1_DATA_TOUNIT
     orr     r0, r0, #EMMC_CONTROL1_CLK_EN
     orr     r0, r0, #(32 << 8)
@@ -123,14 +137,14 @@ emmc_Init:
 @   None
 @ ------------------------------------------------------------------------------
 .section .text
-emmc_CmdSend:
+emmc_SendCommand:
     push { r4, lr }
 
     @ Backs up the argument (r1)
     mov     r4, r1
 
     @ Gets the command and saves it in r3
-    bl      emmc_CmdRead
+    bl      emmc_GetCommandFromIndex
     mov     r3, r0
 
     mov     r0, #256
@@ -138,75 +152,46 @@ emmc_CmdSend:
 
     @ Gets the device
     mov     r0, #EMMC_DEVICES
-    bl      devices_AddressGet
+    bl      devices_GetAddress
 
-    @
-    mov     r1, #0xFFFFFFFF
-    str     r1, [ r0, #EMMC_INTERRUPT_REG ]
+    @ Clear status
+    bl      emmc_ClearStatus
 
     @ Writes argument into ARG1 register
     str     r4, [ r0, #EMMC_ARG1_REG ]
 
     @ Writes the command into CMDTM register
     str     r3, [ r0, #EMMC_CMDTM_REG ]
+    
+    @ Waits for status
+    bl      emmc_WaitStatus
 
-1:
-    @ Waits for CMD_DONE_STATUS
-    ldr     r1, [ r0, #EMMC_INTERRUPT_REG ]
-    tst     r1, #EMMC_INTERRUPT_CMD_DONE
-    bne     2f
-    tst     r1, #(EMMC_INTERRUPT_CEND_ERR | EMMC_INTERRUPT_CBAD_ERR | EMMC_INTERRUPT_DTO_ERR)
-    bne     3f
-    b       1b
-2:
-    mov     r4, r0
-    mov     r0, #'S'
-    b       4f
-3:
-    mov     r4, r0
-    mov     r0, #'E'
-4:
     pop { r4, pc }
 
 @-------------------------------------------------------------------------------
-@ Gets status
-@ Inputs
-@   None
-@ Outputs
-@   r0 - Status from eMMC
-@-------------------------------------------------------------------------------
-.section .text
-emmc_StatusRead:
-    push { lr }
-    mov     r0, #EMMC_DEVICES
-    bl      devices_AddressGet
-    ldr     r0, [ r0, #EMMC_INTERRUPT_REG ]
-    pop  { pc }
-
-@-------------------------------------------------------------------------------
-@ Waits for a completed sending or error
+@ Waits for a completed sending or error status
 @ Inputs
 @   None
 @ Outputs
 @   r0 - Status
 @-------------------------------------------------------------------------------
 .section .text
-emmc_DoneErrorWait:
+emmc_WaitStatus:
     push { lr }
-    mov     r0, #EMMC_DEVICES
-    bl      devices_AddressGet
-
 1:
     ldr     r1, [ r0, #EMMC_INTERRUPT_REG ]
-    @ Checks for CMD_DONE_STATUS
-    tst     r1, #EMMC_INTERRUPT_CMD_DONE
+
+    @ Looks for command done
+    tst     r1, #EMMC_STATUS_COMMAND_DONE
     bne     2f
 
-    @ Checks for CMD_ERR
-    tst     r1, #(1 << 15)
+    @ Looks for command error
+    tst     r1, #EMMC_STATUS_COMMAND_ERROR
     beq     1b
 2:
+    mov     r0, r1
     pop { pc }
+
 @ ------------------------------------------------------------------------------
 @ Reads a response.
 @ Inputs
@@ -215,10 +200,10 @@ emmc_DoneErrorWait:
 @   r0 - Response from eMMC
 @ ------------------------------------------------------------------------------
 .section .text
-emmc_ResponseRead:
+emmc_GetResponse:
     push { r4, lr }
     mov     r0, #EMMC_DEVICES
-    bl      devices_AddressGet
+    bl      devices_GetAddress
     mov     r4, r0
     ldr     r0, [ r4, #EMMC_RESP0_REG ]
     ldr     r1, [ r4, #EMMC_RESP1_REG ]
@@ -227,20 +212,20 @@ emmc_ResponseRead:
     pop { r4, pc }
 
 .section .text
-emmc_BlockSizeWrite:
+emmc_SetBlockSize:
     push { lr }
         mov     r2, r0
         orr     r2, r2, r1, lsl #16
         mov     r0, #EMMC_DEVICES
-        bl      devices_AddressGet
+        bl      devices_GetAddress
         str     r2, [ r0, #EMMC_BLKSIZECNT_REG ]
     pop { pc }
 
 .section .text
-emmc_DataRead:
+emmc_GetData:
     push { r4, r5, lr }
     mov     r0, #EMMC_DEVICES
-    bl      devices_AddressGet
+    bl      devices_GetAddress
     mov     r4, r0
 
     mov     r1, #0xFFFFFFFF
@@ -261,20 +246,41 @@ emmc_DataRead:
     pop { r4, r5, pc }
 
 .section .text
-emmc_ResponseClear:
+emmc_ClearStatus:
     push { lr }
-    mov     r0, #EMMC_DEVICES
-    bl      devices_AddressGet
-    mov     r1, #0
-    str     r1, [ r0, #EMMC_RESP0_REG ]
-    str     r1, [ r0, #EMMC_RESP1_REG ]
-    str     r1, [ r0, #EMMC_RESP2_REG ]
-    str     r1, [ r0, #EMMC_RESP3_REG ]
+    mov     r1, #0xFFFFFFFF
+    str     r1, [ r0, #EMMC_INTERRUPT_REG ]
     pop { pc }
 
 .section .text
-emmc_CmdRead:
+emmc_IncreaseClock:
     push { lr }
-    ldr     r1, =emmc_Commands
-    ldr     r0, [ r1, r0, lsl #2 ]
+    mov     r0, #EMMC_DEVICES
+    bl      devices_GetAddress
+    
+    // Disables clock
+    ldr     r1, [ r0, #EMMC_CONTROL1_REG ]
+    bic     r1, #(EMMC_CONTROL1_CLK_EN | EMMC_CONTROL1_CLK_INTLEN)
+    str     r1, [ r0, #EMMC_CONTROL1_REG ]
+
+1:
+    ldr     r1, [ r0, #EMMC_CONTROL1_REG ]
+    tst     r1, #EMMC_CONTROL1_CLK_STABLE
+    bne     1b
+
+    // Sets the new clock
+    ldr     r1, [ r0, #EMMC_CONTROL1_REG ]
+    bic     r1, #(15 << 8)
+    orr     r1, #(0 << 8)
+    orr     r1, #EMMC_CONTROL1_CLK_EN
+    orr     r1, #EMMC_CONTROL1_CLK_INTLEN
+    str     r1, [ r0, #EMMC_CONTROL1_REG ]
+
+    // Waits for clock stable
+2:
+    ldr     r1, [ r0, #EMMC_CONTROL1_REG ]
+    tst     r1, #EMMC_CONTROL1_CLK_STABLE
+    beq     2b
+
+    // Updates clock div
     pop { pc }

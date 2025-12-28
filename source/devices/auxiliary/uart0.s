@@ -333,7 +333,7 @@ uart0_RXHandler:
     push { r4, r5, r6, lr }
     @ Get device to be used (aux mini UART)
     mov     r0, #AUXILIARY_DEVICES
-    bl      devices_AddressGet
+    bl      devices_GetAddress
     @ Get RX Buffer and TX Buffer
     ldr     r4, =uart0_TXBuffer
     @ r1 <- datum and aux variable that always will be head -> next
@@ -394,7 +394,7 @@ uart0_TXHandler:
     push { r4, r5, lr }
     @ r0 <- datum
     mov     r0, #AUXILIARY_DEVICES
-    bl      devices_AddressGet
+    bl      devices_GetAddress
     @ Get RX Buffer
     ldr     r3, =uart0_TXBuffer
     @ r1 <- tail
@@ -441,7 +441,7 @@ uart0_InterruptHandler:
     push    { lr }
 
     mov     r0, #AUXILIARY_DEVICES
-    bl      devices_AddressGet
+    bl      devices_GetAddress
 
     ldr     r1, [r0, #AUX_MU_IIR_REG]
     tst     r1, #AUX_MU_NO_INTERRUPT_PENDING
@@ -467,7 +467,7 @@ uart0_InterruptsEnable:
     and     r2, r0, #(MU_RECEIVE_INTERRUPT | MU_TRANSMIT_INTERRUPT | 0x0C)
 
     mov     r0, #AUXILIARY_DEVICES
-    bl      devices_AddressGet
+    bl      devices_GetAddress
     ldr     r1, [ r0, #AUX_MU_IER_REG ]
     orr     r1, r2
     str     r1, [ r0, #AUX_MU_IER_REG ]
@@ -483,7 +483,7 @@ uart0_InterruptsDisable:
     push { lr }
     and     r2, r0, #(MU_RECEIVE_INTERRUPT | MU_TRANSMIT_INTERRUPT | 0x0C)
     mov     r0, #AUXILIARY_DEVICES
-    bl      devices_AddressGet
+    bl      devices_GetAddress
     ldr     r1, [ r0, #AUX_MU_IER_REG ]
     bic     r1, r2
     str     r1, [ r0, #AUX_MU_IER_REG ]

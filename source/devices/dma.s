@@ -4,7 +4,7 @@
 dma_Disable:
     push { lr }
     mov     r0, #DMA_DEVICES
-    bl      devices_AddressGet
+    bl      devices_GetAddress
     mov     r4, r0
 
     mov     r1, #0

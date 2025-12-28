@@ -104,7 +104,7 @@ gpio_ModeSet:
     mov         r2, r0                  // Pin number
     mov         r3, r1                  // Pin mode
     mov         r0, #GPIO_DEVICES
-    bl          devices_AddressGet
+    bl          devices_GetAddress
 1:
     cmp         r2, #10                 // If r2 < 10 goes next step
     bmi         2f                      
@@ -159,7 +159,7 @@ gpio_pud_mode_write:
 
     // Gets GPIO address
     mov     r0, #GPIO_DEVICES
-    bl      devices_AddressGet
+    bl      devices_GetAddress
     
     // Set GPPUD mode
     str     r4, [ r0, #GPIO_GPPUD ]
@@ -174,7 +174,7 @@ gpio_pud_mode_write:
     bl      utils_delay
 
     mov     r0, #GPIO_DEVICES
-    bl      devices_AddressGet
+    bl      devices_GetAddress
     mov     r3, #0
     str     r3, [ r0, #GPIO_GPPUD ]
     str     r3, [ r0, r2 ]
@@ -218,7 +218,7 @@ gpio_PinSet:
 
     // Sets the value
     mov     r0, #GPIO_DEVICES
-    bl      devices_AddressGet
+    bl      devices_GetAddress
     ldr     r3, [ r0, r2 ]
     orr     r3, r3, r5
     str     r3, [ r0, r2 ]
