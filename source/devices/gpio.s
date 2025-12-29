@@ -96,7 +96,7 @@
 @  0 Exitoso
 @ ----------------------------------------------------------------------------------------------------------
 .section .text
-gpio_ModeSet:
+gpio_SetMode:
     cmp         r0, #53             
     cmpls       r1, #GPIO_MODE_MAX
     bhi         3f
@@ -137,7 +137,7 @@ gpio_ModeSet:
 @ 0xFFFFFFFE - pud mode given is invalid.
 @ ----------------------------------------------------------------------------------------------------------
 .section .text
-gpio_pud_mode_write:
+gpio_SetPudMode:
     cmp     r0, #GPIO_MODE_MAX
     movhi   r0, #GPIO_ERROR_INVALID_PIN
     bxhi    lr

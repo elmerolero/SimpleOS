@@ -39,12 +39,14 @@
 .equ EMMC_CONTROL1_CLK_INTLEN,   (0x01 << 0)
 
 @ Command status
-.equ EMMC_STATUS_COMMAND_DONE,      1 << 0
-.equ EMMC_STATUS_COMMAND_ERROR,     1 << 15
-.equ EMMC_INTERRUPT_DTO_ERR,        1 << 20
-.equ EMMC_INTERRUPT_CBAD_ERR,       1 << 19
-.equ EMMC_INTERRUPT_CEND_ERR,       1 << 18
-.equ EMMC_INTERRUPT_CMD_DONE,       1 << 0
+.equ EMMC_INTERRUPT_DTO_ERR,    1 << 20
+.equ EMMC_INTERRUPT_CBAD_ERR,   1 << 19
+.equ EMMC_INTERRUPT_CEND_ERR,   1 << 18
+.equ EMMC_STATUS_COMMAND_ERROR, 1 << 15
+.equ EMMC_STATUS_READ_READY,    1 << 5
+.equ EMMC_STATUS_WRITE_READY,   1 << 4
+.equ EMMC_STATUS_DATA_DONE,     1 << 1
+.equ EMMC_STATUS_COMMAND_DONE,  1 << 0
 
 .section .data
 .align 4
@@ -53,8 +55,8 @@ emmc_Commands:
     .word EMMC_CMD1 | EMMC_CMD_CRC_CHECK | EMMC_CMD_INDEX_CHECK
     .word EMMC_CMD2 | EMMC_CMD_CRC_CHECK | EMMC_CMD_RSPNS_TYPE_136
     .word EMMC_CMD3 | EMMC_CMD_CRC_CHECK | EMMC_CMD_INDEX_CHECK | EMMC_CMD_RSPNS_TYPE_48
-    .word CMD6
-    .word EMMC_CMD7 | EMMC_CMD_CRC_CHECK | EMMC_CMD_INDEX_CHECK | EMMC_CMD_RSPNS_TYPE_48BUSY
+    .word EMMC_CMD6 | EMMC_CMD_RSPNS_TYPE_48 | EMMC_CMD_INDEX_CHECK | EMMC_CMD_CRC_CHECK
+    .word EMMC_CMD7 | EMMC_CMD_CRC_CHECK | EMMC_CMD_INDEX_CHECK | EMMC_CMD_RSPNS_TYPE_48
     .word EMMC_CMD8 | EMMC_CMD_INDEX_CHECK | EMMC_CMD_CRC_CHECK | EMMC_CMD_RSPNS_TYPE_48
     .word EMMC_CMD9 | EMMC_CMD_RSPNS_TYPE_136
     .word EMMC_CMD13 | EMMC_CMD_INDEX_CHECK | EMMC_CMD_CRC_CHECK | EMMC_CMD_RSPNS_TYPE_48
@@ -63,6 +65,7 @@ emmc_Commands:
     .word EMMC_CMD41 | EMMC_CMD_RSPNS_TYPE_48BUSY
     .word EMMC_CMD55 | EMMC_CMD_INDEX_CHECK | EMMC_CMD_CRC_CHECK | EMMC_CMD_RSPNS_TYPE_48
 
+.align 4
 .section .text
 emmc_GetCommandFromIndex:
     push { lr }
@@ -80,28 +83,99 @@ emmc_GetCommandFromIndex:
 .section .text
 emmc_Init:
     push { r4, r5, lr }
+    mov     r0, #34
+    mov     r1, #GPIO_MODE_INPUT
+    bl      gpio_SetMode
+
+    mov     r0, #35
+    mov     r1, #GPIO_MODE_INPUT
+    bl      gpio_SetMode
+
+    mov     r0, #36
+    mov     r1, #GPIO_MODE_INPUT
+    bl      gpio_SetMode
+
+    mov     r0, #37
+    mov     r1, #GPIO_MODE_INPUT
+    bl      gpio_SetMode
+
+    mov     r0, #38
+    mov     r1, #GPIO_MODE_INPUT
+    bl      gpio_SetMode
+    
+    mov     r0, #39
+    mov     r1, #GPIO_MODE_INPUT
+    bl      gpio_SetMode
+
+    mov     r0, #48
+    mov     r1, #GPIO_PUD_MODE_DISABLE
+    bl      gpio_SetPudMode
+
+    mov     r0, #49
+    mov     r1, #GPIO_PUD_MODE_UP_ENABLE
+    bl      gpio_SetPudMode
+
+    mov     r0, #50
+    mov     r1, #GPIO_PUD_MODE_UP_ENABLE
+    bl      gpio_SetPudMode
+
+    mov     r0, #51
+    mov     r1, #GPIO_PUD_MODE_UP_ENABLE
+    bl      gpio_SetPudMode
+
+    mov     r0, #52
+    mov     r1, #GPIO_PUD_MODE_UP_ENABLE
+    bl      gpio_SetPudMode
+
+    mov     r0, #53
+    mov     r1, #GPIO_PUD_MODE_UP_ENABLE
+    bl      gpio_SetPudMode
+
+    mov     r0, #48
+    mov     r1, #GPIO_MODE_ALTF3
+    bl      gpio_SetMode
+
+    mov     r0, #49
+    mov     r1, #GPIO_MODE_ALTF3
+    bl      gpio_SetMode
+
+    mov     r0, #50
+    mov     r1, #GPIO_MODE_ALTF3
+    bl      gpio_SetMode
+
+    mov     r0, #51
+    mov     r1, #GPIO_MODE_ALTF3
+    bl      gpio_SetMode
+
+    mov     r0, #52
+    mov     r1, #GPIO_MODE_ALTF3
+    bl      gpio_SetMode
+
+    mov     r0, #53
+    mov     r1, #GPIO_MODE_ALTF3
+    bl      gpio_SetMode
+
+
     mov     r0, #EMMC_DEVICES
     bl      devices_GetAddress
     mov     r1, r0
 
     @ Resets the controller
     mov     r0, #(EMMC_CONTROL1_SRST_DATA | EMMC_CONTROL1_SRST_CMD | EMMC_CONTROL1_SRST_HC)
-    orr     r0, r0, #EMMC_CONTROL1_DATA_TOUNIT
     str     r0, [ r1, #EMMC_CONTROL1_REG ]
 
     @Waits for reset
 1:
     ldr     r0, [ r1, #EMMC_CONTROL1_REG ]
-    tst     r0, #EMMC_CONTROL1_SRST_HC
+    tst     r0, #(EMMC_CONTROL1_SRST_DATA | EMMC_CONTROL1_SRST_CMD | EMMC_CONTROL1_SRST_HC)
     bne     1b
 
     @ Clear status register
-    mov     r0, #0
-    str     r0, [ r1, #EMMC_CONTROL0_REG ]
-    str     r0, [ r1, #EMMC_STATUS_REG ]
+    mov     r0, #0xFFFFFFFF
     str     r0, [ r1, #EMMC_INTERRUPT_REG ]
-    str     r0, [ r1, #EMMC_IRPT_MASK_REG ]
+    mov     r0, #0
     str     r0, [ r1, #EMMC_IRPT_EN_REG ]
+    str     r0, [ r1, #EMMC_EXRDFIFO_EN_REG ]
 
     @ Enables interrupts mask
     mov     r0, #0xFFFFFFFF
@@ -116,7 +190,7 @@ emmc_Init:
     pop     { r0-r3 }
     orr     r0, r0, #EMMC_CONTROL1_DATA_TOUNIT
     orr     r0, r0, #EMMC_CONTROL1_CLK_EN
-    orr     r0, r0, #(32 << 8)
+    orr     r0, r0, #(2 << 6)
     orr     r0, r0, #EMMC_CONTROL1_CLK_INTLEN
     str     r0, [ r1, #EMMC_CONTROL1_REG ]
 
@@ -138,10 +212,10 @@ emmc_Init:
 @ ------------------------------------------------------------------------------
 .section .text
 emmc_SendCommand:
-    push { r4, lr }
+    push { r4, r5, lr }
 
     @ Backs up the argument (r1)
-    mov     r4, r1
+    mov     r5, r1
 
     @ Gets the command and saves it in r3
     bl      emmc_GetCommandFromIndex
@@ -153,20 +227,31 @@ emmc_SendCommand:
     @ Gets the device
     mov     r0, #EMMC_DEVICES
     bl      devices_GetAddress
+    mov     r4, r0
 
     @ Clear status
-    bl      emmc_ClearStatus
+    mov     r1, #0xFFFFFFFF
+    str     r1, [ r4, #EMMC_INTERRUPT_REG ]
 
-    @ Writes argument into ARG1 register
-    str     r4, [ r0, #EMMC_ARG1_REG ]
-
-    @ Writes the command into CMDTM register
-    str     r3, [ r0, #EMMC_CMDTM_REG ]
+    @ Sets the argument and command
+    str     r5, [ r4, #EMMC_ARG1_REG ]
+    str     r3, [ r4, #EMMC_CMDTM_REG ]
     
     @ Waits for status
-    bl      emmc_WaitStatus
+1:
+    ldr     r1, [ r4, #EMMC_INTERRUPT_REG ]
+    tst     r1, #EMMC_STATUS_COMMAND_ERROR       // Looks for command error
+    bne     2f
+    tst     r1, #EMMC_STATUS_COMMAND_DONE       // Looks for command done
+    beq     1b
 
-    pop { r4, pc }
+    @ Reads response
+    ldr     r0, [ r4, #EMMC_RESP0_REG ]
+    ldr     r1, [ r4, #EMMC_RESP1_REG ]
+    ldr     r2, [ r4, #EMMC_RESP2_REG ]
+    ldr     r3, [ r4, #EMMC_RESP3_REG ]
+2:
+    pop { r4, r5, pc }
 
 @-------------------------------------------------------------------------------
 @ Waits for a completed sending or error status
@@ -177,9 +262,20 @@ emmc_SendCommand:
 @-------------------------------------------------------------------------------
 .section .text
 emmc_WaitStatus:
-    push { lr }
+    push { r4, lr }
 1:
-    ldr     r1, [ r0, #EMMC_INTERRUPT_REG ]
+    ldr     r1, [ r4, #EMMC_INTERRUPT_REG ]
+    push { r0, r1, r2, r3 }
+    mov     r0, #0xFF00
+    bl      utils_delay
+    mov     r0, r1
+    mov     r1, #16
+    bl      utils_u32_write
+    mov     r0, #'W'
+    bl      uart0_PutByte
+    mov     r0, #' '
+    bl      uart0_PutByte
+    pop { r0, r1, r2, r3 }
 
     @ Looks for command done
     tst     r1, #EMMC_STATUS_COMMAND_DONE
@@ -189,8 +285,10 @@ emmc_WaitStatus:
     tst     r1, #EMMC_STATUS_COMMAND_ERROR
     beq     1b
 2:
-    mov     r0, r1
-    pop { pc }
+    mov     r4, r1
+    bl      next_line
+    mov     r0, r4
+    pop { r4, pc }
 
 @ ------------------------------------------------------------------------------
 @ Reads a response.
@@ -202,9 +300,6 @@ emmc_WaitStatus:
 .section .text
 emmc_GetResponse:
     push { r4, lr }
-    mov     r0, #EMMC_DEVICES
-    bl      devices_GetAddress
-    mov     r4, r0
     ldr     r0, [ r4, #EMMC_RESP0_REG ]
     ldr     r1, [ r4, #EMMC_RESP1_REG ]
     ldr     r2, [ r4, #EMMC_RESP2_REG ]
@@ -224,38 +319,43 @@ emmc_SetBlockSize:
 .section .text
 emmc_GetData:
     push { r4, r5, lr }
+
+    lsr     r5, r0, #2
+
     mov     r0, #EMMC_DEVICES
     bl      devices_GetAddress
     mov     r4, r0
 
-    mov     r1, #0xFFFFFFFF
-    str     r1, [ r4, #EMMC_INTERRUPT_REG ]
-
-1:
-    ldr     r5, [ r4, #EMMC_INTERRUPT_REG ]
-    tst     r5, #(1 << 5)
-    beq     1b
-
-2:
-    mov     r0, #0xFF
-    lsl     r0, r0, #10
-    bl      utils_delay
-    ldr     r0, [ r4, #EMMC_DATA_REG ]
+    ldr     r0, [r4, #EMMC_STATUS_REG]
     mov     r1, #16
     bl      utils_u32_write
     bl      next_line
+
+    mov     r1, #0xFFFFFFFF
+    str     r1, [ r4, #EMMC_INTERRUPT_REG ]
+1:
+    ldr     r1, [ r4, #EMMC_INTERRUPT_REG ]
+    tst     r1, #EMMC_STATUS_READ_READY
+    beq     1b
+
+    ldr     r0, [ r4, #EMMC_DATA_REG ]
+
+    mov     r1, #16
+    bl      utils_u32_write
+    bl      next_line
+    subs    r5, r5, #1
+    bhi     1b
+2:
     ldr     r5, [ r4, #EMMC_INTERRUPT_REG ]
-    tst     r5, #(1 << 1)
+    tst     r5, #EMMC_STATUS_DATA_DONE
     beq     2b
 
-    pop { r4, r5, pc }
+    ldr     r0, [r4, #EMMC_STATUS_REG]
+    mov     r1, #16
+    bl      utils_u32_write
+    bl      next_line
 
-.section .text
-emmc_ClearStatus:
-    push { lr }
-    mov     r1, #0xFFFFFFFF
-    str     r1, [ r0, #EMMC_INTERRUPT_REG ]
-    pop { pc }
+    pop { r4, r5, pc }
 
 .section .text
 emmc_IncreaseClock:
@@ -275,8 +375,10 @@ emmc_IncreaseClock:
 
     // Sets the new clock
     ldr     r1, [ r0, #EMMC_CONTROL1_REG ]
-    bic     r1, #(15 << 8)
-    orr     r1, #(2 << 8)
+    mov     r2, #0xFF
+    orr     r2, #0x300
+    bic     r1, r1, r2, lsl #6
+    orr     r1, #(10 << 8)
     orr     r1, #EMMC_CONTROL1_CLK_EN
     orr     r1, #EMMC_CONTROL1_CLK_INTLEN
     str     r1, [ r0, #EMMC_CONTROL1_REG ]
@@ -288,4 +390,25 @@ emmc_IncreaseClock:
     beq     2b
 
     // Updates clock div
+    pop { pc }
+
+.section .text
+emmc_IncreaseBandWidth:
+    push { lr }
+    mov     r0, #EMMC_DEVICES
+    bl      devices_GetAddress
+
+    ldr     r1, [ r0, #EMMC_CONTROL0_REG ]
+    bic     r1, #(1 << 1)
+    orr     r1, r1, #(1 << 1)
+    str     r1, [ r0, #EMMC_CONTROL0_REG ]
+
+    ldr     r1, [ r0, #EMMC_CONTROL1_REG ]
+    orr     r1, #EMMC_CONTROL1_SRST_DATA
+    str     r1, [ r0, #EMMC_CONTROL1_REG ]
+1:
+    ldr     r1, [ r0, #EMMC_CONTROL1_REG ]
+    tst     r1, #EMMC_CONTROL1_SRST_DATA
+    bne     1b
+    mov     r0, #0
     pop { pc }

@@ -76,20 +76,20 @@ uart0_Init:
     // Set ALT FUNC 5 on pins 14 and 15 (for AUX MINI UART)
     mov     r0, #14
     mov     r1, #GPIO_MODE_ALTF5
-    bl      gpio_ModeSet
+    bl      gpio_SetMode
 
     mov     r0, #15
     mov     r1, #GPIO_MODE_ALTF5
-    bl      gpio_ModeSet
+    bl      gpio_SetMode
 
     // Disables pull up/down resistors for pins 14 and 15
     mov     r0, #14
     mov     r1, #GPIO_PUD_MODE_DISABLE
-    bl      gpio_pud_mode_write
+    bl      gpio_SetPudMode
 
     mov     r0, #15
     mov     r1, #GPIO_PUD_MODE_DISABLE
-    bl      gpio_pud_mode_write
+    bl      gpio_SetPudMode
 
     // Calculates baud-rate register value
     bl      system_CoreFreqGet

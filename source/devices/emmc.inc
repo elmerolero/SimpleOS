@@ -3,6 +3,7 @@
 .equ EMMC_CMD1,     (1 << 24)
 .equ EMMC_CMD2,     (2 << 24)
 .equ EMMC_CMD3,     (3 << 24)
+.equ EMMC_CMD6,     (6 << 24)
 .equ EMMC_CMD7,     (7 << 24)
 .equ EMMC_CMD8,     (8 << 24)
 .equ EMMC_CMD9,     (9 << 24)
@@ -37,7 +38,7 @@
 .equ EMMC_CMD_TRANSFER_MULTIBLOCK,  (0x01 << 5)
 
 @ Data comes from sd card (1) or from host (0)? (TM_DAT_DIR flag)
-.equ EMMC_CMD_IS_DATA_FROM_CARD,    (0x01 << 4)
+.equ EMMC_CMD_IS_DATA_FROM_CARD,    (1 << 4)
 
 @ Enabling block count
-.equ EMMC_CMD_COUNT_ENABLE, (0x01 << 1)
+.equ EMMC_CMD_COUNT_ENABLE,         (1 << 1)

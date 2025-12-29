@@ -4,8 +4,9 @@
 .equ MAILBOX_DEVICES,       0x03
 .equ CLOCK_MANAGER_DEVICES, 0x04
 .equ GPIO_DEVICES,          0x05
-.equ AUXILIARY_DEVICES,     0x06
-.equ EMMC_DEVICES,          0x07
+.equ SD_HOST_DEVICES,       0x06
+.equ AUXILIARY_DEVICES,     0x07
+.equ EMMC_DEVICES,          0x08
 
 .section .text
 devices_GetAddress:
@@ -21,6 +22,7 @@ devices:
     .word 0x2000B880 // Mailbox
     .word 0x20101000 // Clock Manager
     .word 0x20200000 // GPIO
+    .word 0x20202000 // SD HOST
     .word 0x20215000 // Auxiliary
     .word 0x20300000 // EMMC
 
@@ -31,8 +33,9 @@ devices_mmu:
     .word 0x00101880 // Mailbox
     .word 0x00102000 // Clock Manager
     .word 0x00103000 // GPIO
-    .word 0x00104000 // Auxiliaries
-    .word 0x00105000 // EMMC
+    .word 0x00104000 // SD Host
+    .word 0x00105000 // Auxiliaries
+    .word 0x00106000 // EMMC
     
 
 .section .data

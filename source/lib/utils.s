@@ -22,10 +22,11 @@ mov     pc, lr
 .section .text
 .global utils_delay
 utils_delay:
+    push { lr }
 1:
     subs    r0, #1
     bne     1b
-    bx      lr
+    pop { pc }
 
 @ ------------------------------------------------------------------------------
 @ Convert an unsigned int32 number to text and sends it through UART for unsigned 
