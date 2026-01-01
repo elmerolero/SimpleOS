@@ -9,10 +9,36 @@ main:
     bl      uart0_Init
     bl      dma_Disable
 
-    mov     r0, #0xFF00000
-    bl      utils_delay
+    bl      sdhost_Init
 
-    bl      emmc_Init
+    mov     r0, #0
+    mov     r1, #0
+    bl      sdhost_SendCommand
+    bl      uart0_PutByte
+    bl      next_line
+
+    mov     r0, #6
+    mov     r1, #0xAA
+    orr     r1, r1, #0x100
+    bl      sdhost_SendCommand
+    bl      uart0_PutByte
+    bl      next_line
+    bl      sdhost_GetResponse
+    mov     r1, #16
+    bl      utils_u32_write
+    bl      next_line
+
+    mov     r0, #12
+    mov     r1, #0
+    bl      sdhost_SendCommand
+    bl      uart0_PutByte
+    bl      next_line
+    bl      sdhost_GetResponse
+    mov     r1, #16
+    bl      utils_u32_write
+    bl      next_line
+
+    /*bl      emmc_Init
  
     @ Send CMD0
     mov     r0, #0
@@ -44,9 +70,9 @@ main:
     tst     r0, #0x80000000
     beq     1b
 
-    /*mov     r1, #16
+    mov     r1, #16
     bl      utils_u32_write
-    bl      next_line*/
+    bl      next_line
 
     @ Send CMD2
     mov     r0, #2
@@ -89,15 +115,15 @@ main:
     beq     2b
 
     @ CMD16
-    /*mov     r0, #9
+    mov     r0, #9
     mov     r1, #512
     bl      emmc_SendCommand
     mov     r1, #16
     bl      utils_u32_write
-    bl      next_line*/
+    bl      next_line
 
     // Sends ACMD55
-    /*mov     r0, #12
+    mov     r0, #12
     mov     r1, r4
     bl      emmc_SendCommand
 
@@ -113,7 +139,7 @@ main:
     bl      utils_u32_write
     bl      next_line
 
-    bl    emmc_IncreaseBandWidth*/
+    bl    emmc_IncreaseBandWidth
     
     mov     r0, #'B'
     bl      uart0_PutByte
@@ -149,7 +175,7 @@ main:
     bl      emmc_SendCommand
 
     mov     r0, #512
-    bl      emmc_GetData
+    bl      emmc_GetData*/
 
 loop:
     b       loop
@@ -168,3 +194,4 @@ baudrate_speed:
 .include "kernel/boot.s"
 .include "devices/sd_format.s"
 .include "devices/dma.s"
+.include "devices/sdhost.s"
